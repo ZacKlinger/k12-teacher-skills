@@ -1,0 +1,407 @@
+<!--
+  DATA VISUALIZATION KIT — for decks built from deck_template.html
+
+  These six charts are the point of the deck. Students who read three grades below level can
+  still read a picture, so the chart is not decoration around the explanation: it IS the
+  explanation, and the text on the slide is the caption.
+
+  HOW TO USE
+  1. Paste the <style> block below into the deck, right before </head>.
+  2. Paste the <script> block right before </body>, AFTER the deck's own script.
+  3. Write the markup for the charts you need. Every chart is one div with data- attributes —
+     the script builds the rest. Nothing needs to be hand-drawn.
+
+  Every chart is click-driven and starts empty or unrevealed, so the class predicts before the
+  data lands. That beat — guess, then see — is what makes a chart stick for a student who
+  can't get there through the text.
+
+  Sizing is inherited: put the chart inside a slide and it scales with the deck.
+-->
+
+<!--@@STYLE-->
+<style>
+  .dv{font-size:clamp(12px,1.45vw,21px);width:100%;max-width:96ch;margin-top:1.6em;
+    /* pastels fill shapes; -deep siblings carry text, numbers and thin lines */
+    --dv-a:var(--accent,#B6A2E0);   --dv-a-deep:var(--accent-deep,#6B54A8);
+    --dv-b:var(--mint,#8FCBB0);     --dv-b-deep:var(--mint-deep,#3C8368);
+    --dv-c:var(--blue,#8FB4E8);     --dv-c-deep:var(--blue-deep,#3E6DA8);
+    --dv-d:var(--butter,#EFCF8A);   --dv-d-deep:var(--butter-deep,#A57B26);
+    --dv-warn:var(--peach,#F4A99A); --dv-warn-deep:var(--peach-deep,#B75B48);
+    --dv-ink:var(--ink,#1B1F24); --dv-mute:var(--muted,#697079);
+    --dv-paper:var(--paper,#F5F7FA); --dv-rule:var(--rule,#E4E7EB);
+    --dv-serif:var(--serif,Georgia,serif)}
+  .dv *{box-sizing:border-box}
+  .dv-cap{font-size:.92em;line-height:1.45;color:var(--dv-mute);margin-top:1em;max-width:52ch;
+    opacity:0;transition:opacity .45s}
+  .dv-cap.on{opacity:1}
+  .dv-hint{font-size:.72em;letter-spacing:.1em;text-transform:uppercase;color:var(--dv-mute);
+    margin-top:.9em}
+  .dv-big{font-family:var(--dv-serif);font-size:2.6em;line-height:1;font-variant-numeric:tabular-nums}
+  .dv-btn{font:inherit;font-size:.8em;letter-spacing:.08em;text-transform:uppercase;
+    background:none;border:1px solid var(--dv-rule);color:var(--dv-mute);padding:.5em 1em;
+    cursor:pointer;margin-top:1em}
+  .dv-btn:hover{color:var(--dv-a-deep);border-color:var(--dv-a-deep)}
+
+  /* 1 · icon array ------------------------------------------------------- */
+  .dv-icons .dv-grid{display:grid;gap:.34em;width:max-content;max-width:100%}
+  .dv-icons .dot{width:1.35em;height:1.35em;border-radius:50%;background:var(--dv-paper);
+    border:1px solid var(--dv-rule);transition:background .18s,border-color .18s}
+  .dv-icons .dot.on{background:var(--dv-a);border-color:var(--dv-a)}
+  .dv-icons .dv-count{font-family:var(--dv-serif);font-size:2.2em;line-height:1;margin-top:.5em;
+    font-variant-numeric:tabular-nums;color:var(--dv-a-deep);opacity:0;transition:opacity .3s}
+  .dv-icons .dv-count.on{opacity:1}
+
+  /* 2 · guess then reveal ------------------------------------------------ */
+  .dv-guess .plot{position:relative;height:12em;background:var(--dv-paper);cursor:ns-resize;
+    border-bottom:2px solid var(--dv-ink);touch-action:none}
+  .dv-guess .gridline{position:absolute;left:0;right:0;height:1px;background:var(--dv-rule)}
+  .dv-guess .gridline span{position:absolute;left:.5em;top:-1.1em;font-size:.72em;color:var(--dv-mute)}
+  .dv-guess .actual{position:absolute;left:22%;width:26%;bottom:0;height:0;background:var(--dv-b);
+    transition:height 1.1s cubic-bezier(.16,.84,.28,1)}
+  .dv-guess .actual b{position:absolute;bottom:calc(100% + .4em);left:50%;transform:translateX(-50%);
+    font-family:var(--dv-serif);font-size:1.5em;color:var(--dv-b-deep);white-space:nowrap;
+    font-variant-numeric:tabular-nums}
+  .dv-guess .guess{position:absolute;left:0;right:0;border-top:2px dashed var(--dv-a-deep);
+    transition:bottom .08s}
+  .dv-guess .guess b{position:absolute;right:.6em;top:-1.7em;font-size:.8em;color:var(--dv-a-deep);
+    background:#fff;padding:0 .4em}
+  .dv-guess .ask{font-size:1.05em;margin-bottom:.8em}
+
+  /* 3 · live dot plot ---------------------------------------------------- */
+  .dv-dots .cols{display:grid;gap:.7em;align-items:end;height:13em}
+  .dv-dots .col{display:flex;flex-direction:column;justify-content:flex-end;height:100%;
+    cursor:pointer;user-select:none;padding-bottom:.3em;border-bottom:2px solid var(--dv-ink)}
+  .dv-dots .stack{display:flex;flex-direction:column-reverse;align-items:center;gap:.22em;
+    min-height:1px}
+  .dv-dots .pt{width:1.15em;height:1.15em;border-radius:50%;background:var(--dv-a);
+    animation:dvpop .25s cubic-bezier(.2,1.4,.4,1)}
+  @keyframes dvpop{from{transform:scale(0)}to{transform:scale(1)}}
+  .dv-dots .binlabs{display:grid;gap:.7em;margin-top:.6em}
+  .dv-dots .binlab{font-size:.78em;text-align:center;color:var(--dv-mute);line-height:1.25}
+  .dv-dots .n{font-family:var(--dv-serif);font-size:1.1em;text-align:center;color:var(--dv-mute)}
+
+  /* 4 · progressive bars -------------------------------------------------- */
+  .dv-bars .row{display:grid;grid-template-columns:minmax(6em,14ch) 1fr auto;gap:1.1em;
+    align-items:center;margin-bottom:1.5em}
+  .dv-bars .lab{font-size:1em;line-height:1.2}
+  .dv-bars .track{background:var(--dv-paper);height:3.2em;position:relative}
+  .dv-bars .fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--c,var(--dv-a));
+    transition:width 1.1s cubic-bezier(.16,.84,.28,1)}
+  .dv-bars .val{font-family:var(--dv-serif);font-size:1.7em;font-variant-numeric:tabular-nums;
+    white-space:nowrap;opacity:0;transition:opacity .35s .25s;letter-spacing:-.01em}
+  .dv-bars .row.on .val{opacity:1}
+  .dv-bars .rownote{grid-column:2 / 4;font-size:.8em;color:var(--dv-a-deep);margin-top:-.9em;
+    padding-left:.2em;opacity:0;transition:opacity .5s .7s;letter-spacing:.02em}
+  .dv-bars .rownote.on{opacity:1}
+  .dv-bars .rownote::before{content:"";display:inline-block;width:1.6em;height:1px;
+    background:currentColor;vertical-align:middle;margin-right:.6em;opacity:.6}
+  .dv-ratio{display:inline-block;font-size:1em;letter-spacing:.02em;color:var(--dv-a-deep);
+    border-left:2px solid var(--dv-a);padding:.15em 0 .15em .8em;margin-top:.6em;
+    opacity:0;transform:translateY(.3em);transition:opacity .5s,transform .5s;font-weight:600}
+  .dv-ratio.on{opacity:1;transform:none}
+
+  /* 5 · gauge against a target band --------------------------------------- */
+  .dv-gauge .track{position:relative;height:3.2em;background:var(--dv-paper);margin-top:2.2em}
+  .dv-gauge .band{position:absolute;top:0;bottom:0;background:rgba(143,203,176,.4);
+    border-left:2px solid var(--dv-b-deep);border-right:2px solid var(--dv-b-deep)}
+  .dv-gauge .band span{position:absolute;top:-1.7em;left:50%;transform:translateX(-50%);
+    font-size:.75em;color:var(--dv-b-deep);white-space:nowrap;font-weight:700;letter-spacing:.06em}
+  .dv-gauge .needle{position:absolute;top:-.9em;bottom:-.9em;width:3px;background:var(--dv-a-deep);
+    left:0;transition:left 1s cubic-bezier(.2,.7,.3,1)}
+  .dv-gauge .needle b{position:absolute;top:-1.9em;left:50%;transform:translateX(-50%);
+    font-family:var(--dv-serif);font-size:1.2em;color:var(--dv-a-deep);white-space:nowrap}
+  .dv-gauge .ends{display:flex;justify-content:space-between;font-size:.75em;
+    color:var(--dv-mute);margin-top:.5em}
+
+  /* 6 · percent change: before and after, stacked, percent drawn on the before bar */
+  .dv-percent .prow{display:grid;grid-template-columns:minmax(4.5em,8ch) 1fr;gap:1em;
+    align-items:center;margin:2.4em 0 1.4em}
+  .dv-percent .rlab{font-size:.78em;color:var(--dv-mute);letter-spacing:.1em;text-transform:uppercase}
+  .dv-percent .track{position:relative;height:3.1em;background:var(--dv-paper)}
+  .dv-percent .fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--dv-a);
+    transition:width .9s cubic-bezier(.2,.7,.3,1)}
+  .dv-percent .endlab{position:absolute;top:50%;transform:translateY(-50%);margin-left:.7em;
+    font-family:var(--dv-serif);font-size:1.35em;white-space:nowrap;opacity:0;
+    transition:opacity .4s .55s;font-variant-numeric:tabular-nums}
+  .dv-percent .endlab.on{opacity:1}
+  .dv-percent .chunk{position:absolute;top:0;bottom:0;width:0;opacity:0;
+    transition:opacity .45s;background:var(--dv-d);border-left:2px solid var(--dv-d-deep);
+    border-right:2px solid var(--dv-d-deep)}
+  .dv-percent .chunk.on{opacity:1}
+  .dv-percent .chunk .chunklab{position:absolute;bottom:calc(100% + .5em);left:50%;
+    transform:translateX(-50%);font-size:.82em;color:var(--dv-d-deep);white-space:nowrap;
+    font-weight:700;letter-spacing:.04em}
+
+</style>
+<!--@@END-->
+
+<!--@@EX icons|Icon array|A percent students can count. One hundred dots, filled one at a time on click. "23%" is a word problem; twenty-three filled dots is a picture. Use it for any rate, risk, or share.-->
+<div class="dv dv-icons" data-total="100" data-cols="20" data-fill="23"
+     data-caption="23 out of every 100 people on Earth have no safe water at home."
+     data-hint="click to fill"></div>
+<!--@@END-->
+
+<!--@@EX guess|Guess, then reveal|Drag the dashed line to where the class thinks the answer is. Then reveal the real bar next to their guess. The gap between the two is the whole lesson, and no reading is required to feel it.-->
+<div class="dv dv-guess" data-actual="62" data-max="100" data-unit="%"
+     data-ask="What percent of the water does our system reuse?"
+     data-caption="62% — most of the water goes back around. A field loses nearly all of it."></div>
+<!--@@END-->
+
+<!--@@EX dots|Live class dot plot|Click a column as each pair reports their number; the class builds the distribution in front of itself. Shift-click removes a dot. Their own data, thirty seconds old, is the most readable data there is.-->
+<div class="dv dv-dots" data-bins="0-4|5-9|10-14|15-19|20+"
+     data-ask="How many leaves did your tray grow?"
+     data-hint="click a column to add · shift-click to remove"></div>
+<!--@@END-->
+
+<!--@@EX bars|Bars, one at a time|Each click reveals one bar with its number. Revealing in sequence lets you ask "what do you think the next one looks like?" before it appears — the same comparison, but with a prediction inside it.-->
+<div class="dv dv-bars" data-unit=" gallons"
+     data-rows="Field lettuce|230|var(--dv-a); Greenhouse|60|var(--dv-c); Our system|12|var(--dv-b)"
+     data-caption="Same head of lettuce. Three ways to water it."
+     data-hint="click to reveal"></div>
+<!--@@END-->
+
+<!--@@EX gauge|Measured against the target|One number against the band it needs to be inside. A student who cannot read the sentence "our DLI is below the recommended range" can see the needle sitting left of the green band.-->
+<div class="dv dv-gauge" data-value="10.1" data-min="0" data-max="25"
+     data-lo="12" data-hi="17" data-unit=" DLI" data-band-label="lettuce needs this"
+     data-caption="Our system delivers 10.1. Lettuce needs 12 to 17. We are short."></div>
+<!--@@END-->
+
+<!--@@EX percent|Percent change, drawn|Two bars: what we started with, and what it becomes. The percent is drawn as a marked-off piece of the first bar, so a student sees what the 20% is a percent *of* before any arithmetic happens. Set data-dir to up or down.-->
+<div class="dv dv-percent" data-base="65" data-pct="20" data-dir="down" data-unit="$"
+     data-before-label="was" data-after-label="now"
+     data-caption="20% of $65 is $13. Off means that $13 comes away, leaving $52."></div>
+<!--@@END-->
+
+<!--@@SCRIPT-->
+<script>
+(function(){
+  function num(el, key, dflt){ var v = parseFloat(el.getAttribute(key)); return isNaN(v) ? dflt : v; }
+  function txt(el, key, dflt){ var v = el.getAttribute(key); return v === null ? (dflt||'') : v; }
+  function rows(el){                       // "Label|a|color; Label|a|b|color"
+    return txt(el,'data-rows').split(';').map(function(r){ return r.trim(); })
+      .filter(Boolean).map(function(r){ return r.split('|').map(function(c){ return c.trim(); }); });
+  }
+  function make(tag, cls, parent){
+    var e = document.createElement(tag); if (cls) e.className = cls;
+    if (parent) parent.appendChild(e); return e;
+  }
+  function caption(el){
+    var c = txt(el,'data-caption'); if (!c) return null;
+    var d = make('div','dv-cap', el); d.textContent = c; return d;
+  }
+  function hint(el, dflt){
+    var h = txt(el,'data-hint', dflt); if (!h) return;
+    var d = make('div','dv-hint', el); d.textContent = h;
+  }
+  function fmt(n){ return (Math.round(n*100)/100).toString(); }
+  // Numbers that arrive by counting up read as an event rather than a label. Short,
+  // eased, and always landing exactly on the real value.
+  function countUp(el, target, prefix, suffix, ms){
+    var start = null, dur = ms || 900;
+    function step(ts){
+      if (start === null) start = ts;
+      var t = Math.min(1, (ts - start) / dur);
+      var eased = 1 - Math.pow(1 - t, 3);
+      var v = target * eased;
+      el.textContent = (prefix||'') + (target % 1 ? (Math.round(v*10)/10).toFixed(1) : Math.round(v)) + (suffix||'');
+      if (t < 1) requestAnimationFrame(step);
+      else el.textContent = (prefix||'') + fmt(target) + (suffix||'');
+    }
+    requestAnimationFrame(step);
+  }
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  function svg(tag, attrs, parent){
+    var e = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e); return e;
+  }
+
+  // 1 · icon array -------------------------------------------------------
+  document.querySelectorAll('.dv-icons').forEach(function(el){
+    var total = num(el,'data-total',100), cols = num(el,'data-cols',20),
+        fill = num(el,'data-fill',0), dots = [], i;
+    var grid = make('div','dv-grid', el);
+    grid.style.gridTemplateColumns = 'repeat(' + cols + ', min-content)';
+    for (i = 0; i < total; i++) dots.push(make('div','dot', grid));
+    var count = make('div','dv-count', el);
+    count.textContent = fmt(fill) + (total === 100 ? '%' : ' of ' + total);
+    var cap = caption(el); hint(el,'click to fill');
+    var timer = null, done = false;
+    el.addEventListener('click', function(){
+      if (timer) return;
+      if (done){ dots.forEach(function(d){ d.classList.remove('on'); });
+        count.classList.remove('on'); if (cap) cap.classList.remove('on'); done = false; return; }
+      var n = 0;
+      timer = setInterval(function(){
+        if (n >= fill || n >= total){ clearInterval(timer); timer = null; done = true;
+          count.classList.add('on');
+          countUp(count, fill, '', total === 100 ? '%' : ' of ' + total, 500);
+          if (cap) cap.classList.add('on'); return; }
+        dots[n].classList.add('on'); n++;
+      }, Math.max(8, 900 / Math.max(fill,1)));
+    });
+  });
+
+  // 2 · guess then reveal ------------------------------------------------
+  document.querySelectorAll('.dv-guess').forEach(function(el){
+    var actual = num(el,'data-actual',50), max = num(el,'data-max',100),
+        unit = txt(el,'data-unit','');
+    var ask = txt(el,'data-ask'); if (ask){ var a = make('div','ask', el); a.textContent = ask; }
+    var plot = make('div','plot', el);
+    [0,.25,.5,.75,1].forEach(function(f){
+      var g = make('div','gridline', plot); g.style.bottom = (f*100) + '%';
+      var s = make('span','', g); s.textContent = fmt(max*f) + unit;
+    });
+    var bar = make('div','actual', plot);
+    var reveal = make('b','', bar);
+    var guess = make('div','guess', plot); guess.style.bottom = '40%';
+    var gl = make('b','', guess); gl.textContent = 'our guess: ' + fmt(max*0.4) + unit;
+    var btn = make('button','dv-btn', el); btn.textContent = 'show the real number';
+    var cap = caption(el), dragging = false, shown = false;
+
+    function setGuess(ev){
+      var r = plot.getBoundingClientRect();
+      var y = Math.min(Math.max(ev.clientY - r.top, 0), r.height);
+      var frac = 1 - y / r.height;
+      guess.style.bottom = (frac*100) + '%';
+      gl.textContent = 'our guess: ' + fmt(max*frac) + unit;
+    }
+    plot.addEventListener('pointerdown', function(ev){ dragging = true; setGuess(ev); plot.setPointerCapture(ev.pointerId); });
+    plot.addEventListener('pointermove', function(ev){ if (dragging) setGuess(ev); });
+    plot.addEventListener('pointerup', function(){ dragging = false; });
+    btn.addEventListener('click', function(){
+      shown = !shown;
+      bar.style.height = shown ? (actual/max*100) + '%' : '0';
+      if (shown) countUp(reveal, actual, '', unit, 900); else reveal.textContent = '';
+      if (cap) cap.classList.toggle('on', shown);
+      btn.textContent = shown ? 'hide it again' : 'show the real number';
+    });
+  });
+
+  // 3 · live dot plot ----------------------------------------------------
+  document.querySelectorAll('.dv-dots').forEach(function(el){
+    var bins = txt(el,'data-bins','0-4|5-9|10-14').split('|');
+    var ask = txt(el,'data-ask'); if (ask){ var a = make('div','ask', el); a.textContent = ask; }
+    var cols = 'repeat(' + bins.length + ', 1fr)';
+    var wrap = make('div','cols', el); wrap.style.gridTemplateColumns = cols;
+    var labs = make('div','binlabs', el); labs.style.gridTemplateColumns = cols;
+    bins.forEach(function(b){
+      var col = make('div','col', wrap);
+      var n = make('div','n', col);
+      var stack = make('div','stack', col);
+      col.addEventListener('click', function(e){
+        if (e.shiftKey){ if (stack.lastChild) stack.removeChild(stack.lastChild); }
+        else make('div','pt', stack);
+        n.textContent = stack.children.length || '';
+      });
+      var lab = make('div','binlab', labs); lab.textContent = b;
+    });
+    caption(el); hint(el,'click a column to add · shift-click to remove');
+  });
+
+  // 4 · progressive bars --------------------------------------------------
+  document.querySelectorAll('.dv-bars').forEach(function(el){
+    var rs = rows(el), unit = txt(el,'data-unit',''), pre = txt(el,'data-prefix',''), i = 0;
+    var max = Math.max.apply(null, rs.map(function(r){ return parseFloat(r[1]); }));
+    var made = rs.map(function(r){                    // label | value | color | note
+      var row = make('div','row', el);
+      var lab = make('div','lab', row); lab.textContent = r[0];
+      var track = make('div','track', row);
+      var fill = make('div','fill', track); if (r[2]) fill.style.setProperty('--c', r[2]);
+      var val = make('div','val', row);
+      var note = null;
+      if (r[3]){ note = make('div','rownote', row); note.textContent = r[3]; }
+      return {row: row, fill: fill, val: val, note: note, v: parseFloat(r[1])};
+    });
+    var ratioText = txt(el,'data-ratio');
+    var ratio = null;
+    if (ratioText){ ratio = make('div','dv-ratio', el); ratio.textContent = ratioText; }
+    var cap = caption(el); hint(el,'click to reveal');
+    el.addEventListener('click', function(){
+      if (i >= made.length){
+        made.forEach(function(m){ m.fill.style.width = '0'; m.row.classList.remove('on');
+          m.val.textContent = ''; if (m.note) m.note.classList.remove('on'); });
+        if (ratio) ratio.classList.remove('on');
+        if (cap) cap.classList.remove('on'); i = 0; return;
+      }
+      var m = made[i];
+      m.fill.style.width = (m.v / max * 100) + '%';
+      m.row.classList.add('on');
+      countUp(m.val, m.v, pre, unit, 1000);
+      if (m.note) setTimeout(function(){ m.note.classList.add('on'); }, 700);
+      i++;
+      if (i === made.length){
+        if (ratio) setTimeout(function(){ ratio.classList.add('on'); }, 900);
+        if (cap) cap.classList.add('on');
+      }
+    });
+  });
+
+  // 5 · gauge -------------------------------------------------------------
+  document.querySelectorAll('.dv-gauge').forEach(function(el){
+    var v = num(el,'data-value',0), min = num(el,'data-min',0), max = num(el,'data-max',100),
+        lo = num(el,'data-lo',min), hi = num(el,'data-hi',max), unit = txt(el,'data-unit','');
+    function pct(x){ return (x - min) / (max - min) * 100; }
+    var track = make('div','track', el);
+    var band = make('div','band', track);
+    band.style.left = pct(lo) + '%'; band.style.width = (pct(hi) - pct(lo)) + '%';
+    var bl = make('span','', band); bl.textContent = txt(el,'data-band-label', fmt(lo) + '–' + fmt(hi) + unit);
+    var needle = make('div','needle', track);
+    var nb = make('b','', needle); nb.textContent = fmt(v) + unit;
+    var ends = make('div','ends', el);
+    var e1 = make('span','', ends); e1.textContent = fmt(min) + unit;
+    var e2 = make('span','', ends); e2.textContent = fmt(max) + unit;
+    var cap = caption(el); hint(el,'click to place the needle');
+    var placed = false;
+    el.addEventListener('click', function(){
+      placed = !placed;
+      needle.style.left = placed ? pct(v) + '%' : '0%';
+      if (placed) countUp(nb, v, '', unit, 900); else nb.textContent = '';
+      if (cap) cap.classList.toggle('on', placed);
+    });
+  });
+
+  // 6 · percent change ---------------------------------------------------
+  document.querySelectorAll('.dv-percent').forEach(function(el){
+    var base = num(el,'data-base',100), pct = num(el,'data-pct',10),
+        down = txt(el,'data-dir','up') === 'down', unit = txt(el,'data-unit','');
+    var change = base * pct / 100, result = down ? base - change : base + change;
+    var span = Math.max(base, result) * 1.14;      // headroom for the value label
+    function P(v){ return v / span * 100; }
+    function row(label){
+      var r = make('div','prow', el);
+      var l = make('div','rlab', r); l.textContent = label;
+      return make('div','track', r);
+    }
+    var t1 = row(txt(el,'data-before-label','before'));
+    var f1 = make('div','fill', t1);
+    var lab1 = make('div','endlab', t1); lab1.textContent = unit + fmt(base);
+    var chunk = make('div','chunk', t1);
+    var clab = make('div','chunklab', chunk);
+    clab.textContent = fmt(pct) + '% of ' + unit + fmt(base) + ' = ' + unit + fmt(change);
+    var t2 = row(txt(el,'data-after-label','after'));
+    var f2 = make('div','fill', t2);
+    f2.style.background = down ? 'var(--dv-warn)' : 'var(--dv-b)';
+    var lab2 = make('div','endlab', t2); lab2.textContent = unit + fmt(result);
+    var cap = caption(el); hint(el,'click through it');
+
+    // the before bar is there from the start — it is the thing the percent is "of"
+    f1.style.width = P(base) + '%'; lab1.style.left = P(base) + '%';
+    setTimeout(function(){ lab1.classList.add('on'); }, 60);
+    chunk.style.left = (down ? P(base - change) : P(base)) + '%';
+    chunk.style.width = P(change) + '%';
+    lab2.style.left = P(result) + '%';
+
+    var step = 0;
+    el.addEventListener('click', function(){
+      step = (step + 1) % 3;
+      chunk.classList.toggle('on', step >= 1);
+      f2.style.width = step >= 2 ? P(result) + '%' : '0';
+      lab2.classList.toggle('on', step >= 2);
+      if (cap) cap.classList.toggle('on', step >= 2);
+    });
+  });
+
+})();
+</script>
+<!--@@END-->
