@@ -1,0 +1,76 @@
+{
+  "audience": "student",
+  "meta": {
+    "title": "How much land does your food need?",
+    "course": "Grade 9 Science",
+    "day": "Day 3",
+    "period": "60 minutes",
+    "name_line": true
+  },
+  "objective": "I can compare how much farmland different diets need, and explain what the numbers show.",
+  "standard": "HS-ETS1-1 — define a problem using criteria and constraints",
+  "agenda": [["Do Now", 5], ["Objective and agenda", 3], ["Video and model", 12], ["Four corners", 12], ["Partner math", 15], ["Closing", 13]],
+  "sections": [
+    { "type": "heading", "text": "Do Now", "minutes": 5, "es": "Para empezar" },
+    {
+      "type": "question",
+      "number": "1",
+      "prompt": "Describe a **perfect farm**. What does it grow? How big is it?",
+      "es": "Describe una granja perfecta: ¿qué cultiva? ¿qué tamaño tiene?",
+      "stems": [
+        "A perfect farm would grow ______ because ______.",
+        "The thing that makes it perfect is ______."
+      ],
+      "space": { "kind": "lines", "count": 3 }
+    },
+
+    { "type": "heading", "text": "Watch and think", "minutes": 12, "es": "Mira y piensa" },
+    { "type": "note", "label": "Watch for", "text": "The video says how much of Earth's land is already farmed. Write that number down when you hear it.", "es": "Escucha el número y escríbelo." },
+    {
+      "type": "question",
+      "number": "2",
+      "prompt": "How much of Earth's land do we already farm?",
+      "es": "¿Cuánta tierra del planeta ya se cultiva?",
+      "space": { "kind": "lines", "count": 1 }
+    },
+
+    { "type": "heading", "text": "Partner math", "minutes": 15, "es": "Matemáticas en pareja" },
+    { "type": "wordbank", "label": "Numbers you need", "items": ["Standard diet: 2.67 acres", "Vegetarian: 0.35 acres", "Vegan: 0.32 acres", "1 football field = 1.3 acres"], "es": "Números que necesitas. 1 acre = 1 cancha." },
+    {
+      "type": "question",
+      "number": "3",
+      "prompt": "Your diet has to feed **6 people for one year**. How many acres does that take?",
+      "es": "Tu dieta alimenta a 6 personas por un año. ¿Cuántos acres necesitas?",
+      "example": "Standard diet: 2.67 × 6 = 16.02 acres",
+      "hint": "Multiply the acres for one person by 6.",
+      "space": { "kind": "box", "height_in": 1.6, "label": "Show your work" }
+    },
+    {
+      "type": "question",
+      "number": "4",
+      "prompt": "How many **football fields** is that? Round to the nearest tenth.",
+      "es": "¿Cuántas canchas de fútbol americano son? Redondea a un decimal.",
+      "hint": "Divide your acres by 1.3.",
+      "space": { "kind": "box", "height_in": 1.6, "label": "Show your work" }
+    },
+    {
+      "type": "fill_table",
+      "headers": ["Diet", "Total acres", "Football fields"],
+      "rows": [["Standard", "", ""], ["Vegetarian", "", ""], ["Vegan", "", ""]],
+      "row_height_in": 0.45
+    },
+
+    { "type": "heading", "text": "Closing", "minutes": 13, "es": "Cierre" },
+    {
+      "type": "question",
+      "number": "5",
+      "prompt": "Look at the class chart. What does it tell you about food and land?",
+      "es": "Mira la gráfica. ¿Qué dice sobre la comida y la tierra?",
+      "stems": [
+        "The biggest jump on the chart is between ______ and ______.",
+        "This tells me that ______."
+      ],
+      "space": { "kind": "lines", "count": 4 }
+    }
+  ]
+}
