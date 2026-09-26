@@ -142,7 +142,8 @@ Everyone gets the same packet. Push and support inside the task:
 ```
 {
   "audience": "student" | "teacher",
-  "meta":   {"title", "course", "day", "period", "name_line": true},
+  "meta":   {"code", "title", "course", "day", "period", "name_line": true,
+             "languages": ["es"], "large_print": false},
   "objective": "I can …",
   "standard":  "CODE — ten-word gist",
   "agenda":  [["Do Now", 5], ["Model", 12], …],      // prints on the lesson plan only
@@ -170,6 +171,14 @@ Blocks:
 
 `heading`, `text`, `labeled`, `note`, `list` / `steps` and `wordbank` each take an optional `es`
 as well — one short Spanish line, rendered under the block. See "The Spanish line" above.
+
+**`meta` fields worth knowing.** `code` is the lesson code from the profile ("Science 1.7"); it
+leads the header and the footer, so `course` can usually be left out and `day` can carry the unit
+name ("Hydroponics"). `languages` lists the home languages in print order (default `["es"]`); each
+block then takes one line per code, `"es"` and `"zh"` side by side, and the renderer reports any
+question missing any of them. Right-to-left languages (`ar`, `fa`, `ur`, `he`) print right-aligned
+on their own. `large_print: true` sets the whole packet about a quarter larger, for the students
+whose plans call for it; it adds pages, so cut a question before it adds more than one.
 
 `**bold**` works inside any text field. Nothing else marks up — no markdown headings, no pipes,
 no emoji.

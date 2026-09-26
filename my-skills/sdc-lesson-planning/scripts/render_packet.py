@@ -18,6 +18,14 @@ see references/packet.md for what gets one and what deliberately does not. On a 
 packet the renderer reports, on stderr, every question that has no Spanish line and every
 Spanish line that ran longer than its English.
 
+A room with more than one home language lists them in `meta.languages` (default ["es"]),
+and each block carries one short line per language under a key named by its code:
+`"es": "...", "zh": "..."`. The report then checks every listed language, not only Spanish.
+
+`meta.code` is the teacher's own name for the session ("Science 1.7") and leads the header
+and footer. `meta.large_print: true` sets the whole packet in larger type for the students
+whose plans call for it.
+
 Requires python-docx. Install with: pip install python-docx --break-system-packages
 """
 
@@ -125,20 +133,48 @@ def _row_height(row, inches):
     trPr.append(el)
 
 
+# languages written without spaces between words: the word-count length check skips them
+UNSPACED = {"zh", "ja", "ko", "th", "my", "km", "lo"}
+# languages written right to left: their line is right-aligned and marked bidi
+RTL = {"ar", "fa", "ur", "he", "ps", "prs"}
+
+
+def _rtl(par, lang):
+    if str(lang).split("-")[0] not in RTL:
+        return
+    par.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    ppr = par._p.get_or_add_pPr()
+    # schema order: bidi sits ahead of spacing, indentation and justification
+    ppr.insert_element_before(
+        OxmlElement("w:bidi"), "w:adjustRightInd", "w:snapToGrid", "w:spacing", "w:ind",
+        "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc",
+        "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl",
+        "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
+    for r in par.runs:
+        r._r.get_or_add_rPr().append(OxmlElement("w:rtl"))
+
+
 class Renderer:
     def __init__(self, data, out_path):
         self.data = data
         self.out = out_path
         self.audience = data.get("audience", "student")
-        self.S = STUDENT if self.audience == "student" else TEACHER
+        self.S = dict(STUDENT if self.audience == "student" else TEACHER)
+        meta = data.get("meta", {})
+        if meta.get("large_print"):
+            for k in ("body", "h1", "h2", "small"):
+                self.S[k] = round(self.S[k] * 1.25 * 2) / 2
+            self.S["line_gap"] = round(self.S["line_gap"] * 1.2)
+        # the home languages in the room; each carries one short line under the English
+        self.langs = [str(c) for c in (meta.get("languages") or ["es"])]
         self.doc = Document()
         self._setup()
         # every paragraph the renderer emits is registered here so a task group can be
         # bound together after the fact
         self._group = None
-        # Spanish coverage, reported on stderr once the document is written
+        # language-line coverage, reported on stderr once the document is written
         self._es = []
-        self._missing_es = []
+        self._missing_es = {c: [] for c in self.langs}
         self._long_es = []
 
     # ------------------------------------------------------------ document setup
@@ -164,7 +200,8 @@ class Renderer:
     def _footer(self):
         meta = self.data.get("meta", {})
         foot = self.doc.sections[0].footer.paragraphs[0]
-        bits = [b for b in (meta.get("course"), meta.get("day"), meta.get("title")) if b]
+        bits = [b for b in (meta.get("code"), meta.get("course"), meta.get("day"),
+                            meta.get("title")) if b]
         run = foot.add_run("  ·  ".join(bits))
         run.font.size = Pt(self.S["small"] - 1)
         run.font.color.rgb = MUTED
@@ -200,7 +237,7 @@ class Renderer:
         r.font.color.rgb = color or INK
         return r
 
-    def es_line(self, text, indent=0, space_after=4):
+    def es_line(self, text, indent=0, space_after=4, lang="es"):
         """The Spanish support line — one line, under the English it supports.
 
         Not italic. Italic costs a striving reader real speed, and this line is read
@@ -214,9 +251,10 @@ class Renderer:
         self.rich(par, str(text), size=self.S["small"])
         for r in par.runs:
             r.font.color.rgb = ES_INK
+        _rtl(par, lang)
         return par
 
-    def es_in_cell(self, cell, text):
+    def es_in_cell(self, cell, text, lang="es"):
         """Same line, but inside a tinted box (a note, a word bank) so it stays in it."""
         if not text:
             return None
@@ -227,7 +265,21 @@ class Renderer:
         self.rich(par, str(text), size=self.S["small"])
         for r in par.runs:
             r.font.color.rgb = ES_INK
+        _rtl(par, lang)
         return par
+
+    def lang_lines(self, blk, indent=0, space_after=4):
+        """One line per home language, in the order meta.languages lists them."""
+        pars = []
+        for code in self.langs:
+            par = self.es_line(blk.get(code), indent=indent, space_after=space_after, lang=code)
+            if par is not None:
+                pars.append(par)
+        return pars
+
+    def lang_in_cell(self, cell, blk):
+        for code in self.langs:
+            self.es_in_cell(cell, blk.get(code), lang=code)
 
     def rich(self, par, text, size=None):
         """Renders **bold** spans inside a plain string. Everything else is literal."""
@@ -249,26 +301,26 @@ class Renderer:
         self._group = None
 
     # ------------------------------------------------------------ blocks
-    def heading(self, text, minutes=None, es=None):
+    def heading(self, text, minutes=None, es=None, blk=None):
         par = self.p(space_before=14, space_after=4, keep=True)
         self.run(par, text.upper(), size=self.S["h2"], bold=True)
         if minutes:
             self.run(par, f"   {minutes} min", size=self.S["small"], color=ACCENT, bold=True)
         _para_border(par, "bottom", RULE, 8)
-        if es:
-            # the Spanish line belongs to the heading, so it has to hold onto what
-            # follows too -- otherwise a break lands between it and the first task
-            # and the page ends on a heading alone
-            es_par = self.es_line(es, space_after=2)
-            if es_par is not None:
-                es_par.paragraph_format.keep_with_next = True
-            par.paragraph_format.keep_with_next = True
+        lines = blk if blk is not None else {"es": es}
+        # the language lines belong to the heading, so they have to hold onto what
+        # follows too -- otherwise a break lands between them and the first task
+        # and the page ends on a heading alone
+        for es_par in self.lang_lines(lines, space_after=2):
+            es_par.paragraph_format.keep_with_next = True
+        par.paragraph_format.keep_with_next = True
         return par
 
     def title_block(self):
         meta = self.data.get("meta", {})
         eyebrow = "  ·  ".join(
-            b for b in (meta.get("course"), meta.get("day"), meta.get("period")) if b
+            b for b in (meta.get("code"), meta.get("course"), meta.get("day"), meta.get("period"))
+            if b
         )
         if eyebrow:
             par = self.p(space_after=2, keep=True)
@@ -351,11 +403,13 @@ class Renderer:
         if blk.get("minutes"):
             self.run(par, f"   ({blk['minutes']} min)", size=self.S["small"], color=MUTED)
 
-        if blk.get("es"):
-            self.es_line(blk["es"])
-            self._check_es_length(blk.get("prompt", ""), blk["es"], num)
-        elif self.audience == "student":
-            self._missing_es.append(num or blk.get("prompt", "")[:40])
+        for code in self.langs:
+            line = blk.get(code)
+            if line:
+                self.es_line(line, lang=code)
+                self._check_es_length(blk.get("prompt", ""), line, num, code)
+            elif self.audience == "student":
+                self._missing_es[code].append(num or blk.get("prompt", "")[:40])
 
         if blk.get("example"):
             self.tinted("Example", blk["example"])
@@ -467,7 +521,7 @@ class Renderer:
         if label:
             self.run(par, label.upper() + "  ", size=self.S["small"], bold=True, color=ACCENT)
         self.rich(par, blk.get("text", ""))
-        self.es_in_cell(cell, blk.get("es"))
+        self.lang_in_cell(cell, blk)
         _no_split(t)
         self.p(space_after=4)
 
@@ -476,7 +530,7 @@ class Renderer:
         if blk.get("label"):
             par = self.p(space_before=8, space_after=3)
             self.run(par, blk["label"], bold=True)
-        self.es_line(blk.get("es"), space_after=5)
+        self.lang_lines(blk, space_after=5)
         ordered = blk.get("ordered", False)
         for i, item in enumerate(blk.get("items", []), 1):
             par = self.p(space_after=4, indent=0.25)
@@ -495,7 +549,7 @@ class Renderer:
         self.run(par, (blk.get("label") or "Word bank").upper() + "  ",
                  size=self.S["small"], bold=True, color=ACCENT)
         self.run(par, "     ".join(str(i) for i in blk.get("items", [])))
-        self.es_in_cell(cell, blk.get("es"))
+        self.lang_in_cell(cell, blk)
         _no_split(t)
         self.p(space_after=4)
 
@@ -504,26 +558,33 @@ class Renderer:
     def _words(text):
         return len(re.sub(r"\*\*", "", str(text)).split())
 
-    def _check_es_length(self, english, spanish, num):
+    def _check_es_length(self, english, spanish, num, code="es"):
         """Abbreviated means shorter. Spanish runs 15-20% longer than English for the
-        same content, so only a real overshoot is worth reporting."""
+        same content, so only a real overshoot is worth reporting. Languages written
+        without spaces between words can't be counted this way and are left to a human."""
+        if code.split("-")[0] in UNSPACED:
+            return
         en, es = self._words(english), self._words(spanish)
         if en and es > en * 1.2:
-            self._long_es.append(f"{num or '?'}: {es} Spanish words for {en} English")
+            name = "Spanish" if code == "es" else f"'{code}'"
+            self._long_es.append(f"{num or '?'}: {es} {name} words for {en} English")
 
     def report(self):
         if self.audience != "student":
             return
-        if self._missing_es:
+        for code, missing in self._missing_es.items():
+            if not missing:
+                continue
+            name = "Spanish" if code == "es" else f"'{code}'"
             print(
-                "  note  no Spanish line on question(s): "
-                + ", ".join(str(m) for m in self._missing_es)
+                f"  note  no {name} line on question(s): "
+                + ", ".join(str(m) for m in missing)
                 + "\n        Every question a student answers carries one. See packet.md.",
                 file=sys.stderr,
             )
         for msg in self._long_es:
             print(
-                f"  note  Spanish longer than the English it supports — {msg}. "
+                f"  note  language line longer than the English it supports — {msg}. "
                 "Cut it to the task itself.",
                 file=sys.stderr,
             )
@@ -534,23 +595,23 @@ class Renderer:
         for blk in self.data.get("sections", []):
             kind = blk.get("type")
             if kind == "heading":
-                self.heading(blk.get("text", ""), blk.get("minutes"), blk.get("es"))
+                self.heading(blk.get("text", ""), blk.get("minutes"), blk=blk)
             elif kind == "phase":
-                self.heading(blk.get("name", ""), blk.get("minutes"), blk.get("es"))
+                self.heading(blk.get("name", ""), blk.get("minutes"), blk=blk)
             elif kind == "question":
                 self.question(blk)
             elif kind in ("text", "paragraph"):
                 self.begin_group()
                 par = self.p(space_after=6)
                 self.rich(par, blk.get("text", ""))
-                self.es_line(blk.get("es"), space_after=6)
+                self.lang_lines(blk, space_after=6)
                 self.end_group()
             elif kind == "labeled":
                 self.begin_group()
                 par = self.p(space_after=6)
                 self.run(par, blk.get("label", "") + "  ", bold=True)
                 self.rich(par, blk.get("text", ""))
-                self.es_line(blk.get("es"), space_after=6)
+                self.lang_lines(blk, space_after=6)
                 self.end_group()
             elif kind in ("list", "steps"):
                 blk = dict(blk)

@@ -147,6 +147,11 @@ warning is a judgement call when the slide only names a page number.
 
 ---
 
+
+**A second home language** sits right under the Spanish, same class, marked with its code:
+`<p class="es" lang="zh">写下你的答案。</p>`. Add `dir="rtl"` for Arabic, Farsi, Urdu, or Hebrew and
+the rule flips to the right side. Run the checker with the room's languages,
+`--languages es,zh`, and it errors on a language with no lines at all.
 ## What the type is doing
 
 The look is spare on purpose: white ground, square corners, hairline rules, one pastel doing the

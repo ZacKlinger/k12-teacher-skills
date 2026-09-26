@@ -1,6 +1,6 @@
 ---
 name: "sdc-lesson-planning"
-description: "Plans a class session for Zac's SDC (special day class) grades 9-10 science and math, then delivers two files — a student packet as an editable Word document and an HTML slide deck with real photographs, working timers, interactive charts, and embedded videos — with the lesson plan itself written straight into the chat rather than as a document. Load this skill BEFORE asking any clarifying question about the lesson. Use it whenever Zac is planning what to teach — explicit asks (\"plan tomorrow's lesson\", \"I need Day 4 of the hydroponics unit\", \"make me a deck and packet for exponents\") and implicit ones (\"I'm teaching surface area Thursday\", \"what should students do on the block day\", \"need something for period 3 tomorrow\"). Also use it when he asks for just a packet, just slides, or just an agenda for a session — the skill builds only what he asked for while keeping the same structure. Do NOT use it for grading, rubrics, IEP paperwork, parent emails, or standards lookups; answer those directly."
+description: "Plans a class session for Zac's SDC (special day class) grades 9-10 science and math, then delivers a student packet as an editable Word document and an HTML slide deck with real photographs, timers, interactive charts, and embedded videos, with the lesson plan written straight into the chat. Load this skill BEFORE asking any clarifying question about the lesson. Use it whenever Zac is planning what to teach: explicit asks (\"plan tomorrow's lesson\", \"Science 1.7\", \"Day 4 of the hydroponics unit\") and implicit ones (\"I'm teaching surface area Thursday\", \"need something for period 3 tomorrow\"). Also use it for just a packet, just slides, or just an agenda, and for a viewing guide for a film or video, a multi-day packet, or a review game such as a Jeopardy board. Do NOT use it for grading, rubrics, IEP paperwork, parent emails, or standards lookups; answer those directly."
 license: MIT
 ---
 
@@ -34,22 +34,32 @@ the steps will make sense.
 Class length and where you are in the unit decide almost everything, so find them in this order
 and only ask for what's still missing.
 
-1. **Project profile.** Look in the connected folder for a profile file — `project-profile.md`,
-   `PROJECT.md`, `course-profile.md`, anything under a `lesson-planning/` or `unit/` folder — and
-   read it. It holds the course, period lengths, the unit arc with day numbers, the class roster
-   picture (reading levels, supports, partner pairings), standards in play, and equipment on hand.
-2. **Recent work in the folder.** Prior lessons, packets, and decks tell you what day it is, what
-   students already did, and what vocabulary is live. Skim the most recent one before planning the
-   next.
-3. **Ask.** Whatever steps 1-2 didn't answer goes into the one clarifying round in Step 1.
+1. **Project profile.** In a claude.ai project it is already in the project knowledge; otherwise
+   look in the connected folder for `project-profile.md`, `PROJECT.md`, `course-profile.md`, or
+   anything under a `lesson-planning/` or `unit/` folder. It holds the course, the lesson-code
+   format, the weekly schedule, the home languages, the accommodations checklist, the unit arc, and
+   equipment on hand.
+2. **The session length, from the schedule.** Turn the request's date ("tomorrow", "Thursday",
+   "the 30th") into a weekday using today's date, and read that day's minutes and notes off the
+   profile's schedule. A day listed under "days that break the pattern" wins. This is the answer to
+   "how long is the session", so don't ask it when the schedule has it.
+3. **The previous lesson.** Work out the code before this one (Science 1.7 follows Science 1.6)
+   and find it: in the project's files or the conversation first; then, when Google Drive is
+   connected, search Drive for the code in the title (`title contains 'Science 1.6'`, falling back
+   to the unit name) and read the packet. It tells you what students already did, what vocabulary
+   is live, and what the do-now can reach back to. One search and one read, not a survey of the
+   folder. Mention in a line which lesson you built from, so a wrong match is caught early.
+4. **Ask.** Whatever steps 1-3 didn't answer goes into the one clarifying round in Step 1.
 
 If no profile exists, plan the lesson anyway. Then, in the closing message, offer once to write
-one from `assets/project_profile_template.md` so the next session starts with the context already
-loaded. Don't nag about it more than once per conversation.
+one from `assets/project_profile_template.md`, filled with everything this conversation already
+established, so the next session starts with the context loaded. Don't nag about it more than once
+per conversation.
 
 **Defaults when nothing says otherwise:** grade 9-10 SDC, science or math per the request, student
-reading level 3rd-5th grade, class period 60 minutes on a normal day and 90 on a block day, and a
-room with a projector, whiteboard, and student devices only if the profile says so.
+reading level 3rd-5th grade, Spanish as the one home language, class period 60 minutes on a normal
+day and 90 on a block day, and a room with a projector, whiteboard, and student devices only if the
+profile says so.
 
 ---
 
@@ -57,14 +67,19 @@ room with a projector, whiteboard, and student devices only if the profile says 
 
 Ask together, in a single structured-question round, only what you couldn't find:
 
-- **Which day is this?** Day number in the unit, or the date — this sets what students already
-  know and what comes next. Ask this every time it isn't already established.
-- **How long is the session?** 60 minutes or 90-minute block. Never guess; the whole agenda scales
-  off it.
+- **Which lesson is this?** The lesson code (Science 1.7) or the date — this sets what students
+  already know and what comes next. Ask this every time it isn't already established.
+- **How long is the session?** Only when the schedule couldn't answer it: 60 minutes or 90-minute
+  block. Never guess; the whole agenda scales off it.
 - **What's the focus?** The topic, standard, or skill — only if the request didn't say.
 
-Anything else (reading level, supports, format) uses the defaults above silently. If the profile
-answered everything, skip straight to Step 2 and say what you're about to do in one sentence.
+When Step 0 found the previous lesson, add one optional line to the same round: *"How did 1.6 go?
+One line is plenty, or skip it."* It is the only test data a lesson ever produces, and it is
+cheapest to collect here. Never hold the plan for it.
+
+Anything else (reading level, supports, format) comes from the profile or the defaults above,
+silently. If the profile and the schedule answered everything, skip straight to Step 2 and say what
+you're about to do in one sentence: the code, the minutes, and the lesson you're building from.
 
 ---
 
@@ -156,7 +171,7 @@ in Spanish both.
 **Student packet (Word).** Write `packet.json`, then render:
 
 ```bash
-python3 scripts/render_packet.py packet.json "$OUTPUT_DIR/student_packet.docx"
+python3 scripts/render_packet.py packet.json "$OUTPUT_DIR/<code> - <short title> - packet.docx"
 ```
 
 Never write layout code by hand, and never edit the rendered document — every change goes back
@@ -203,7 +218,7 @@ it's too long: cut the parts a teacher already knows how to do.
 template ships the navigation, the per-slide countdown timers, the day tag, the photo styles, the
 blocked-image fallback, the click-to-play video, and the interactive chart kit — all of it already
 wired. There is nothing to paste in and nothing to rebuild by hand; copying the template is the
-whole setup. Save as `$OUTPUT_DIR/<topic>_deck.html`.
+whole setup. Save as `$OUTPUT_DIR/<code> - <short title> - deck.html`.
 
 Every deck carries **at least one interactive chart**, two to four when the lesson has numbers in
 it. In a room where reading is the barrier, the chart is the explanation and the words are its
@@ -213,7 +228,7 @@ Then check the work before handing it over. Run the deck checker first — it is
 reliable than reading the file, and every rule in it is one that a previous build silently broke:
 
 ```bash
-python3 scripts/check_deck.py "$OUTPUT_DIR/<topic>_deck.html" --minutes <period length>
+python3 scripts/check_deck.py "$OUTPUT_DIR/<code> - <short title> - deck.html" --minutes <period length> --languages es
 ```
 
 Pass the period length you settled in Step 1 — 60 or 90. The slide count and the photograph floor
@@ -237,6 +252,13 @@ agree.
 Spanish.** Not a translated packet and not a translated deck — a single line under the English that
 says what to do and what is being asked, and nothing else.
 
+**More than one home language.** When the profile lists more than Spanish, every language gets the
+same one line, in the order the profile lists them: the packet's `meta.languages` names them and
+each block carries a line per code (`"es"`, `"zh"`, `"vi"` …); the deck adds
+`<p class="es" lang="zh">` beside the Spanish; the game carries them per clue. Pass the same list to
+the checker (`--languages es,zh`). With two or more languages, headings skip their lines, so the
+lines stay on the questions and directions where they do the work.
+
 The rule that keeps it useful is that it stays abbreviated. Hints, worked examples, sentence stems,
 context sentences, table headers, slide headlines, captions and chart labels stay English. A student
 who needs the Spanish needs it to get *into* the task; the scaffolding around the task is already
@@ -248,6 +270,25 @@ the same question.
 `references/deck.md` carries `.es` and where it sits on a slide. `check_deck.py` errors on a deck
 with no Spanish and `render_packet.py` reports any question missing it — both are the only thing
 checking this, so read what they print.
+
+## Accommodations
+
+The profile's accommodations checklist is part of the lesson from the first draft, not a revision
+after it. Build every ticked item in by default: stems, word banks, large print
+(`meta.large_print`), chunked directions, the reduced-item marking, response choices. In the plan's
+Differentiation line, name each ticked accommodation and where it landed ("large print: whole
+packet; word bank: above 3 and 5"). If the profile has no checklist, use the stems and word banks the
+packet rules already call for and ask nothing.
+
+## Lesson codes and file names
+
+Name every session by the teacher's code from the profile, and name files by it:
+`Science 1.7 - Pump build - packet.docx`, `Science 1.7 - Pump build - deck.html`. Put the code in
+the packet's `meta.code` so it leads the header and footer, and in the deck's day tag. A file that
+arrives already named needs no renaming in Drive, and the next lesson can find it by its code. Use a
+plain hyphen in file names, never a dash or a slash.
+
+For viewing guides, multi-day packets, and review games, read `references/formats.md`.
 
 ## Photographs
 
@@ -284,12 +325,17 @@ message:
   questions for a shortened period, or (3) add a second-tier version of question 4 for the students
   who finish early?"*
 
-If he comes back after teaching it, that is the only real test data this lesson will ever produce —
-write what happened into the project profile so the next lesson starts from it rather than from
-scratch.
+- **End with the Day map row**, ready to paste into the profile's project knowledge:
+  `| Science 1.7 | Tue 9/29 | Pump build: criteria and constraints | |` — the last cell empty for
+  how it went. In a claude.ai project the skill can't edit project knowledge itself, so this line
+  is how the unit arc stays current without anyone retyping it.
 
-Keep the machinery invisible. Say "student packet" and "slide deck," never "JSON," "renderer," or
-file names.
+If he comes back after teaching it, that is the only real test data this lesson will ever produce.
+Fold it into the next lesson's point of view, and give him the finished Day map row with the "how it
+went" cell filled.
+
+Keep the machinery invisible. Say "student packet" and "slide deck," never "JSON" or "renderer";
+the only file names he sees are the lesson-coded ones he will keep.
 
 ---
 

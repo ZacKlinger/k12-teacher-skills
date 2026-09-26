@@ -104,6 +104,9 @@
   .es{color:var(--muted);font-size:clamp(13px,1.4vw,19px);line-height:1.4;max-width:56ch;
     border-left:2px solid var(--accent-soft);padding-left:.75em;margin-top:1.2vh}
   h1 + .es,h2 + .es{margin-top:1.6vh}
+  /* a second home language stacks tight under the first; right-to-left scripts mirror the rule */
+  .es + .es{margin-top:.4vh}
+  .es[dir=rtl]{border-left:0;border-right:2px solid var(--accent-soft);padding-left:0;padding-right:.75em;text-align:right}
   .instruct + .es{margin-top:.9vh}
   .slide.dark .es{color:#C9CDD3;border-left-color:var(--caviar-line)}
 

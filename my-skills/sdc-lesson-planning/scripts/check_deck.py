@@ -275,7 +275,10 @@ def text_of(html: str) -> str:
     return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", html)).strip()
 
 
-def check_language_access(html: str, sl: list, rep: Report) -> None:
+UNSPACED = {"zh", "ja", "ko", "th", "my", "km", "lo"}
+
+
+def check_language_access(html: str, sl: list, rep: Report, langs=("es",)) -> None:
     """Every question and every direction carries a Spanish line.
 
     Reading is the barrier in this room twice over for a newcomer, and a slide is
@@ -293,6 +296,24 @@ def check_language_access(html: str, sl: list, rep: Report) -> None:
         )
     else:
         rep.note(f"{total} Spanish support line(s).")
+
+    # A room with more than one home language: each extra language rides the same
+    # `.es` line style, marked with its code -- <p class="es" lang="zh">.
+    for code in langs:
+        if code == "es":
+            continue
+        tagged = re.compile(r'<[^>]*\bclass="[^"]*\bes\b[^"]*"[^>]*\blang="' + re.escape(code)
+                            + r'(-[^"]*)?"|<[^>]*\blang="' + re.escape(code)
+                            + r'(-[^"]*)?"[^>]*\bclass="[^"]*\bes\b')
+        n = len(tagged.findall(html))
+        if n == 0:
+            rep.error(
+                f"No '{code}' lines in the deck, but the room's languages include it. Each "
+                f'one sits beside the Spanish as <p class="es" lang="{code}">. See the '
+                '"Language access" section of references/deck.md.'
+            )
+        else:
+            rep.note(f"{n} '{code}' support line(s).")
 
     for i, (a, body) in enumerate(sl, 1):
         title = attr(a, "data-title") or f"slide {i}"
@@ -321,6 +342,9 @@ def check_language_access(html: str, sl: list, rep: Report) -> None:
             if not body_text:
                 continue
             if "es" in classes:
+                code = (attr(el.group(2), "lang") or "es").split("-")[0]
+                if code in UNSPACED:
+                    continue
                 if prev and len(body_text.split()) > len(prev.split()) * 1.2:
                     rep.warn(
                         f"Slide {i} ({title}): the Spanish line is longer than the English "
@@ -468,6 +492,8 @@ def main() -> int:
     ap.add_argument("deck")
     ap.add_argument("--minutes", type=int, default=60,
                     help="length of the class period (default 60)")
+    ap.add_argument("--languages", default="es",
+                    help="home languages in the room, comma-separated codes (default es)")
     args = ap.parse_args()
 
     try:
@@ -493,7 +519,8 @@ def main() -> int:
     check_photos(html, sl, args.minutes, rep)
     check_template_wiring(raw, html, rep)
     check_teaching(raw, html, sl, rep)
-    check_language_access(html, sl, rep)
+    langs = [c.strip() for c in args.languages.split(",") if c.strip()] or ["es"]
+    check_language_access(html, sl, rep, langs)
 
     size_mb = len(html.encode()) / 1e6
     if size_mb > 1.0:
