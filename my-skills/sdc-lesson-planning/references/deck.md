@@ -200,7 +200,11 @@ Roughly one slide per two to three minutes: a 60-minute period lands around 14-2
 | Scale anchor | `.scale` | An abstract quantity as a count of something known — football fields, classrooms, bus rides, phone charges |
 | Side by side | `.compare` | Two methods, two claims, before and after |
 | Four corners | `.corners` | The four claims with where in the room each one lives |
-| Talk slide | `.cards` + `.frames` | A talk move: the move's name, the question, who is Partner A, the stem, and the listener's job. Give it a timer |
+| Talk slide | `.roles` + `.frames` + `data-phases` | A talk move, run by the slide: the question, each partner's job, the "Say it" stem, and a phased timer. See "Talk slides" below |
+| Vote, talk, revote | `.vote` | Hands counted before and after partners talk; the shift between the two bars is what the talk did |
+| Pair picker | `.picker` | Calls a pair by number, never by name, after they've rehearsed. P picks |
+| What we heard | `.heard` | A board you type students' ideas into during a share-out, credited to pairs |
+| Build steps | `data-step` on any element | Holds an element back until → , so the prediction comes before the answer |
 | Figure | `.figure` + inline `<svg>` | A diagram drawn in SVG: flows, cross-sections, labeled parts |
 | Video | `.body.media` + `.video-wrap` | An embedded, verified video. The body must carry `media` — that is what sizes the frame by height so it cannot overflow onto the text below it |
 | Agenda | `.agenda` | The period at a glance, current block marked with `.now` |
@@ -223,6 +227,41 @@ barrier.
 conversion on the slide.
 
 ---
+
+## Talk slides
+
+Student talk is the non-negotiable in every lesson, and the deck is what runs it, so a talk slide
+does more than post a question. It carries five things, and the checker errors on a deck with no
+talk slide at all:
+
+1. **The question** as the headline, with its language line under it.
+2. **The roles** — `.roles` with one `.role` per turn: who speaks, and what the listener does while
+   they wait ("Say it back: *You said…*"). A listener with no job is a student waiting for a turn.
+3. **The stem** — `.frames` labeled **Say it**, not **Start here**. It is a speaking frame, so it is
+   short enough to say out loud in one breath.
+4. **The turns, timed** — `data-phases="Think|30; A talks|60; B talks|60; Share|60"`, with
+   `data-timer` set to their sum. One press of S runs every phase and chimes at each switch, and
+   the matching `.role` lights up (`data-phase="A talks"`), so you can walk the room instead of
+   watching the clock, and a student can see whose turn it is from across it.
+5. **Who reports** — the `.picker` on the share slide, after rehearsal. Pairs are numbered, never
+   named; the file never holds a student's name.
+
+How each move in the talk catalog lands on screen:
+
+| Move | The slide carries |
+|---|---|
+| Turn-and-talk | Roles for A and B, "Say it" stem, `Think\|30; A talks\|60; B talks\|60` |
+| Think-pair-share | `Think\|60; Pair\|120; Share\|120`, the picker on the share |
+| Say it back | Partner B's role reads "Say it back: You said…", then `Switch\|60` |
+| Agree / disagree / add on | The claim as the headline, the three stems as three frames |
+| Vote, talk, revote | `.vote`: count round 1, run a turn-and-talk, count round 2 |
+| Four corners, defend | `.corners`, then `Talk\|120; Defend\|180` and the picker per corner |
+| Stations in pairs | One slide per rotation with its own phases, or one `Station\|480` phase each |
+
+Keep the slide still while students talk. **B** blanks the screen when the words on it are pulling
+eyes away from a partner; the timer keeps running and still chimes. **A** reads the headline and
+its language lines aloud in their own voices, for the student who can't yet read the question off
+the wall.
 
 ## Timers
 

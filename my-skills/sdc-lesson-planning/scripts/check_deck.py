@@ -34,6 +34,7 @@ PLACEHOLDERS = [
     "One line naming the input.",
     "The do-now question, readable from the back row.",
     "The finding, stated as the headline.",
+    "The words above it are its caption.",
     "One question, big enough to fill the screen.",
     "The claim this photograph proves",
     "A full sentence describing",
@@ -145,7 +146,9 @@ def check_structure(html: str, sl: list, minutes: int, rep: Report) -> None:
 
         inner = re.sub(r"<[^>]+>", "", body_of(body_html)).strip()
         is_dark = "dark" in a.split(">")[0]
-        has_media = bool(re.search(r"<img|<iframe|<svg|dv-", body_html))
+        # charts and the talk kit draw themselves when the deck opens, so an
+        # empty-looking div with one of these classes is content, not a hole
+        has_media = bool(re.search(r'<img|<iframe|<svg|dv-|class="(?:vote|picker|heard)\b', body_html))
         if not inner and not has_media and not is_dark:
             rep.error(
                 f"Slide {i} ({title}): the body is empty. A headline alone is not a "
@@ -355,6 +358,51 @@ def check_language_access(html: str, sl: list, rep: Report, langs=("es",)) -> No
                 prev = body_text
 
 
+def check_talk(sl: list, rep: Report) -> None:
+    """Student talk is the non-negotiable, and the deck is what runs it.
+
+    A talk slide carries data-phases (think, A talks, B talks, share), and its
+    data-timer is their sum -- the timer runs the phases, and the period math
+    runs on data-timer, so the two have to agree or one of them is lying.
+    """
+    talk = 0
+    for i, (a, body) in enumerate(sl, 1):
+        title = attr(a, "data-title") or f"slide {i}"
+        spec = attr(a, "data-phases")
+        if not spec:
+            continue
+        talk += 1
+        phases = []
+        for part in spec.split(";"):
+            bits = part.split("|")
+            if len(bits) != 2 or not bits[1].strip().isdigit():
+                rep.error(f"Slide {i} ({title}): data-phases entry {part.strip()!r} should read "
+                          "'Name|seconds', e.g. 'A talks|60'.")
+                continue
+            phases.append((bits[0].strip(), int(bits[1])))
+        timer = attr(a, "data-timer")
+        total = sum(sec for _, sec in phases)
+        if not timer:
+            rep.error(f"Slide {i} ({title}) has data-phases but no data-timer. Add "
+                      f'data-timer="{total}", the sum of the phases.')
+        elif timer.isdigit() and int(timer) != total:
+            rep.error(f"Slide {i} ({title}): the phases add up to {total}s but data-timer "
+                      f"is {timer}s. Make them agree.")
+        names = {n for n, _ in phases}
+        for want in re.findall(r'data-phase="([^"]*)"', body):
+            if want not in names:
+                rep.warn(f"Slide {i} ({title}): an element waits for phase {want!r}, which "
+                         f"isn't one of {sorted(names)}. It will never light up.")
+    if talk == 0:
+        rep.error(
+            "No talk slide. Every lesson runs at least one student-to-student talk move on "
+            'screen: a slide with data-phases="Think|30; A talks|60; B talks|60; Share|60", '
+            'the roles, and a "Say it" stem. See "Talk slides" in references/deck.md.'
+        )
+    else:
+        rep.note(f"{talk} talk slide(s) with phased timers.")
+
+
 def check_template_wiring(raw: str, html: str, rep: Report) -> None:
     """`raw` is the untouched file -- the wiring lives in <style> and <script>,
     which the markup passes deliberately strip. `html` is the stripped markup,
@@ -519,6 +567,7 @@ def main() -> int:
     check_photos(html, sl, args.minutes, rep)
     check_template_wiring(raw, html, rep)
     check_teaching(raw, html, sl, rep)
+    check_talk(sl, rep)
     langs = [c.strip() for c in args.languages.split(",") if c.strip()] or ["es"]
     check_language_access(html, sl, rep, langs)
 

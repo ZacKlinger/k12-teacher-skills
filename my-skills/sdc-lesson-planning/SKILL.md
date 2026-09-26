@@ -216,8 +216,10 @@ it's too long: cut the parts a teacher already knows how to do.
 
 **Slide deck (HTML).** Copy `assets/deck_template.html` and fill it with the lesson's slides. The
 template ships the navigation, the per-slide countdown timers, the day tag, the photo styles, the
-blocked-image fallback, the click-to-play video, and the interactive chart kit — all of it already
-wired. There is nothing to paste in and nothing to rebuild by hand; copying the template is the
+blocked-image fallback, the click-to-play video, the interactive chart kit, and the talk kit (phased
+talk timers, vote-talk-revote, a pair picker, build steps, read-aloud) — all of it already wired.
+Every talk move in the plan gets a talk slide built the way `references/deck.md` "Talk slides"
+describes. There is nothing to paste in and nothing to rebuild by hand; copying the template is the
 whole setup. Save as `$OUTPUT_DIR/<code> - <short title> - deck.html`.
 
 Every deck carries **at least one interactive chart**, two to four when the lesson has numbers in
