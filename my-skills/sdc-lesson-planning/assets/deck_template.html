@@ -32,11 +32,11 @@
   into the head from data-packet. Never place either by hand — that is what used to collide.
 
   Keys: ← → slides (→ reveals data-step items first) · S start/pause timer · R reset ·
-  G jump menu · A read the slide aloud · B blank the screen · P pick a pair.
+  G jump menu · A read the slide aloud · P pick a pair · click a photo to look closer.
 -->
 <style>
   :root{
-    --bg:#FFFFFF; --paper:#F5F7FA; --ink:#1B1F24; --muted:#697079; --rule:#E4E7EB;
+    --bg:#FFFFFF; --paper:#F5F7FA; --ink:#1B1F24; --ink-2:#3A3F45; --muted:#697079; --rule:#E4E7EB;
     /* Caviar carries every dark surface: checkpoints, the vocabulary word cell,
        the jump menu, the video letterbox. It is a warm near-black -- the old
        dark surface was #1B1F24, cool enough to read as navy on a projector.
@@ -87,13 +87,13 @@
   h2{font-size:clamp(27px,3.9vw,56px);max-width:24ch}
   /* the standfirst is the old lede: quiet sans under the serif headline. It exists so a
      slide always says something beyond its title — that is content, not decoration. */
-  .stand{font-size:clamp(15px,1.75vw,25px);line-height:1.5;color:var(--muted);
+  .stand{font-size:clamp(17px,2vw,29px);line-height:1.45;color:var(--ink-2);
     max-width:54ch;margin-top:1.8vh}
   .body{flex:1;display:flex;flex-direction:column;justify-content:center;
     margin:2.4vh 0 1.6vh;min-height:0}
   /* The only line allowed under the body is a direction — what students physically do.
      No summary line, no takeaway, no closing thought. The content said it already. */
-  .instruct{color:var(--muted);font-size:clamp(13px,1.42vw,20px);line-height:1.4;max-width:70ch}
+  .instruct{color:var(--ink-2);font-size:clamp(17px,1.9vw,27px);line-height:1.4;max-width:62ch}
   .quiet{color:var(--muted)}
 
   /* ---- the Spanish line --------------------------------------------------
@@ -102,7 +102,7 @@
      that still carry it. The tick of accent on the left is how a student finds it
      from across the room; it is NOT italic, because italic costs a striving
      reader speed and this line is read by the students with the least to spare. */
-  .es{color:var(--muted);font-size:clamp(13px,1.4vw,19px);line-height:1.4;max-width:56ch;
+  .es{color:var(--ink-2);font-size:clamp(16px,1.8vw,26px);line-height:1.4;max-width:56ch;
     border-left:2px solid var(--accent-soft);padding-left:.75em;margin-top:1.2vh}
   h1 + .es,h2 + .es{margin-top:1.6vh}
   /* a second home language stacks tight under the first; right-to-left scripts mirror the rule */
@@ -126,7 +126,7 @@
     color:var(--accent-deep);font-weight:700;margin-bottom:.9vh}
   .card h3{font-family:var(--serif);font-weight:400;font-size:clamp(16px,1.75vw,26px);
     line-height:1.15;margin-bottom:.9vh}
-  .card p{font-size:clamp(13px,1.34vw,19px);line-height:1.45;color:var(--muted)}
+  .card p{font-size:clamp(16px,1.75vw,25px);line-height:1.4;color:var(--ink-2)}
   .card .big{font-family:var(--serif);color:var(--accent-deep);font-size:clamp(22px,2.8vw,42px);
     line-height:1.05;margin-bottom:.6vh}
 
@@ -138,7 +138,7 @@
     color:var(--accent-deep);font-weight:700;margin-bottom:.8vh}
   .flow .step .t{font-family:var(--serif);font-size:clamp(16px,1.75vw,26px);line-height:1.15;
     margin-bottom:.7vh}
-  .flow .step p{font-size:clamp(12px,1.28vw,18px);line-height:1.4;color:var(--muted)}
+  .flow .step p{font-size:clamp(15px,1.6vw,23px);line-height:1.4;color:var(--ink-2)}
   .flow .arrow{flex:0 0 auto;align-self:center;color:var(--accent);padding:0 .7vw;
     font-size:clamp(16px,2vw,30px);line-height:1}
   .flow.stack{flex-direction:column}
@@ -166,7 +166,7 @@
     color:var(--accent-deep);font-weight:700;margin-bottom:1.2vh}
   .frame{background:var(--paper);border-left:2px solid var(--accent-soft);
     padding:1.5vh 1.3em;margin-bottom:1.2vh;font-family:var(--serif);
-    font-size:clamp(15px,1.62vw,24px);line-height:1.6}
+    font-size:clamp(19px,2.2vw,32px);line-height:1.55}
   .blank{display:inline-block;min-width:5.5em;border-bottom:1.5px solid currentColor;margin:0 .18em}
   .blank.long{min-width:11em}
 
@@ -182,7 +182,7 @@
   /* the word in Spanish sits with the word, not in a line of its own */
   .vc .es{font-size:clamp(12px,1.25vw,17px);margin-top:1.1vh;border-left-color:var(--accent-deep)}
   .vc.word .es{color:#C9CDD3;border-left-color:var(--accent)}
-  .vc .d,.vc .ex{font-size:clamp(13px,1.4vw,20px);line-height:1.45;color:var(--muted)}
+  .vc .d,.vc .ex{font-size:clamp(16px,1.8vw,26px);line-height:1.4;color:var(--ink-2)}
   .term{border-bottom:2px solid var(--accent);padding-bottom:.04em}
 
   /* ---- stats ------------------------------------------------------------- */
@@ -196,7 +196,7 @@
   .bars{width:100%;max-width:78ch}
   .bar-row{display:grid;grid-template-columns:minmax(8em,16ch) 1fr auto;align-items:center;
     gap:1.1em;margin-bottom:1.5vh}
-  .bar-label{font-size:clamp(13px,1.38vw,20px);line-height:1.2}
+  .bar-label{font-size:clamp(16px,1.75vw,25px);line-height:1.2}
   .bar-track{background:var(--paper);height:clamp(18px,2.9vh,34px);position:relative;overflow:hidden}
   .bar-fill{position:absolute;left:0;top:0;bottom:0;width:var(--w,50%);background:var(--c,var(--accent))}
   .bar-val{font-family:var(--serif);font-size:clamp(15px,1.8vw,26px);
@@ -220,7 +220,7 @@
   .compare .vs{align-self:center;font-family:var(--serif);color:var(--muted);
     font-size:clamp(15px,1.9vw,27px)}
   .compare ul{list-style:none}
-  .compare li{font-size:clamp(13px,1.36vw,19px);line-height:1.45;
+  .compare li{font-size:clamp(16px,1.75vw,25px);line-height:1.4;
     padding:.55vh 0 .55vh 1em;position:relative;color:var(--muted)}
   .compare li::before{content:"";position:absolute;left:0;top:.75em;width:.45em;height:2px;
     background:var(--muted);border-radius:2px}
@@ -275,7 +275,7 @@
 
   /* ---- chrome ------------------------------------------------------------ */
   .timer-time{font-family:var(--serif);font-variant-numeric:tabular-nums;
-    font-size:clamp(19px,2.4vw,36px);line-height:1;cursor:pointer;letter-spacing:-.02em;
+    font-size:clamp(26px,3.2vw,48px);line-height:1;cursor:pointer;letter-spacing:-.02em;
     color:var(--ink)}
   .slide.dark .timer-time{color:#F7F8FA}
   .timer.running .timer-time{color:var(--accent-deep)}
@@ -316,6 +316,9 @@
     .compare .vs{display:none}
   }
   @media print{
+    .slide.dark{background:#fff !important;color:var(--ink) !important}
+    .slide.dark *{color:var(--ink) !important}
+    .zoom{display:none !important}
     .slide{display:block !important;position:static;height:auto;page-break-after:always;
       border-bottom:1px solid var(--rule);padding:6vh 6vw}
     .footer,.progress,.jump{display:none !important}
@@ -334,7 +337,7 @@
   /* .photo.fill crops to the full band instead of letterboxing -- use it when the
      photo is the slide and the subject can survive a crop. --focus is required. */
   .photo.fill img{width:100%;height:100%;max-height:100%;object-fit:cover}
-  .cap{font-size:clamp(12px,1.3vw,18px);line-height:1.4;color:var(--muted);text-align:center;
+  .cap{font-size:clamp(15px,1.6vw,23px);line-height:1.4;color:var(--ink-2);text-align:center;
     max-width:70ch;flex:0 0 auto}
   .cap .cred{display:block;font-size:.78em;letter-spacing:.06em;color:#9AA1A9;margin-top:.5vh}
   .pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1.2vw;
@@ -386,6 +389,18 @@
   .timer-phase:empty{display:none}
   .slide.dark .timer-phase{color:var(--accent)}
   .roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.1vw;width:100%}
+  /* the talk layout: the thing to talk about on the left, at the size of a wall,
+     and the turns on the right, stacked in the order they happen */
+  .talk{display:grid;grid-template-columns:1.25fr 1fr;gap:2.4vw;width:100%;flex:1;min-height:0;
+    align-items:stretch}
+  .talk-visual{display:flex;flex-direction:column;min-height:0;gap:1vh}
+  .talk-visual img{flex:1 1 auto;min-height:0;width:100%;object-fit:cover;
+    object-position:var(--focus,50% 50%);background:var(--paper);display:block}
+  .talk-visual .cap{text-align:left;flex:0 0 auto}
+  .talk-side{display:flex;flex-direction:column;justify-content:center;gap:1.4vh;min-width:0}
+  .talk-side .roles{grid-template-columns:1fr;gap:.8vh}
+  .talk-side .role{padding:1.3vh 1.1em}
+  .talk-side .frames{margin-top:.6vh}
   .role{background:var(--paper);border-top:2px solid var(--rule);padding:2vh 1.4em;
     transition:background .25s,border-color .25s}
   .role .k{font-size:clamp(10px,1.02vw,14px);letter-spacing:.12em;text-transform:uppercase;
@@ -441,8 +456,16 @@
     padding:1.2vh 1em;color:var(--ink);resize:vertical}
   .heard textarea:focus{outline:none;border-left-color:var(--accent-deep)}
 
-  .blank-screen{position:fixed;inset:0;background:var(--caviar);z-index:80;display:none}
-  .blank-screen.on{display:block}
+  /* look closer: a photo opens at wall size with the slide's question under it, so
+     the class talks about the thing itself, not about a thumbnail of it */
+  .zoom{position:fixed;inset:0;background:var(--caviar);z-index:80;display:none;
+    flex-direction:column;align-items:center;justify-content:center;padding:3vh 3vw;cursor:zoom-out}
+  .zoom.on{display:flex}
+  .zoom img{max-width:100%;max-height:82vh;object-fit:contain;display:block}
+  .zoom .zq{color:#F7F8FA;font-family:var(--serif);font-size:clamp(22px,2.8vw,42px);
+    line-height:1.2;margin-top:2.2vh;text-align:center;max-width:40ch}
+  .zoom .zes{color:#C9CDD3;font-size:clamp(16px,1.8vw,26px);margin-top:.8vh;text-align:center}
+  .photo img,.pgrid img,.vc.shot img,.talk-visual img{cursor:zoom-in}
   @media print{ .js-steps [data-step]{opacity:1 !important;visibility:visible !important} }
 
 </style>
@@ -758,14 +781,24 @@
     <h2>Which would you build first, the pump or the reservoir?</h2>
     <p class="es">¿Qué construirías primero: la bomba o el tanque?</p>
     <div class="body">
-      <div class="roles">
-        <div class="role" data-phase="Think"><div class="k">Everyone</div><p>Think quietly. Pick one.</p></div>
-        <div class="role" data-phase="A talks"><div class="k">Partner A</div><p>Say your pick and one reason.</p></div>
-        <div class="role" data-phase="B talks"><div class="k">Partner B</div><p>Say it back: "You said…" Then add yours.</p></div>
-      </div>
-      <div class="frames">
-        <div class="frames-label">Say it</div>
-        <div class="frame">I would build the <span class="blank"></span> first because <span class="blank long"></span>.</div>
+      <div class="talk">
+        <figure class="talk-visual" style="--focus:50% 55%">
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Salades%20dans%20un%20canal%20NFT.jpg?width=1200"
+               alt="Rows of lettuce growing in long white plastic channels, with water running underneath them.">
+          <figcaption class="cap">Every plant here drinks from the same pumped water.
+            <span class="cred">Wikimedia Commons · CC0</span></figcaption>
+        </figure>
+        <div class="talk-side">
+          <div class="roles">
+            <div class="role" data-phase="Think"><div class="k">Everyone</div><p>Look. Pick one.</p></div>
+            <div class="role" data-phase="A talks"><div class="k">Partner A</div><p>Say your pick and one reason.</p></div>
+            <div class="role" data-phase="B talks"><div class="k">Partner B</div><p>Say it back: "You said…" Then add yours.</p></div>
+          </div>
+          <div class="frames">
+            <div class="frames-label">Say it</div>
+            <div class="frame">I would build the <span class="blank"></span> first because…</div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -797,7 +830,7 @@
 
 <div class="footer">
   <span class="day-tag" id="dayTag">Day 1</span>
-  <span class="hint">← → slides · S timer · A read aloud · B blank · G jump</span>
+  <span class="hint">← → slides · S timer · A read aloud · G jump · click a photo to enlarge</span>
   <span class="nav">
     <button id="prev" aria-label="Previous slide">&#8592;</button>
     <span id="counter">1 / 1</span>
@@ -993,9 +1026,21 @@
       else say(el.textContent, 'en-US');
     });
   }
-  var blank = document.createElement('div');
-  blank.className = 'blank-screen';
-  document.body.appendChild(blank);
+  var zoom = document.createElement('div');
+  zoom.className = 'zoom';
+  document.body.appendChild(zoom);
+  document.addEventListener('click', function(e){
+    if (zoom.classList.contains('on')) { zoom.classList.remove('on'); return; }
+    var img = e.target.closest && e.target.closest('.slide img');
+    if (!img || img.closest('.vfacade')) return;
+    var s = slides[idx], q = s.querySelector('h1, h2'), es = s.querySelector('h1 + .es, h2 + .es');
+    zoom.innerHTML = '';
+    var big = document.createElement('img'); big.src = img.currentSrc || img.src; big.alt = img.alt;
+    zoom.appendChild(big);
+    if (q) { var zq = document.createElement('div'); zq.className = 'zq'; zq.textContent = q.textContent; zoom.appendChild(zq); }
+    if (es) { var ze = document.createElement('div'); ze.className = 'zes'; ze.textContent = es.textContent; zoom.appendChild(ze); }
+    zoom.classList.add('on');
+  });
   toggleBtn.addEventListener('click', function(e){ e.stopPropagation(); toggle(); });
   resetBtn.addEventListener('click', function(e){ e.stopPropagation(); reset(); });
   timeEl.addEventListener('click', function(e){ e.stopPropagation(); toggle(); });
@@ -1009,11 +1054,10 @@
       case 'ArrowRight': case 'PageDown': next(); break;
       case 'ArrowLeft':  case 'PageUp':   prev(); break;
       case 'a': case 'A': readAloud(); break;
-      case 'b': case 'B': blank.classList.toggle('on'); break;
       case 'Home': show(0); break;
       case 'End':  show(slides.length - 1); break;
       case 'g': case 'G': jump.classList.toggle('show'); break;
-      case 'Escape': jump.classList.remove('show'); blank.classList.remove('on'); break;
+      case 'Escape': jump.classList.remove('show'); zoom.classList.remove('on'); break;
       case 's': case 'S': if (total > 0) { e.preventDefault(); toggle(); } break;
       case 'r': case 'R': if (total > 0) { e.preventDefault(); reset(); } break;
       case ' ': if (total > 0) { e.preventDefault(); toggle(); } break;

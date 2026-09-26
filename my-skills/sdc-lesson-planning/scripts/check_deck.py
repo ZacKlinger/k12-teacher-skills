@@ -174,11 +174,22 @@ def check_photos(html: str, sl: list, minutes: int, rep: Report) -> None:
 
     # base64 inlining: deck.md used to say "single file, no external assets",
     # which pushed builds into inlining every photo and producing 2 MB decks.
-    if "data:image" in html:
+    # The one exception is the class's own photographs (the frame, the garden, a
+    # build), which can't be linked and are worth more than any stock photo. Up to
+    # three, each shrunk to about 1200px, keeps the deck quick to open.
+    inlined = re.findall(r'src="data:image/[^"]+"', html)
+    if len(inlined) > 3:
         rep.error(
-            "Photographs are base64-inlined. Link them by URL instead -- inlining "
+            f"{len(inlined)} photographs are base64-inlined. Link public photos by URL, and "
+            "inline only the class's own photos, three at most -- inlining everything "
             "produced a 1.9 MB deck that is slow to open in front of a class."
         )
+    for blob in inlined:
+        if len(blob) > 340_000:
+            rep.error(
+                f"An inlined photo is {len(blob) // 1000} KB. Shrink it to about 1200px wide "
+                "at JPEG quality 70 (see references/photographs.md, 'Your own photos')."
+            )
 
     for t in all_imgs:
         src = attr(t, "src") or ""
@@ -388,6 +399,10 @@ def check_talk(sl: list, rep: Report) -> None:
         elif timer.isdigit() and int(timer) != total:
             rep.error(f"Slide {i} ({title}): the phases add up to {total}s but data-timer "
                       f"is {timer}s. Make them agree.")
+        if not re.search(r"<img|<svg|dv-|data-yt|class=\"vote", body):
+            rep.error(f"Slide {i} ({title}) is a talk slide with nothing to look at. Students "
+                      "talk best about something in front of them: put the photograph, chart, "
+                      "or diagram they are discussing in the .talk layout's visual.")
         names = {n for n, _ in phases}
         for want in re.findall(r'data-phase="([^"]*)"', body):
             if want not in names:

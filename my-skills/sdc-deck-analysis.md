@@ -1,5 +1,9 @@
 # The HTML decks: what they communicate, what they teach, and what they could do
 
+*Revised Sep 26: the blank-screen key is gone. Students need something to look at and talk about,
+so every talk slide now carries its visual, and photos open larger instead. The output criteria for
+slides and worksheets are in `sdc-lesson-planning/references/design_criteria.md`.*
+
 September 26, 2026
 
 ## What was read
@@ -108,7 +112,8 @@ closing CER that cites one of them.
 | What we heard (`.heard`) | A board you type student ideas into; kept through a reload on that computer |
 | Build steps (`data-step`) | → reveals the next piece before the next slide: answers after predictions, worked-example lines one at a time |
 | Read aloud (key A) | Reads the headline, then each language line in its own voice, then the direction |
-| Blank screen (key B) | Pulls eyes off the wall and onto a partner; the timer keeps chiming |
+| Look closer (click a photo) | Opens it at wall size with the slide's question under it; the screen is never blanked |
+| Talk layout (`.talk`) | The visual students discuss on the left, the turns and the starter on the right |
 
 **Already there:** per-slide timers, six predict-then-reveal chart types, a live dot plot for class
 data, click-to-play video with a fallback, photo fallback cards, a jump menu.

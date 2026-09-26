@@ -10,22 +10,25 @@ knowledge in claude.ai.
 - Lesson code: `Math <unit>.<lesson>`. Last coded packet: **Math 1.5** (Field trip prep, Days 1
   and 2). Next: **Math 1.6**.
 - Grade / setting: 9-10 SDC
+- Class size: 9 students (7 Geometry, 2 Algebra 2)
 - Student reading level: 3rd-5th grade (**confirm**)
 - Equipment on hand: projector, whiteboard, calculators (**confirm**)
 
 ## Schedule
 
-Math 1.5 was planned as 60 minutes a day. **Fill in the rest.**
+From the calendar (period 6). Math doesn't meet Monday or Wednesday.
 
 | Day | Minutes | Notes |
 |---|---|---|
-| Mon | 60 (**confirm**) |  |
-| Tue | 60 (**confirm**) |  |
-| Wed | 60 (**confirm**) |  |
-| Thu | 60 (**confirm**) |  |
-| Fri | 60 (**confirm**) |  |
+| Mon | — | no class |
+| Tue | 93 | 12:36-2:09 block |
+| Wed | — | no class |
+| Thu | 60 | 1:42-2:42 |
+| Fri | 60 | 12:37-1:37 |
 
 - How class starts: do-now, 5 minutes
+- Materials: a stapled **week packet** ("From Paper to Sky · Week of 9/29"), pages numbered
+  through the week
 - Days that break the pattern: Scrap SF field trip (**add date**)
 
 ## Languages

@@ -152,6 +152,8 @@ inventing an ID — a dead embed in front of a class is a bad minute.
 
 Read the build references before writing anything:
 
+- `references/design_criteria.md` — what a good page and a good slide are made of: the page
+  budget, ink, readability, organizers, and the back-row type sizes. Everything below serves it.
 - `references/packet.md` — the student packet rules and the `packet.json` schema.
 - `references/deck.md` — the slide deck spec and the component catalog.
 - `references/dataviz.md` — the chart kit and how to use it. Not optional: every deck carries at
@@ -178,6 +180,17 @@ Never write layout code by hand, and never edit the rendered document — every 
 into `packet.json` and re-renders instantly. The renderer handles keep-together grouping so a page
 break can't land between a question and its answer space. The packet stays text and line art:
 photographs live on the screen, where they are in color and the size of a wall.
+
+Then check it the way the copier will meet it:
+
+```bash
+python3 scripts/check_packet.py "$OUTPUT_DIR/<code> - <short title> - packet.docx" --max-pages 2 --sheet pages.png
+```
+
+It reports the page count against the budget and how full each page is, and writes every page into
+one image. Look at that image once, then fix what it reports in `packet.json` in the order
+`references/design_criteria.md` gives (take off, merge, fill the gap, then cut) and re-render. Two
+pages for a 60-minute lesson; a block aims for two and never passes four.
 
 **Lesson plan — in chat, never a file.** Zac reads the plan on screen while he builds the day;
 printing it makes a document nobody opens twice. Write it in the message that delivers the files,
@@ -214,26 +227,31 @@ in this order, tight enough to skim:
 Prose and short lists, no headers-within-headers. If it runs past what fits on a screen or two,
 it's too long: cut the parts a teacher already knows how to do.
 
-**Slide deck (HTML).** Copy `assets/deck_template.html` and fill it with the lesson's slides. The
-template ships the navigation, the per-slide countdown timers, the day tag, the photo styles, the
+**Slide deck (HTML).** Write only the slides, the `<section class="slide">` elements in order, to
+`slides.html`, using the components in `references/deck.md`. Don't open or copy
+`assets/deck_template.html`: `build_deck.py` puts the slides inside it, and the template already
+carries the navigation, the per-slide countdown timers, the day tag, the photo styles and zoom, the
 blocked-image fallback, the click-to-play video, the interactive chart kit, and the talk kit (phased
-talk timers, vote-talk-revote, a pair picker, build steps, read-aloud) — all of it already wired.
-Every talk move in the plan gets a talk slide built the way `references/deck.md` "Talk slides"
-describes. There is nothing to paste in and nothing to rebuild by hand; copying the template is the
-whole setup. Save as `$OUTPUT_DIR/<code> - <short title> - deck.html`.
+talk timers, vote-talk-revote, a pair picker, build steps, read-aloud). Every talk move in the plan
+gets a talk slide built the way `references/deck.md` "Talk slides" describes, with the thing
+students talk about on it.
+
+```bash
+python3 scripts/build_deck.py slides.html "$OUTPUT_DIR/<code> - <short title> - deck.html" \
+  --title "<code> · <short title>" --minutes <period length> --languages es
+```
+
+It writes the deck and runs the checker in one step.
 
 Every deck carries **at least one interactive chart**, two to four when the lesson has numbers in
 it. In a room where reading is the barrier, the chart is the explanation and the words are its
 caption — a deck with no chart has put the lesson back into prose.
 
-Then check the work before handing it over. Run the deck checker first — it is faster and more
-reliable than reading the file, and every rule in it is one that a previous build silently broke:
+The checker's report is the first check of the work — it is faster and more reliable than reading
+the file, and every rule in it is one that a previous build silently broke. To re-check after a fix,
+re-run `build_deck.py`, or `check_deck.py` on the deck directly.
 
-```bash
-python3 scripts/check_deck.py "$OUTPUT_DIR/<code> - <short title> - deck.html" --minutes <period length> --languages es
-```
-
-Pass the period length you settled in Step 1 — 60 or 90. The slide count and the photograph floor
+Pass the period length you settled in Step 1. The slide count and the photograph floor
 both scale off it, so a block-day deck checked at 60 gets told it has too many slides, and a
 checker that is wrong once is a checker that gets ignored after that.
 
@@ -241,8 +259,8 @@ Fix every error and re-run until it exits clean; then read the warnings and make
 each one rather than ignoring them. What the checker cannot judge, you still have to: whether each
 photograph is the *right* photograph for its claim, whether the slides look right at projection
 size, and whether the arithmetic holds. So also list `$OUTPUT_DIR` and confirm both files exist and
-are non-trivial in size; convert the packet to PDF (`soffice --headless --convert-to pdf`, when
-available) and look at the page breaks; open the deck and click through it. Work every calculation
+are non-trivial in size; look at the packet's page image from `check_packet.py`; open the deck and
+click through it. Work every calculation
 in the lesson — the answer key, the worked example, and the numbers on the slides all have to
 agree.
 

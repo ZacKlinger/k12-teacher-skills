@@ -1,9 +1,11 @@
 # The slide deck
 
-Start from `assets/deck_template.html`: copy it, keep the `<head>` and the closing `<script>`
-exactly as they are, and replace the sample slides. The chrome — navigation, countdown, day tag,
-packet chip, progress bar, jump menu — already works. Don't rewrite it, and don't position anything
-by hand.
+Write only the slides, the `<section class="slide">` elements, into `slides.html`, and build with
+`scripts/build_deck.py`, which puts them inside `assets/deck_template.html` and runs the checker.
+The chrome (navigation, countdown, day tag, packet chip, progress bar, jump menu, photo zoom)
+already works. Don't open the template's stylesheet or scripts, don't rewrite them, and don't
+position anything by hand. `references/design_criteria.md` sets the type sizes and contrast the
+template is built to.
 
 The deck does two jobs at once. It's what Zac teaches from, and it's what a student looks up at
 when they've lost the thread of the packet.
@@ -231,19 +233,22 @@ conversion on the slide.
 ## Talk slides
 
 Student talk is the non-negotiable in every lesson, and the deck is what runs it, so a talk slide
-does more than post a question. It carries five things, and the checker errors on a deck with no
+does more than post a question. It carries six things, and the checker errors on a deck with no
 talk slide at all:
 
 1. **The question** as the headline, with its language line under it.
-2. **The roles** — `.roles` with one `.role` per turn: who speaks, and what the listener does while
+2. **The thing to talk about** — a photograph, chart, or diagram, in the `.talk` layout: the visual
+   in `.talk-visual` on the left, the turns and the starter in `.talk-side` on the right. Students
+   talk best about something in front of them, and the checker errors on a talk slide without one.
+3. **The roles** — `.roles` with one `.role` per turn: who speaks, and what the listener does while
    they wait ("Say it back: *You said…*"). A listener with no job is a student waiting for a turn.
-3. **The stem** — `.frames` labeled **Say it**, not **Start here**. It is a speaking frame, so it is
+4. **The stem** — `.frames` labeled **Say it**, not **Start here**. It is a speaking frame, so it is
    short enough to say out loud in one breath.
-4. **The turns, timed** — `data-phases="Think|30; A talks|60; B talks|60; Share|60"`, with
+5. **The turns, timed** — `data-phases="Think|30; A talks|60; B talks|60; Share|60"`, with
    `data-timer` set to their sum. One press of S runs every phase and chimes at each switch, and
    the matching `.role` lights up (`data-phase="A talks"`), so you can walk the room instead of
    watching the clock, and a student can see whose turn it is from across it.
-5. **Who reports** — the `.picker` on the share slide, after rehearsal. Pairs are numbered, never
+6. **Who reports** — the `.picker` on the share slide, after rehearsal. Pairs are numbered, never
    named; the file never holds a student's name.
 
 How each move in the talk catalog lands on screen:
@@ -258,10 +263,10 @@ How each move in the talk catalog lands on screen:
 | Four corners, defend | `.corners`, then `Talk\|120; Defend\|180` and the picker per corner |
 | Stations in pairs | One slide per rotation with its own phases, or one `Station\|480` phase each |
 
-Keep the slide still while students talk. **B** blanks the screen when the words on it are pulling
-eyes away from a partner; the timer keeps running and still chimes. **A** reads the headline and
-its language lines aloud in their own voices, for the student who can't yet read the question off
-the wall.
+Keep the slide still while students talk, and keep the visual on it: the screen is never blanked.
+Clicking a photograph opens it at full size with the slide's question under it, for close looking
+before or during the talk. **A** reads the headline and its language lines aloud in their own
+voices, for the student who can't yet read the question off the wall.
 
 ## Timers
 

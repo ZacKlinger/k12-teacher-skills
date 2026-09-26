@@ -36,7 +36,7 @@ import sys
 from docx import Document
 from docx.enum.section import WD_SECTION
 from docx.enum.table import WD_TABLE_ALIGNMENT
-from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK, WD_LINE_SPACING, WD_TAB_ALIGNMENT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt, RGBColor
@@ -49,6 +49,7 @@ STUDENT = {
     "h1": 17,
     "h2": 13.5,
     "small": 10,
+    "es": 11,             # the language line is read by the students with the least margin
     "margin": 0.7,
     "line_gap": 30,       # points between writing lines — sized for teen handwriting
     "space_after": 8,
@@ -60,6 +61,7 @@ TEACHER = {
     "h1": 16,
     "h2": 12.5,
     "small": 9.5,
+    "es": 10,
     "margin": 0.75,
     "line_gap": 24,
     "space_after": 6,
@@ -69,11 +71,14 @@ INK = RGBColor(0x1B, 0x1F, 0x24)
 MUTED = RGBColor(0x69, 0x70, 0x79)
 # The Spanish line is secondary to the English but it is not fine print: the students
 # reading it are the ones with the least margin. Darker than MUTED, lighter than INK.
-ES_INK = RGBColor(0x4A, 0x51, 0x59)
+ES_INK = RGBColor(0x3A, 0x3F, 0x45)
 ACCENT = RGBColor(0x3E, 0x6D, 0xA8)
 RULE = "E4E7EB"
 FILL = "F3F6FA"
 BOX_LINE = "9AA2AC"
+# Structure is drawn in hairlines, never in fills: a grey fill costs toner on every copy,
+# prints as mud on a tired copier, and lowers the contrast of whatever sits on it.
+GRID = "8A9099"
 
 
 # ---------------------------------------------------------------- low-level helpers
@@ -118,11 +123,51 @@ def _para_border(par, side="bottom", color=BOX_LINE, sz=6):
 
 
 def _no_split(table):
-    """Rows stay whole; the table does not break across pages where avoidable."""
-    for row in table.rows:
+    """Rows stay whole, and the table stays on one page: every paragraph in every row
+    but the last is kept with the next, so a break can only land before or after it.
+    A vote tally split across two pages is two half-organizers."""
+    rows = list(table.rows)
+    for i, row in enumerate(rows):
         trPr = row._tr.get_or_add_trPr()
         el = OxmlElement("w:cantSplit")
         trPr.append(el)
+        if i < len(rows) - 1:
+            for cell in row.cells:
+                for par in cell.paragraphs:
+                    par.paragraph_format.keep_with_next = True
+
+
+def _grid(table, color=GRID, sz=4, header=False):
+    """Hairline grid on every cell; a firmer rule under the header row."""
+    for r, row in enumerate(table.rows):
+        for cell in row.cells:
+            _cell_borders(cell, color, sz)
+            if header and r == 0:
+                tcb = cell._tc.get_or_add_tcPr().find(qn("w:tcBorders"))
+                bottom = tcb.find(qn("w:bottom"))
+                bottom.set(qn("w:sz"), "10")
+                bottom.set(qn("w:color"), "1B1F24")
+
+
+def _widths(table, inches):
+    """Fix column widths. Word ignores a cell width unless autofit is off and every
+    cell in the column agrees."""
+    table.autofit = False
+    for i, w in enumerate(inches):
+        table.columns[i].width = Inches(w)
+        for cell in table.columns[i].cells:
+            cell.width = Inches(w)
+
+
+def _valign_bottom(cell):
+    el = OxmlElement("w:vAlign")
+    el.set(qn("w:val"), "bottom")
+    cell._tc.get_or_add_tcPr().append(el)
+
+
+BLANK = re.compile(r"_{2,}")
+# a gap wide enough to write a word or two in by hand
+GAP = "\u00a0" * 18
 
 
 def _row_height(row, inches):
@@ -162,7 +207,7 @@ class Renderer:
         self.S = dict(STUDENT if self.audience == "student" else TEACHER)
         meta = data.get("meta", {})
         if meta.get("large_print"):
-            for k in ("body", "h1", "h2", "small"):
+            for k in ("body", "h1", "h2", "small", "es"):
                 self.S[k] = round(self.S[k] * 1.25 * 2) / 2
             self.S["line_gap"] = round(self.S["line_gap"] * 1.2)
         # the home languages in the room; each carries one short line under the English
@@ -172,6 +217,7 @@ class Renderer:
         # every paragraph the renderer emits is registered here so a task group can be
         # bound together after the fact
         self._group = None
+        self._last_group = []
         # language-line coverage, reported on stderr once the document is written
         self._es = []
         self._missing_es = {c: [] for c in self.langs}
@@ -228,6 +274,20 @@ class Renderer:
             self._group.append(par)
         return par
 
+    def gap(self, pts=6):
+        """The paragraph Word needs after every table, held to a few points. At full
+        line height it is a wasted line after every table, and when a table fills a
+        page it is the reason a blank page prints."""
+        par = self.doc.add_paragraph()
+        pf = par.paragraph_format
+        pf.space_before = Pt(0)
+        pf.space_after = Pt(0)
+        pf.line_spacing_rule = WD_LINE_SPACING.EXACTLY
+        pf.line_spacing = Pt(max(1, int(pts)))
+        if self._group is not None:
+            self._group.append(par)
+        return par
+
     def run(self, par, text, size=None, bold=False, italic=False, color=None):
         r = par.add_run(text)
         r.font.name = self.S["font"]
@@ -248,7 +308,7 @@ class Renderer:
             return None
         self._es.append(str(text))
         par = self.p(space_after=space_after, space_before=0, indent=indent)
-        self.rich(par, str(text), size=self.S["small"])
+        self.rich(par, str(text), size=self.S["es"])
         for r in par.runs:
             r.font.color.rgb = ES_INK
         _rtl(par, lang)
@@ -262,7 +322,7 @@ class Renderer:
         par = cell.add_paragraph()
         par.paragraph_format.space_before = Pt(2)
         par.paragraph_format.space_after = Pt(0)
-        self.rich(par, str(text), size=self.S["small"])
+        self.rich(par, str(text), size=self.S["es"])
         for r in par.runs:
             r.font.color.rgb = ES_INK
         _rtl(par, lang)
@@ -293,6 +353,7 @@ class Renderer:
 
     def end_group(self):
         """Bind everything emitted since begin_group so a page break can't split it."""
+        self._last_group = list(self._group or [])
         if not self._group:
             self._group = None
             return
@@ -302,17 +363,22 @@ class Renderer:
 
     # ------------------------------------------------------------ blocks
     def heading(self, text, minutes=None, es=None, blk=None):
-        par = self.p(space_before=14, space_after=4, keep=True)
+        """One line per section: the name, its gloss in the room's language, and the
+        minutes flush right. Three lines of heading per section is a page of headings
+        across a packet."""
+        par = self.p(space_before=10, space_after=4, keep=True)
         self.run(par, text.upper(), size=self.S["h2"], bold=True)
-        if minutes:
-            self.run(par, f"   {minutes} min", size=self.S["small"], color=ACCENT, bold=True)
-        _para_border(par, "bottom", RULE, 8)
         lines = blk if blk is not None else {"es": es}
-        # the language lines belong to the heading, so they have to hold onto what
-        # follows too -- otherwise a break lands between them and the first task
-        # and the page ends on a heading alone
-        for es_par in self.lang_lines(lines, space_after=2):
-            es_par.paragraph_format.keep_with_next = True
+        # with one home language the gloss rides on the heading line; with two or
+        # more, headings go without, and the lines stay on the tasks (SKILL.md)
+        if len(self.langs) == 1 and lines.get(self.langs[0]):
+            gloss = self.run(par, "  ·  " + str(lines[self.langs[0]]), size=self.S["es"])
+            gloss.font.color.rgb = ES_INK
+        if minutes:
+            width = 8.5 - 2 * self.S["margin"]
+            par.paragraph_format.tab_stops.add_tab_stop(Inches(width), WD_TAB_ALIGNMENT.RIGHT)
+            self.run(par, f"\t{minutes} min", size=self.S["small"], color=MUTED, bold=True)
+        _para_border(par, "bottom", GRID, 6)
         par.paragraph_format.keep_with_next = True
         return par
 
@@ -338,7 +404,7 @@ class Renderer:
                 par.paragraph_format.space_after = Pt(2)
                 _cell_borders(cell, RULE, 6, sides=("bottom",))
             _no_split(t)
-            self.p(space_after=4)
+            self.gap(4)
 
         obj = self.data.get("objective")
         if obj:
@@ -353,19 +419,20 @@ class Renderer:
     def _banner(self, label, text, sub=None):
         t = self.doc.add_table(rows=1, cols=1)
         cell = t.rows[0].cells[0]
-        _shade(cell, FILL)
-        _cell_borders(cell, ACCENT_HEX, 12, sides=("left",))
+        _cell_borders(cell, "1B1F24", 12, sides=("left",))
         par = cell.paragraphs[0]
         par.paragraph_format.space_after = Pt(0)
-        self.run(par, label.upper() + "  ", size=self.S["small"], bold=True, color=ACCENT)
-        self.run(par, text, size=self.S["body"])
+        self.run(par, ("I can" if label.lower() == "objective" else label).upper() + "  ",
+                 size=self.S["small"], bold=True)
+        body = text[6:] if label.lower() == "objective" and text.lower().startswith("i can ") else text
+        self.run(par, body, size=self.S["body"])
         if sub:
             p2 = cell.add_paragraph()
             p2.paragraph_format.space_before = Pt(2)
             p2.paragraph_format.space_after = Pt(0)
-            self.run(p2, sub, size=self.S["small"], color=MUTED, italic=True)
+            self.run(p2, sub, size=self.S["small"], color=MUTED)
         _no_split(t)
-        self.p(space_after=2)
+        self.gap(2)
 
     def agenda(self, items):
         par = self.p(space_before=8, space_after=3, keep=True)
@@ -391,12 +458,12 @@ class Renderer:
             for c in row.cells:
                 _cell_borders(c, RULE, 4, sides=("bottom",))
         _no_split(t)
-        self.p(space_after=4)
+        self.gap(4)
 
     def question(self, blk):
         self.begin_group()
         num = str(blk.get("number", "")).strip()
-        par = self.p(space_before=12, space_after=4)
+        par = self.p(space_before=9, space_after=3)
         if num:
             self.run(par, f"{num}. ", bold=True)
         self.rich(par, blk.get("prompt", ""))
@@ -415,19 +482,39 @@ class Renderer:
             self.tinted("Example", blk["example"])
         if blk.get("hint"):
             self.tinted("Hint", blk["hint"])
-        for stem in blk.get("stems", []) or []:
-            self.stem(stem)
         for sub in blk.get("parts", []) or []:
             par = self.p(space_after=3, indent=0.3)
             self.rich(par, sub)
-        self.space(blk.get("space", {"kind": "lines", "count": 3}))
+        choices = blk.get("choices") or []
+        if choices:
+            # options to circle get a line of their own, spaced wide enough to
+            # circle one without touching the next
+            par = self.p(space_before=4, space_after=4, indent=0.3)
+            for i, c in enumerate(choices):
+                if i:
+                    self.run(par, "\u00a0" * 10)
+                self.run(par, str(c), bold=True)
+        stems = blk.get("stems", []) or []
+        spec = blk.get("space", {"kind": "lines", "count": 3})
+        if stems and isinstance(spec, dict) and spec.get("kind", "lines") == "lines":
+            # the stem is the first writing line, not a box above the lines: the
+            # student starts writing where the sentence starts
+            self.space(dict(spec, count=max(int(spec.get("count", 2)), len(stems))), stems)
+        else:
+            for stem in stems:
+                self.stem(stem)
+            self.space(spec)
+        if spec == {"kind": "none"} or (isinstance(spec, dict) and spec.get("kind") == "none"):
+            # a question whose answer space is the table or organizer after it
+            # stays on the same page as that table
+            for par in self._group or []:
+                par.paragraph_format.keep_with_next = True
         self.end_group()
 
     def stem(self, text):
         t = self.doc.add_table(rows=1, cols=1)
         cell = t.rows[0].cells[0]
-        _shade(cell, FILL)
-        _cell_borders(cell, RULE, 6, sides=("left",), style="single")
+        _cell_borders(cell, GRID, 8, sides=("left",), style="single")
         par = cell.paragraphs[0]
         par.paragraph_format.space_after = Pt(0)
         par.paragraph_format.space_before = Pt(1)
@@ -442,7 +529,21 @@ class Renderer:
         self.rich(par, text, size=self.S["small"])
         return par
 
-    def space(self, spec):
+    def stem_on_line(self, cell, text):
+        """A sentence frame printed on its writing line: blanks become gaps on the
+        rule, and a trailing blank becomes the rest of the line."""
+        text = BLANK.sub("___", str(text)).strip()
+        text = re.sub(r"\s*___\s*[.?!]?$", "", text)   # a trailing blank is the rest of the line
+        par = cell.paragraphs[0]
+        for i, chunk in enumerate(text.split("___")):
+            if i:
+                gap = self.run(par, GAP)
+                gap.font.underline = True
+            if chunk:
+                self.rich(par, chunk)
+        _valign_bottom(cell)
+
+    def space(self, spec, stems=None):
         if not spec:
             return
         kind = spec.get("kind", "lines") if isinstance(spec, dict) else str(spec)
@@ -454,15 +555,17 @@ class Renderer:
             # identical borders into one box, so three lines print as one.
             count = int(spec.get("count", 3)) if isinstance(spec, dict) else 3
             t = self.doc.add_table(rows=count, cols=1)
-            for row in t.rows:
+            for i, row in enumerate(t.rows):
                 cell = row.cells[0]
                 _cell_borders(cell, BOX_LINE, 6, sides=("bottom",))
                 par = cell.paragraphs[0]
                 par.paragraph_format.space_before = Pt(0)
-                par.paragraph_format.space_after = Pt(0)
+                par.paragraph_format.space_after = Pt(1)
+                if stems and i < len(stems):
+                    self.stem_on_line(cell, stems[i])
                 _row_height(row, self.S["line_gap"] / 72.0)
             _no_split(t)
-            self.p(space_after=6)
+            self.gap(6)
             return
         # box / work space
         height = float(spec.get("height_in", 2.0)) if isinstance(spec, dict) else 2.0
@@ -476,7 +579,7 @@ class Renderer:
             self.run(par, label, size=self.S["small"], color=MUTED)
         _row_height(t.rows[0], height)
         _no_split(t)
-        self.p(space_after=4)
+        self.gap(4)
 
     def table(self, blk, fill_rows=0, row_height=None):
         headers = blk.get("headers") or []
@@ -487,12 +590,11 @@ class Renderer:
         if total == 0:
             return
         t = self.doc.add_table(rows=total, cols=ncols)
-        t.style = "Table Grid"
+        _grid(t, header=bool(headers))
         idx = 0
         if headers:
             for c, head in enumerate(headers):
                 cell = t.rows[0].cells[c]
-                _shade(cell, FILL)
                 par = cell.paragraphs[0]
                 par.paragraph_format.space_after = Pt(2)
                 self.run(par, str(head), size=self.S["small"], bold=True)
@@ -504,26 +606,28 @@ class Renderer:
                 par.paragraph_format.space_after = Pt(2)
                 val = data_row[c] if c < len(data_row) else ""
                 self.rich(par, str(val))
-        h = float(row_height or blk.get("row_height_in", 0.45))
-        for r in range(len(rows) + (1 if headers else 0), total):
+        # every row a student writes in is tall enough to write in, filled or not
+        h = float(row_height or blk.get("row_height_in", 0.36))
+        for r in range(1 if headers else 0, total):
             _row_height(t.rows[r], h)
+            for cell in t.rows[r].cells:
+                cell.paragraphs[0].paragraph_format.space_before = Pt(3)
         _no_split(t)
-        self.p(space_after=6)
+        self.gap(6)
 
     def note(self, blk):
         t = self.doc.add_table(rows=1, cols=1)
         cell = t.rows[0].cells[0]
-        _shade(cell, FILL)
-        _cell_borders(cell, ACCENT_HEX, 12, sides=("left",))
+        _cell_borders(cell, BOX_LINE, 12, sides=("left",))
         par = cell.paragraphs[0]
         par.paragraph_format.space_after = Pt(0)
         label = blk.get("label")
         if label:
-            self.run(par, label.upper() + "  ", size=self.S["small"], bold=True, color=ACCENT)
+            self.run(par, label.upper() + "  ", size=self.S["small"], bold=True)
         self.rich(par, blk.get("text", ""))
         self.lang_in_cell(cell, blk)
         _no_split(t)
-        self.p(space_after=4)
+        self.gap(4)
 
     def listing(self, blk):
         self.begin_group()
@@ -542,16 +646,96 @@ class Renderer:
     def wordbank(self, blk):
         t = self.doc.add_table(rows=1, cols=1)
         cell = t.rows[0].cells[0]
-        _shade(cell, FILL)
-        _cell_borders(cell, BOX_LINE, 6)
+        _cell_borders(cell, GRID, 4)
         par = cell.paragraphs[0]
         par.paragraph_format.space_after = Pt(0)
         self.run(par, (blk.get("label") or "Word bank").upper() + "  ",
-                 size=self.S["small"], bold=True, color=ACCENT)
+                 size=self.S["small"], bold=True)
         self.run(par, "     ".join(str(i) for i in blk.get("items", [])))
         self.lang_in_cell(cell, blk)
         _no_split(t)
-        self.p(space_after=4)
+        self.gap(4)
+
+
+    # ------------------------------------------------------------ graphic organizers
+    def organizer(self, blk):
+        """A graphic organizer matched to the thinking the task asks for: compare
+        (tchart), notice and wonder, sequence (flow), argue (cer), a new word (frayer).
+        Drawn in hairlines like everything else, and kept on one page."""
+        kind = blk.get("kind", "tchart")
+        label = blk.get("label") or (f"New word: {blk['word']}" if blk.get("word") else None)
+        if label:
+            par = self.p(space_before=8, space_after=2, keep=True)
+            self.rich(par, "**" + str(label) + "**")
+        for es_par in self.lang_lines(blk, space_after=3):
+            es_par.paragraph_format.keep_with_next = True
+        if kind in ("tchart", "notice_wonder"):
+            cols = blk.get("columns") or (["I notice", "I wonder"] if kind == "notice_wonder"
+                                         else ["", ""])
+            nrows = int(blk.get("rows", 4))
+            t = self.doc.add_table(rows=nrows + 1, cols=len(cols))
+            for c, head in enumerate(cols):
+                cell = t.rows[0].cells[c]
+                _cell_borders(cell, "1B1F24", 10, sides=("bottom",)
+                              + (("right",) if c < len(cols) - 1 else ()))
+                self.rich(cell.paragraphs[0], "**" + str(head) + "**")
+            for r in range(1, nrows + 1):
+                _row_height(t.rows[r], self.S["line_gap"] / 72.0)
+                for c in range(len(cols)):
+                    _cell_borders(t.rows[r].cells[c], BOX_LINE, 6, sides=("bottom",)
+                                  + (("right",) if c < len(cols) - 1 else ()))
+        elif kind == "flow":
+            steps = blk.get("steps") or ["", "", ""]
+            t = self.doc.add_table(rows=1, cols=len(steps) * 2 - 1)
+            arrow_w = 0.32
+            box_w = (8.5 - 2 * self.S["margin"] - arrow_w * (len(steps) - 1)) / len(steps)
+            _widths(t, [box_w if c % 2 == 0 else arrow_w for c in range(len(steps) * 2 - 1)])
+            for i, step in enumerate(steps):
+                cell = t.rows[0].cells[i * 2]
+                _cell_borders(cell, GRID, 4)
+                if step:
+                    self.run(cell.paragraphs[0], str(step), size=self.S["small"], bold=True)
+                if i < len(steps) - 1:
+                    arrow = t.rows[0].cells[i * 2 + 1]
+                    _cell_borders(arrow, GRID, 4, sides=())
+                    ap = arrow.paragraphs[0]
+                    ap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    self.run(ap, "\u2192", size=self.S["h2"], color=MUTED)
+                    el = OxmlElement("w:vAlign"); el.set(qn("w:val"), "center")
+                    arrow._tc.get_or_add_tcPr().append(el)
+            _row_height(t.rows[0], float(blk.get("height_in", 1.1)))
+        elif kind == "cer":
+            parts = [("Claim", "What I think"), ("Evidence", "What I saw or measured"),
+                     ("Reasoning", "Why the evidence proves it")]
+            stems = blk.get("stems") or {}
+            t = self.doc.add_table(rows=3, cols=2)
+            _grid(t)
+            _widths(t, [1.45, 8.5 - 2 * self.S["margin"] - 1.45])
+            for r, (name, gloss) in enumerate(parts):
+                head, body = t.rows[r].cells
+                self.run(head.paragraphs[0], name, bold=True)
+                gp = head.add_paragraph()
+                self.run(gp, gloss, size=self.S["small"], color=MUTED)
+                if stems.get(name.lower()):
+                    self.stem_on_line(body, stems[name.lower()])
+                _row_height(t.rows[r], float(blk.get("height_in", 0.85)))
+        elif kind == "frayer":
+            word = blk.get("word", "")
+            cells = blk.get("cells") or ["What it means", "Draw it", "An example", "Not an example"]
+            t = self.doc.add_table(rows=2, cols=2)
+            _grid(t)
+            for i, name in enumerate(cells[:4]):
+                cell = t.rows[i // 2].cells[i % 2]
+                self.run(cell.paragraphs[0], str(name), size=self.S["small"], bold=True, color=MUTED)
+            for row in t.rows:
+                _row_height(row, float(blk.get("height_in", 1.25)))
+            if word:
+                # the word sits above the square, where the eye starts
+                pass
+        else:
+            raise ValueError(f"unknown organizer kind: {kind!r}")
+        _no_split(t)
+        self.gap(6)
 
     # ------------------------------------------------------------ spanish coverage
     @staticmethod
@@ -628,6 +812,8 @@ class Renderer:
                 self.stem(blk.get("text", ""))
             elif kind == "wordbank":
                 self.wordbank(blk)
+            elif kind == "organizer":
+                self.organizer(blk)
             elif kind == "space":
                 self.space(blk)
             elif kind == "page_break":
@@ -636,6 +822,12 @@ class Renderer:
                 self.p(space_after=int(blk.get("points", 12)))
             else:
                 raise ValueError(f"unknown block type: {kind!r}")
+        last = self.doc.paragraphs[-1] if self.doc.paragraphs else None
+        if last is not None and not last.text.strip():
+            last.paragraph_format.line_spacing_rule = WD_LINE_SPACING.EXACTLY
+            last.paragraph_format.line_spacing = Pt(1)
+            last.paragraph_format.space_after = Pt(0)
+            last.paragraph_format.keep_with_next = False
         self.doc.save(self.out)
         self.report()
 

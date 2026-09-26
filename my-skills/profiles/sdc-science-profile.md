@@ -10,24 +10,26 @@ project's knowledge in claude.ai.
 - Lesson code: `Science <unit>.<lesson>`. Last coded packet: **Science 1.6** (Vote and get ready).
   Next: **Science 1.7**.
 - Grade / setting: 9-10 SDC
+- Class size: 6 students, one paraprofessional
 - Student reading level: 3rd-5th grade (**confirm**)
 - Equipment on hand: projector, whiteboard, the hydroponic frame with lights (built), pH and EC/TDS
   meters (**confirm**), goggles and gloves for pH Up/Down
 
 ## Schedule
 
-Science 1.5 and 1.6 were both planned as 90-minute sessions. **Fill in which days are 90.**
+From the calendar (period 1). Science doesn't meet Tuesday or Thursday.
 
 | Day | Minutes | Notes |
 |---|---|---|
-| Mon | 90 (**confirm**) | Breakfast + do-now first |
-| Tue |  |  |
-| Wed |  |  |
-| Thu |  |  |
-| Fri |  |  |
+| Mon | 93 | 8:40-10:13 block; breakfast + do-now first |
+| Tue | — | no class |
+| Wed | 65 | 8:40-9:45 |
+| Thu | — | no class |
+| Fri | 62 | 8:40-9:42 |
 
-- How class starts: breakfast + do-now, 10 minutes, every session
-- Days that break the pattern:
+- How class starts: breakfast + do-now, 10 minutes on the block, 5 otherwise
+- Materials: a stapled **week packet** handed out Monday, pages numbered through Friday
+- Days that break the pattern: (minimum days, assemblies, retreats)
 
 ## Languages
 
