@@ -8,6 +8,14 @@ the judgment is for.
 
 ## The worksheet
 
+**Printed from Google Docs.** Zac prints from the Google Doc that "Add to Drive" makes, so that is
+the page that counts. Docs ignores Word's keep-together settings and splits tables anywhere; the one
+thing it never splits is a single table row. So the renderer carries every task, with its heading,
+its lines, and the table or organizer that answers it, in one borderless row, and Docs moves it
+whole or not at all. Docs also sets text about a twentieth taller than Word; `check_packet.py`
+estimates the Docs fill of every page and budgets against that, and checks a PDF exported from the
+Google Doc directly when there is one.
+
 **One sheet, both sides.** A 60-minute lesson fits on two pages; a 90-minute block aims for two and
 never takes more than four. Every page is at least three-quarters full, and the page count is even,
 so nothing prints with a blank back. `check_packet.py` measures this; run it every time.

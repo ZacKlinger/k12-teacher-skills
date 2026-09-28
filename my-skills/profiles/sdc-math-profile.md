@@ -27,8 +27,6 @@ From the calendar (period 6). Math doesn't meet Monday or Wednesday.
 | Fri | 60 | 12:37-1:37 |
 
 - How class starts: do-now, 5 minutes
-- Materials: a stapled **week packet** ("From Paper to Sky · Week of 9/29"), pages numbered
-  through the week
 - Days that break the pattern: Scrap SF field trip (**add date**)
 
 ## Languages

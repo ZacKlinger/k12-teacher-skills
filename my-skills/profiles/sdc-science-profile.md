@@ -28,7 +28,6 @@ From the calendar (period 1). Science doesn't meet Tuesday or Thursday.
 | Fri | 62 | 8:40-9:42 |
 
 - How class starts: breakfast + do-now, 10 minutes on the block, 5 otherwise
-- Materials: a stapled **week packet** handed out Monday, pages numbered through Friday
 - Days that break the pattern: (minimum days, assemblies, retreats)
 
 ## Languages

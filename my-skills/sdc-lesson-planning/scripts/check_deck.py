@@ -174,22 +174,11 @@ def check_photos(html: str, sl: list, minutes: int, rep: Report) -> None:
 
     # base64 inlining: deck.md used to say "single file, no external assets",
     # which pushed builds into inlining every photo and producing 2 MB decks.
-    # The one exception is the class's own photographs (the frame, the garden, a
-    # build), which can't be linked and are worth more than any stock photo. Up to
-    # three, each shrunk to about 1200px, keeps the deck quick to open.
-    inlined = re.findall(r'src="data:image/[^"]+"', html)
-    if len(inlined) > 3:
+    if "data:image" in html:
         rep.error(
-            f"{len(inlined)} photographs are base64-inlined. Link public photos by URL, and "
-            "inline only the class's own photos, three at most -- inlining everything "
+            "Photographs are base64-inlined. Link them by URL instead -- inlining "
             "produced a 1.9 MB deck that is slow to open in front of a class."
         )
-    for blob in inlined:
-        if len(blob) > 340_000:
-            rep.error(
-                f"An inlined photo is {len(blob) // 1000} KB. Shrink it to about 1200px wide "
-                "at JPEG quality 70 (see references/photographs.md, 'Your own photos')."
-            )
 
     for t in all_imgs:
         src = attr(t, "src") or ""

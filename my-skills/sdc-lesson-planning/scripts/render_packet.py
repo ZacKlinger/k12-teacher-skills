@@ -218,6 +218,9 @@ class Renderer:
         # bound together after the fact
         self._group = None
         self._last_group = []
+        # where paragraphs and tables go: the document, or the cell of an open unit
+        self.target = self.doc
+        self._fresh = None
         # language-line coverage, reported on stderr once the document is written
         self._es = []
         self._missing_es = {c: [] for c in self.langs}
@@ -255,9 +258,28 @@ class Renderer:
         foot.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     # ------------------------------------------------------------ text primitives
+    def _par(self):
+        """A new paragraph in the current target. A fresh unit cell already holds one
+        empty paragraph; the first paragraph written there reuses it, so a unit never
+        opens with a blank line."""
+        if self._fresh is not None:
+            par, self._fresh = self._fresh, None
+            return par
+        return self.target.add_paragraph()
+
+    def _table(self, rows, cols):
+        self._fresh = None
+        t = self.target.add_table(rows=rows, cols=cols)
+        if self.target is not self.doc:
+            # python-docx follows a table in a cell with an empty, full-height
+            # paragraph; hand it to whatever is written next instead of leaving a
+            # blank line after every table in every unit
+            self._fresh = self.target.paragraphs[-1]
+        return t
+
     def p(self, text="", size=None, bold=False, italic=False, color=None,
           space_after=None, space_before=None, indent=0, keep=False, align=None):
-        par = self.doc.add_paragraph()
+        par = self._par()
         if indent:
             par.paragraph_format.left_indent = Inches(indent)
         if space_after is not None:
@@ -278,7 +300,7 @@ class Renderer:
         """The paragraph Word needs after every table, held to a few points. At full
         line height it is a wasted line after every table, and when a table fills a
         page it is the reason a blank page prints."""
-        par = self.doc.add_paragraph()
+        par = self._par()
         pf = par.paragraph_format
         pf.space_before = Pt(0)
         pf.space_after = Pt(0)
@@ -395,7 +417,7 @@ class Renderer:
         self.run(par, meta.get("title", ""), size=self.S["h1"], bold=True)
 
         if self.audience == "student" and meta.get("name_line", True):
-            t = self.doc.add_table(rows=1, cols=2)
+            t = self._table(rows=1, cols=2)
             t.autofit = True
             for cell, label in zip(t.rows[0].cells, ("Name:", "Date:")):
                 cell.text = ""
@@ -417,7 +439,7 @@ class Renderer:
             self.agenda(agenda)
 
     def _banner(self, label, text, sub=None):
-        t = self.doc.add_table(rows=1, cols=1)
+        t = self._table(rows=1, cols=1)
         cell = t.rows[0].cells[0]
         _cell_borders(cell, "1B1F24", 12, sides=("left",))
         par = cell.paragraphs[0]
@@ -443,7 +465,7 @@ class Renderer:
                 rows.append((str(it[0]), f"{it[1]} min" if len(it) > 1 else ""))
             else:
                 rows.append((str(it), ""))
-        t = self.doc.add_table(rows=len(rows), cols=2)
+        t = self._table(rows=len(rows), cols=2)
         t.alignment = WD_TABLE_ALIGNMENT.LEFT
         for (name, mins), row in zip(rows, t.rows):
             row.cells[0].width = Inches(4.6)
@@ -512,7 +534,7 @@ class Renderer:
         self.end_group()
 
     def stem(self, text):
-        t = self.doc.add_table(rows=1, cols=1)
+        t = self._table(rows=1, cols=1)
         cell = t.rows[0].cells[0]
         _cell_borders(cell, GRID, 8, sides=("left",), style="single")
         par = cell.paragraphs[0]
@@ -554,7 +576,7 @@ class Renderer:
             # empty paragraphs look right in isolation but Word merges consecutive
             # identical borders into one box, so three lines print as one.
             count = int(spec.get("count", 3)) if isinstance(spec, dict) else 3
-            t = self.doc.add_table(rows=count, cols=1)
+            t = self._table(rows=count, cols=1)
             for i, row in enumerate(t.rows):
                 cell = row.cells[0]
                 _cell_borders(cell, BOX_LINE, 6, sides=("bottom",))
@@ -570,7 +592,7 @@ class Renderer:
         # box / work space
         height = float(spec.get("height_in", 2.0)) if isinstance(spec, dict) else 2.0
         label = spec.get("label") if isinstance(spec, dict) else None
-        t = self.doc.add_table(rows=1, cols=1)
+        t = self._table(rows=1, cols=1)
         cell = t.rows[0].cells[0]
         _cell_borders(cell, BOX_LINE, 6)
         par = cell.paragraphs[0]
@@ -589,7 +611,7 @@ class Renderer:
         total = len(rows) + blanks + (1 if headers else 0)
         if total == 0:
             return
-        t = self.doc.add_table(rows=total, cols=ncols)
+        t = self._table(rows=total, cols=ncols)
         _grid(t, header=bool(headers))
         idx = 0
         if headers:
@@ -616,7 +638,7 @@ class Renderer:
         self.gap(6)
 
     def note(self, blk):
-        t = self.doc.add_table(rows=1, cols=1)
+        t = self._table(rows=1, cols=1)
         cell = t.rows[0].cells[0]
         _cell_borders(cell, BOX_LINE, 12, sides=("left",))
         par = cell.paragraphs[0]
@@ -644,7 +666,7 @@ class Renderer:
         self.end_group()
 
     def wordbank(self, blk):
-        t = self.doc.add_table(rows=1, cols=1)
+        t = self._table(rows=1, cols=1)
         cell = t.rows[0].cells[0]
         _cell_borders(cell, GRID, 4)
         par = cell.paragraphs[0]
@@ -673,7 +695,7 @@ class Renderer:
             cols = blk.get("columns") or (["I notice", "I wonder"] if kind == "notice_wonder"
                                          else ["", ""])
             nrows = int(blk.get("rows", 4))
-            t = self.doc.add_table(rows=nrows + 1, cols=len(cols))
+            t = self._table(rows=nrows + 1, cols=len(cols))
             for c, head in enumerate(cols):
                 cell = t.rows[0].cells[c]
                 _cell_borders(cell, "1B1F24", 10, sides=("bottom",)
@@ -686,7 +708,7 @@ class Renderer:
                                   + (("right",) if c < len(cols) - 1 else ()))
         elif kind == "flow":
             steps = blk.get("steps") or ["", "", ""]
-            t = self.doc.add_table(rows=1, cols=len(steps) * 2 - 1)
+            t = self._table(rows=1, cols=len(steps) * 2 - 1)
             arrow_w = 0.32
             box_w = (8.5 - 2 * self.S["margin"] - arrow_w * (len(steps) - 1)) / len(steps)
             _widths(t, [box_w if c % 2 == 0 else arrow_w for c in range(len(steps) * 2 - 1)])
@@ -708,7 +730,7 @@ class Renderer:
             parts = [("Claim", "What I think"), ("Evidence", "What I saw or measured"),
                      ("Reasoning", "Why the evidence proves it")]
             stems = blk.get("stems") or {}
-            t = self.doc.add_table(rows=3, cols=2)
+            t = self._table(rows=3, cols=2)
             _grid(t)
             _widths(t, [1.45, 8.5 - 2 * self.S["margin"] - 1.45])
             for r, (name, gloss) in enumerate(parts):
@@ -722,7 +744,7 @@ class Renderer:
         elif kind == "frayer":
             word = blk.get("word", "")
             cells = blk.get("cells") or ["What it means", "Draw it", "An example", "Not an example"]
-            t = self.doc.add_table(rows=2, cols=2)
+            t = self._table(rows=2, cols=2)
             _grid(t)
             for i, name in enumerate(cells[:4]):
                 cell = t.rows[i // 2].cells[i % 2]
@@ -773,55 +795,100 @@ class Renderer:
                 file=sys.stderr,
             )
 
+
+    # ------------------------------------------------------------ units
+    # Google Docs, which is how these packets are printed, ignores "keep with next"
+    # and lets a table break anywhere -- tested: a question and its writing lines,
+    # built as a paragraph plus a table, split across pages in Docs every time. The
+    # one thing Docs will not split is a single table row. So every task travels in
+    # its own borderless one-row table: heading, question, language line, starter,
+    # lines, and the table or organizer that answers it, as one piece.
+    def begin_unit(self):
+        t = self.doc.add_table(rows=1, cols=1)
+        _widths(t, [8.5 - 2 * self.S["margin"]])
+        cell = t.rows[0].cells[0]
+        _cell_borders(cell, "FFFFFF", 0, sides=())
+        tcPr = cell._tc.get_or_add_tcPr()
+        mar = OxmlElement("w:tcMar")
+        for side in ("top", "left", "bottom", "right"):
+            el = OxmlElement(f"w:{side}")
+            el.set(qn("w:w"), "0")
+            el.set(qn("w:type"), "dxa")
+            mar.append(el)
+        tcPr.append(mar)
+        trPr = t.rows[0]._tr.get_or_add_trPr()
+        trPr.append(OxmlElement("w:cantSplit"))
+        self.target = cell
+        self._fresh = cell.paragraphs[0]
+        return t
+
+    def end_unit(self):
+        # a cell must end in a paragraph; if the last thing in it is a table, the
+        # trailing one is held to a point so it adds no line
+        cell = self.target
+        last = cell.paragraphs[-1]
+        if not last.text.strip():
+            pf = last.paragraph_format
+            pf.space_before = Pt(0)
+            pf.space_after = Pt(0)
+            pf.line_spacing_rule = WD_LINE_SPACING.EXACTLY
+            pf.line_spacing = Pt(1)
+        self.target = self.doc
+        self._fresh = None
+        self.gap(4)
+
+    @staticmethod
+    def units(sections):
+        """Group blocks into units that print as one piece: a heading, any lead-ins
+        after it (a direction, a note, a word bank), the task they lead into, and the
+        table or organizer that task is answered in."""
+        tabular = ("table", "fill_table", "organizer")
+        lead = ("heading", "phase", "text", "paragraph", "labeled", "note", "callout",
+                "wordbank", "list", "steps", "stem")
+        out, unit = [], []
+        i = 0
+        while i < len(sections):
+            b = sections[i]
+            kind = b.get("type")
+            if kind == "page_break":
+                if unit:
+                    out.append(unit)
+                    unit = []
+                out.append([b])
+                i += 1
+                continue
+            if kind in ("heading", "phase") and unit and \
+                    any(u.get("type") not in ("heading", "phase") for u in unit):
+                out.append(unit)   # a new section closes a unit still waiting for its task
+                unit = []
+            unit.append(b)
+            i += 1
+            if kind in lead and i < len(sections):
+                continue           # a lead-in waits for the task it introduces
+            spec = b.get("space") if kind == "question" else None
+            if kind == "question" and isinstance(spec, dict) and spec.get("kind") == "none" \
+                    and i < len(sections) and sections[i].get("type") in tabular:
+                unit.append(sections[i])
+                i += 1
+            out.append(unit)
+            unit = []
+        if unit:
+            out.append(unit)
+        return out
+
     # ------------------------------------------------------------ dispatch
     def render(self):
         self.title_block()
-        for blk in self.data.get("sections", []):
-            kind = blk.get("type")
-            if kind == "heading":
-                self.heading(blk.get("text", ""), blk.get("minutes"), blk=blk)
-            elif kind == "phase":
-                self.heading(blk.get("name", ""), blk.get("minutes"), blk=blk)
-            elif kind == "question":
-                self.question(blk)
-            elif kind in ("text", "paragraph"):
-                self.begin_group()
-                par = self.p(space_after=6)
-                self.rich(par, blk.get("text", ""))
-                self.lang_lines(blk, space_after=6)
-                self.end_group()
-            elif kind == "labeled":
-                self.begin_group()
-                par = self.p(space_after=6)
-                self.run(par, blk.get("label", "") + "  ", bold=True)
-                self.rich(par, blk.get("text", ""))
-                self.lang_lines(blk, space_after=6)
-                self.end_group()
-            elif kind in ("list", "steps"):
-                blk = dict(blk)
-                if kind == "steps":
-                    blk["ordered"] = True
-                self.listing(blk)
-            elif kind == "table":
-                self.table(blk)
-            elif kind == "fill_table":
-                self.table(blk)
-            elif kind in ("note", "callout"):
-                self.note(blk)
-            elif kind == "stem":
-                self.stem(blk.get("text", ""))
-            elif kind == "wordbank":
-                self.wordbank(blk)
-            elif kind == "organizer":
-                self.organizer(blk)
-            elif kind == "space":
-                self.space(blk)
-            elif kind == "page_break":
-                self.doc.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
-            elif kind == "spacer":
-                self.p(space_after=int(blk.get("points", 12)))
-            else:
-                raise ValueError(f"unknown block type: {kind!r}")
+        for unit in self.units(self.data.get("sections", [])):
+            wrap = self.audience == "student" and any(
+                b.get("type") in ("question", "table", "fill_table", "organizer", "heading", "phase")
+                for b in unit)
+            if wrap:
+                self.begin_unit()
+            for blk in unit:
+                self.block(blk)
+            if wrap:
+                self.end_unit()
         last = self.doc.paragraphs[-1] if self.doc.paragraphs else None
         if last is not None and not last.text.strip():
             last.paragraph_format.line_spacing_rule = WD_LINE_SPACING.EXACTLY
@@ -830,6 +897,53 @@ class Renderer:
             last.paragraph_format.keep_with_next = False
         self.doc.save(self.out)
         self.report()
+
+    def block(self, blk):
+        kind = blk.get("type")
+        if kind == "heading":
+            self.heading(blk.get("text", ""), blk.get("minutes"), blk=blk)
+        elif kind == "phase":
+            self.heading(blk.get("name", ""), blk.get("minutes"), blk=blk)
+        elif kind == "question":
+            self.question(blk)
+        elif kind in ("text", "paragraph"):
+            self.begin_group()
+            par = self.p(space_after=6)
+            self.rich(par, blk.get("text", ""))
+            self.lang_lines(blk, space_after=6)
+            self.end_group()
+        elif kind == "labeled":
+            self.begin_group()
+            par = self.p(space_after=6)
+            self.run(par, blk.get("label", "") + "  ", bold=True)
+            self.rich(par, blk.get("text", ""))
+            self.lang_lines(blk, space_after=6)
+            self.end_group()
+        elif kind in ("list", "steps"):
+            blk = dict(blk)
+            if kind == "steps":
+                blk["ordered"] = True
+            self.listing(blk)
+        elif kind == "table":
+            self.table(blk)
+        elif kind == "fill_table":
+            self.table(blk)
+        elif kind in ("note", "callout"):
+            self.note(blk)
+        elif kind == "stem":
+            self.stem(blk.get("text", ""))
+        elif kind == "wordbank":
+            self.wordbank(blk)
+        elif kind == "organizer":
+            self.organizer(blk)
+        elif kind == "space":
+            self.space(blk)
+        elif kind == "page_break":
+            self._par().add_run().add_break(WD_BREAK.PAGE)
+        elif kind == "spacer":
+            self.p(space_after=int(blk.get("points", 12)))
+        else:
+            raise ValueError(f"unknown block type: {kind!r}")
 
 
 ACCENT_HEX = "3E6DA8"

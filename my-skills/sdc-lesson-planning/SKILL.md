@@ -1,6 +1,6 @@
 ---
 name: "sdc-lesson-planning"
-description: "Plans a class session for Zac's SDC (special day class) grades 9-10 science and math, then delivers a student packet as an editable Word document and an HTML slide deck with real photographs, timers, interactive charts, and embedded videos, with the lesson plan written straight into the chat. Load this skill BEFORE asking any clarifying question about the lesson. Use it whenever Zac is planning what to teach: explicit asks (\"plan tomorrow's lesson\", \"Science 1.7\", \"Day 4 of the hydroponics unit\") and implicit ones (\"I'm teaching surface area Thursday\", \"need something for period 3 tomorrow\"). Also use it for just a packet, just slides, or just an agenda, and for a viewing guide for a film or video, a multi-day packet, or a review game such as a Jeopardy board. Do NOT use it for grading, rubrics, IEP paperwork, parent emails, or standards lookups; answer those directly."
+description: "Plans a class session for Zac's SDC (special day class) grades 9-10 science and math, then delivers a student packet as an editable Word document and an HTML slide deck with real photographs, timers, interactive charts, and embedded videos, with the lesson plan written straight into the chat. Load this skill BEFORE asking any clarifying question about the lesson. Use it whenever Zac is planning what to teach: explicit asks (\"plan tomorrow's lesson\", \"Science 1.7\", \"Day 4 of the hydroponics unit\") and implicit ones (\"I'm teaching surface area Thursday\", \"need something for period 3 tomorrow\"). Also use it for just a packet, just slides, or just an agenda, and for a viewing guide for a film or video, or a review game such as a Jeopardy board. It builds one session at a time. Do NOT use it for grading, rubrics, IEP paperwork, parent emails, or standards lookups; answer those directly."
 license: MIT
 ---
 
@@ -34,9 +34,9 @@ the steps will make sense.
 Class length and where you are in the unit decide almost everything, so find them in this order
 and only ask for what's still missing.
 
-1. **Project profile.** In a claude.ai project it is already in the project knowledge; otherwise
-   look in the connected folder for `project-profile.md`, `PROJECT.md`, `course-profile.md`, or
-   anything under a `lesson-planning/` or `unit/` folder. It holds the course, the lesson-code
+1. **Project profile.** In Cowork, look in the working folder for `project-profile.md`,
+   `PROJECT.md`, `course-profile.md`, or anything under a `lesson-planning/` or `unit/` folder; in a
+   project, it may be in the project knowledge instead. It holds the course, the lesson-code
    format, the weekly schedule, the home languages, the accommodations checklist, the unit arc, and
    equipment on hand.
 2. **The session length, from the schedule.** Turn the request's date ("tomorrow", "Thursday",
@@ -44,7 +44,7 @@ and only ask for what's still missing.
    profile's schedule. A day listed under "days that break the pattern" wins. This is the answer to
    "how long is the session", so don't ask it when the schedule has it.
 3. **The previous lesson.** Work out the code before this one (Science 1.7 follows Science 1.6)
-   and find it: in the project's files or the conversation first; then, when Google Drive is
+   and find it: in the working folder or the conversation first; then, when Google Drive is
    connected, search Drive for the code in the title (`title contains 'Science 1.6'`, falling back
    to the unit name) and read the packet. It tells you what students already did, what vocabulary
    is live, and what the do-now can reach back to. One search and one read, not a survey of the
@@ -187,8 +187,9 @@ Then check it the way the copier will meet it:
 python3 scripts/check_packet.py "$OUTPUT_DIR/<code> - <short title> - packet.docx" --max-pages 2 --sheet pages.png
 ```
 
-It reports the page count against the budget and how full each page is, and writes every page into
-one image. Look at that image once, then fix what it reports in `packet.json` in the order
+It reports the page count against the budget and how full each page is, estimated for Google Docs,
+because Zac prints from the Google Doc that "Add to Drive" makes, and Docs sets the same file about a
+twentieth taller than Word. It writes every page into one image. Look at that image once, then fix what it reports in `packet.json` in the order
 `references/design_criteria.md` gives (take off, merge, fill the gap, then cut) and re-render. Two
 pages for a 60-minute lesson; a block aims for two and never passes four.
 
@@ -241,7 +242,9 @@ python3 scripts/build_deck.py slides.html "$OUTPUT_DIR/<code> - <short title> - 
   --title "<code> · <short title>" --minutes <period length> --languages es
 ```
 
-It writes the deck and runs the checker in one step.
+It writes the deck and runs the checker in one step. Zac opens the deck with **Open in Chrome**, as a
+local file, not in the chat's preview, so everything in it has to work from a file in Chrome, which
+the template does.
 
 Every deck carries **at least one interactive chart**, two to four when the lesson has numbers in
 it. In a room where reading is the barrier, the chart is the explanation and the words are its
@@ -308,7 +311,8 @@ the packet's `meta.code` so it leads the header and footer, and in the deck's da
 arrives already named needs no renaming in Drive, and the next lesson can find it by its code. Use a
 plain hyphen in file names, never a dash or a slash.
 
-For viewing guides, multi-day packets, and review games, read `references/formats.md`.
+For viewing guides and review games, read `references/formats.md`. The skill builds one session at a
+time; a request for several days is several sessions, each with its own packet and deck.
 
 ## Photographs
 
@@ -345,10 +349,10 @@ message:
   questions for a shortened period, or (3) add a second-tier version of question 4 for the students
   who finish early?"*
 
-- **End with the Day map row**, ready to paste into the profile's project knowledge:
-  `| Science 1.7 | Tue 9/29 | Pump build: criteria and constraints | |` — the last cell empty for
-  how it went. In a claude.ai project the skill can't edit project knowledge itself, so this line
-  is how the unit arc stays current without anyone retyping it.
+- **Keep the Day map current yourself.** In Cowork, append this lesson's row to the profile's Day
+  map in the working folder (`| Science 1.7 | Tue 9/29 | Pump build: criteria and constraints | |`,
+  the last cell for how it went), and create the profile from `assets/project_profile_template.md`
+  if there isn't one. Only where there is no folder to write to, hand the row over to paste.
 
 If he comes back after teaching it, that is the only real test data this lesson will ever produce.
 Fold it into the next lesson's point of view, and give him the finished Day map row with the "how it

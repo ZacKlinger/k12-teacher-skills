@@ -3,6 +3,13 @@
 
 Usage:
     python3 check_packet.py packet.docx [--max-pages 2] [--sheet pages.png]
+    python3 check_packet.py exported-from-google-docs.pdf
+
+The packet is printed from Google Docs ("Add to Drive"), and Docs lays the same file out
+taller than Word or LibreOffice: measured on these packets, about 4% taller text plus a few
+points at every task, so a page that is 96% full here is past 100% there and its last task
+moves to the next page. The report estimates the Docs fill for every page and budgets
+against that. Given a PDF exported from the Google Doc itself, it measures that directly.
 
 Converts the packet to PDF with LibreOffice, then measures every page: how far down
 the ink reaches, and so how much of the page is paper nobody writes on. It reports
@@ -27,6 +34,8 @@ import tempfile
 # the body, so the measurement stops short of it.
 MARGIN_IN = 0.7
 FOOTER_IN = 1.0
+# Google Docs vs LibreOffice on the same packet: ~4% taller text, ~3pt more per task unit.
+DOCS_FACTOR = 1.06
 DPI = 40
 
 
@@ -54,8 +63,9 @@ def main():
     ap.add_argument("--sheet", help="write all pages side by side into this PNG")
     args = ap.parse_args()
 
+    from_docs = args.docx.lower().endswith(".pdf")
     soffice = shutil.which("soffice") or shutil.which("libreoffice")
-    if not soffice or not shutil.which("pdftoppm"):
+    if (not soffice and not from_docs) or not shutil.which("pdftoppm"):
         print("  skip  LibreOffice or pdftoppm is not installed; look at the pages by hand.")
         return 0
     try:
@@ -65,10 +75,13 @@ def main():
         return 0
 
     work = tempfile.mkdtemp()
-    env = dict(os.environ, HOME=os.environ.get("HOME") or work)
-    subprocess.run([soffice, "--headless", "--convert-to", "pdf", "--outdir", work,
-                    os.path.abspath(args.docx)], capture_output=True, env=env, timeout=180)
-    pdfs = glob.glob(os.path.join(work, "*.pdf"))
+    if from_docs:
+        pdfs = [os.path.abspath(args.docx)]
+    else:
+        env = dict(os.environ, HOME=os.environ.get("HOME") or work)
+        subprocess.run([soffice, "--headless", "--convert-to", "pdf", "--outdir", work,
+                        os.path.abspath(args.docx)], capture_output=True, env=env, timeout=180)
+        pdfs = glob.glob(os.path.join(work, "*.pdf"))
     if not pdfs:
         print("  skip  LibreOffice could not convert the packet; look at the pages by hand.")
         return 0
@@ -84,7 +97,25 @@ def main():
         bottom = img.size[1] - int(FOOTER_IN * DPI)
         fills.append(ink_bottom(img, top, bottom))
 
-    print(f"  ok    {n} page(s): " + ", ".join(f"p{i + 1} {f:.0%}" for i, f in enumerate(fills)))
+    print(f"  ok    {n} page(s): " + ", ".join(f"p{i + 1} {f:.0%}" for i, f in enumerate(fills))
+          + ("  (measured on the Google Docs export)" if from_docs else ""))
+    if not from_docs:
+        docs = [f * DOCS_FACTOR for f in fills]
+        print("  ok    in Google Docs, about: "
+              + ", ".join(f"p{i + 1} {d:.0%}" for i, d in enumerate(docs)))
+        over = [i for i, d in enumerate(docs) if d > 1.0]
+        for i in over:
+            if i == n - 1:
+                n += 1
+                errors.append(
+                    f"The last page is {fills[i]:.0%} full here, about {docs[i]:.0%} in Google Docs: "
+                    "its last task will print on a page of its own. Free about "
+                    f"{int((docs[i] - 0.97) * 30) + 1} line(s) on it.")
+            else:
+                warns.append(
+                    f"Page {i + 1} is {fills[i]:.0%} full here, about {docs[i]:.0%} in Google Docs: "
+                    "its last task will likely move to the next page there. Leave a line or two "
+                    "of headroom.")
     if n > args.max_pages:
         spare = sum(1 - f for f in fills[:-1]) + (1 - fills[-1])
         errors.append(

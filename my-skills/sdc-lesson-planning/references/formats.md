@@ -1,6 +1,6 @@
 # Session shapes beyond the single lesson
 
-Most requests are one class session: one packet, one deck, one plan in chat. Three other shapes
+Most requests are one class session: one packet, one deck, one plan in chat. Two other shapes
 come up often enough to have their own rules. Each keeps the parts that never change (lesson code,
 objective and standard, the language lines, the accommodations from the profile, the plan in chat
 with an answer key) and changes only what the shape needs.
@@ -8,7 +8,6 @@ with an answer key) and changes only what the shape needs.
 | Shape | Asked for as | Files |
 |---|---|---|
 | Viewing guide | "a viewing guide for Top Gun", "worksheet for this tubing video" | Packet only, unless slides are asked for |
-| Multi-day packet | "Day 1 and 2 of field trip prep", "one packet for the whole week" | One packet; one deck per day, or one deck with a day divider |
 | Review game | "make a Jeopardy for this", "a game to review the six parts" | One HTML game from `assets/review_game_template.html` |
 
 When the request doesn't name a shape, it's a lesson. When it names one of these, skip the parts of
@@ -52,26 +51,6 @@ multi-day film the total can pass the usual eight; the per-day count is what has
 **The plan in chat** gives the stop points, the answer key with where in the footage each answer
 appears, and the one scene to pause on if time runs short. No deck unless one is asked for; if it is,
 one pause slide per stop, carrying that stop's question and a timer.
-
----
-
-## Multi-day packet
-
-One packet that runs across two or more sessions, because the work does (a budget planned on Day 1
-and checked on Day 2, a build over a week).
-
-- The header says so: `meta.day` reads `"Field trip prep — Day 1 & 2"` and `meta.period` reads
-  `"60 min each day"`.
-- Each day opens with a `heading` naming the day and its question (`"Day 2: Check it and finalize
-  it"`), and each day's blocks sum to that day's period on its own.
-- **A page break before every day after the first**, so a day can be handed in or kept on its own.
-- Day 2's do-now reaches back to a Day 1 answer by name: *"What was your near-miss category from
-  yesterday?"* It is the cheapest retrieval in the packet and it tells you in five minutes who
-  kept Day 1.
-- A take-along page (the checklist that goes to Scrap SF, the data sheet that goes to the garden)
-  sits last, on its own page, under a `note` banner saying where it goes.
-- The plan in chat covers every day in order, each with its own agenda summing to the period.
-  Offer one deck per day by default; a single deck with a divider slide per day only if asked.
 
 ---
 

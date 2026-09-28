@@ -78,16 +78,14 @@ Most of what a deck costs to build is spent finding photographs, and nearly all 
 looking: one real build took 121 screenshots. So take photographs from the first of these that has
 one, and only search when none does.
 
-1. **The unit photo library.** A semester unit comes back to the same subjects every week (the
-   frame, roots, a pump, a channel). Every photo that passes §6 goes into a short table in the
-   project knowledge, `photo-library.md`: claim, file name, `--focus`, credit, alt text. The next
-   lesson reads the table instead of searching. Zero screenshots, and the class sees the same
-   pump on Friday that it saw on Monday, which is a feature: recognition is cheap for a reader.
-2. **The class's own photographs.** The frame in the corner, the garden bed, a student build (no
-   faces, no names). Nothing argues for "our system" like a picture of it, and it costs nothing to
-   find. When Zac uploads one, shrink it to about 1200px wide at JPEG quality 70 and inline it as
-   a data URI (it can't be linked); three per deck at most, and the checker holds that line.
-3. **Wikimedia Commons**, searched once per slot and judged on a contact sheet (§4). Free to use
+1. **The unit photo library, kept by the skill.** A semester unit comes back to the same subjects
+   every week (the frame, roots, a pump, a channel). Every photo that passes §6 goes into
+   `photo-library.md` in the working folder, which the skill writes and reads itself: claim, file
+   name, `--focus`, credit, alt text, one row each. The next lesson reads the table before it
+   searches. Zero screenshots for a subject already found, and the class sees the same pump on
+   Friday that it saw on Monday, which is a feature: recognition is cheap for a reader.
+   **Never ask Zac for photographs.** Sourcing them is the skill's job, every time.
+2. **Wikimedia Commons**, searched once per slot and judged on a contact sheet (§4). Free to use
    with a credit line, doesn't block hotlinking, and holds real photography for nearly every
    science and applied-math topic. Federal public-domain collections are the next stop: NASA
    (`images-assets.nasa.gov`), USDA, NOAA, USGS, NIH.
@@ -98,8 +96,8 @@ they are the reason a deck shows a broken icon in front of a class. Stock librar
 Pexels) are beautiful and wrong for this: they show the idea of hydroponics, not the root that
 proves the claim.
 
-**Link public photographs by URL.** An earlier build inlined all ten and produced a 1.9 MB file
-that was slow to open in front of a class. Only the class's own photographs are inlined.
+**Link photographs by URL.** An earlier build inlined all ten and produced a 1.9 MB file that was
+slow to open in front of a class.
 
 ---
 
