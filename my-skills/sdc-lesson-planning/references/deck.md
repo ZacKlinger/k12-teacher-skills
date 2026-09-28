@@ -1,9 +1,11 @@
 # The slide deck
 
-Start from `assets/deck_template.html`: copy it, keep the `<head>` and the closing `<script>`
-exactly as they are, and replace the sample slides. The chrome — navigation, countdown, day tag,
-packet chip, progress bar, jump menu — already works. Don't rewrite it, and don't position anything
-by hand.
+Write only the slides, the `<section class="slide">` elements, into `slides.html`, and build with
+`scripts/build_deck.py`, which puts them inside `assets/deck_template.html` and runs the checker.
+The chrome (navigation, countdown, day tag, packet chip, progress bar, jump menu, photo zoom)
+already works. Don't open the template's stylesheet or scripts, don't rewrite them, and don't
+position anything by hand. `references/design_criteria.md` sets the type sizes and contrast the
+template is built to.
 
 The deck does two jobs at once. It's what Zac teaches from, and it's what a student looks up at
 when they've lost the thread of the packet.
@@ -147,6 +149,11 @@ warning is a judgement call when the slide only names a page number.
 
 ---
 
+
+**A second home language** sits right under the Spanish, same class, marked with its code:
+`<p class="es" lang="zh">写下你的答案。</p>`. Add `dir="rtl"` for Arabic, Farsi, Urdu, or Hebrew and
+the rule flips to the right side. Run the checker with the room's languages,
+`--languages es,zh`, and it errors on a language with no lines at all.
 ## What the type is doing
 
 The look is spare on purpose: white ground, square corners, hairline rules, one pastel doing the
@@ -195,7 +202,11 @@ Roughly one slide per two to three minutes: a 60-minute period lands around 14-2
 | Scale anchor | `.scale` | An abstract quantity as a count of something known — football fields, classrooms, bus rides, phone charges |
 | Side by side | `.compare` | Two methods, two claims, before and after |
 | Four corners | `.corners` | The four claims with where in the room each one lives |
-| Talk slide | `.cards` + `.frames` | A talk move: the move's name, the question, who is Partner A, the stem, and the listener's job. Give it a timer |
+| Talk slide | `.roles` + `.frames` + `data-phases` | A talk move, run by the slide: the question, each partner's job, the "Say it" stem, and a phased timer. See "Talk slides" below |
+| Vote, talk, revote | `.vote` | Hands counted before and after partners talk; the shift between the two bars is what the talk did |
+| Pair picker | `.picker` | Calls a pair by number, never by name, after they've rehearsed. P picks |
+| What we heard | `.heard` | A board you type students' ideas into during a share-out, credited to pairs |
+| Build steps | `data-step` on any element | Holds an element back until → , so the prediction comes before the answer |
 | Figure | `.figure` + inline `<svg>` | A diagram drawn in SVG: flows, cross-sections, labeled parts |
 | Video | `.body.media` + `.video-wrap` | An embedded, verified video. The body must carry `media` — that is what sizes the frame by height so it cannot overflow onto the text below it |
 | Agenda | `.agenda` | The period at a glance, current block marked with `.now` |
@@ -218,6 +229,44 @@ barrier.
 conversion on the slide.
 
 ---
+
+## Talk slides
+
+Student talk is the non-negotiable in every lesson, and the deck is what runs it, so a talk slide
+does more than post a question. It carries six things, and the checker errors on a deck with no
+talk slide at all:
+
+1. **The question** as the headline, with its language line under it.
+2. **The thing to talk about** — a photograph, chart, or diagram, in the `.talk` layout: the visual
+   in `.talk-visual` on the left, the turns and the starter in `.talk-side` on the right. Students
+   talk best about something in front of them, and the checker errors on a talk slide without one.
+3. **The roles** — `.roles` with one `.role` per turn: who speaks, and what the listener does while
+   they wait ("Say it back: *You said…*"). A listener with no job is a student waiting for a turn.
+4. **The stem** — `.frames` labeled **Say it**, not **Start here**. It is a speaking frame, so it is
+   short enough to say out loud in one breath.
+5. **The turns, timed** — `data-phases="Think|30; A talks|60; B talks|60; Share|60"`, with
+   `data-timer` set to their sum. One press of S runs every phase and chimes at each switch, and
+   the matching `.role` lights up (`data-phase="A talks"`), so you can walk the room instead of
+   watching the clock, and a student can see whose turn it is from across it.
+6. **Who reports** — the `.picker` on the share slide, after rehearsal. Pairs are numbered, never
+   named; the file never holds a student's name.
+
+How each move in the talk catalog lands on screen:
+
+| Move | The slide carries |
+|---|---|
+| Turn-and-talk | Roles for A and B, "Say it" stem, `Think\|30; A talks\|60; B talks\|60` |
+| Think-pair-share | `Think\|60; Pair\|120; Share\|120`, the picker on the share |
+| Say it back | Partner B's role reads "Say it back: You said…", then `Switch\|60` |
+| Agree / disagree / add on | The claim as the headline, the three stems as three frames |
+| Vote, talk, revote | `.vote`: count round 1, run a turn-and-talk, count round 2 |
+| Four corners, defend | `.corners`, then `Talk\|120; Defend\|180` and the picker per corner |
+| Stations in pairs | One slide per rotation with its own phases, or one `Station\|480` phase each |
+
+Keep the slide still while students talk, and keep the visual on it: the screen is never blanked.
+Clicking a photograph opens it at full size with the slide's question under it, for close looking
+before or during the talk. **A** reads the headline and its language lines aloud in their own
+voices, for the student who can't yet read the question off the wall.
 
 ## Timers
 

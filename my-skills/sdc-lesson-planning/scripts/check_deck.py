@@ -34,6 +34,7 @@ PLACEHOLDERS = [
     "One line naming the input.",
     "The do-now question, readable from the back row.",
     "The finding, stated as the headline.",
+    "The words above it are its caption.",
     "One question, big enough to fill the screen.",
     "The claim this photograph proves",
     "A full sentence describing",
@@ -145,7 +146,9 @@ def check_structure(html: str, sl: list, minutes: int, rep: Report) -> None:
 
         inner = re.sub(r"<[^>]+>", "", body_of(body_html)).strip()
         is_dark = "dark" in a.split(">")[0]
-        has_media = bool(re.search(r"<img|<iframe|<svg|dv-", body_html))
+        # charts and the talk kit draw themselves when the deck opens, so an
+        # empty-looking div with one of these classes is content, not a hole
+        has_media = bool(re.search(r'<img|<iframe|<svg|dv-|class="(?:vote|picker|heard)\b', body_html))
         if not inner and not has_media and not is_dark:
             rep.error(
                 f"Slide {i} ({title}): the body is empty. A headline alone is not a "
@@ -275,7 +278,10 @@ def text_of(html: str) -> str:
     return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", html)).strip()
 
 
-def check_language_access(html: str, sl: list, rep: Report) -> None:
+UNSPACED = {"zh", "ja", "ko", "th", "my", "km", "lo"}
+
+
+def check_language_access(html: str, sl: list, rep: Report, langs=("es",)) -> None:
     """Every question and every direction carries a Spanish line.
 
     Reading is the barrier in this room twice over for a newcomer, and a slide is
@@ -293,6 +299,24 @@ def check_language_access(html: str, sl: list, rep: Report) -> None:
         )
     else:
         rep.note(f"{total} Spanish support line(s).")
+
+    # A room with more than one home language: each extra language rides the same
+    # `.es` line style, marked with its code -- <p class="es" lang="zh">.
+    for code in langs:
+        if code == "es":
+            continue
+        tagged = re.compile(r'<[^>]*\bclass="[^"]*\bes\b[^"]*"[^>]*\blang="' + re.escape(code)
+                            + r'(-[^"]*)?"|<[^>]*\blang="' + re.escape(code)
+                            + r'(-[^"]*)?"[^>]*\bclass="[^"]*\bes\b')
+        n = len(tagged.findall(html))
+        if n == 0:
+            rep.error(
+                f"No '{code}' lines in the deck, but the room's languages include it. Each "
+                f'one sits beside the Spanish as <p class="es" lang="{code}">. See the '
+                '"Language access" section of references/deck.md.'
+            )
+        else:
+            rep.note(f"{n} '{code}' support line(s).")
 
     for i, (a, body) in enumerate(sl, 1):
         title = attr(a, "data-title") or f"slide {i}"
@@ -321,6 +345,9 @@ def check_language_access(html: str, sl: list, rep: Report) -> None:
             if not body_text:
                 continue
             if "es" in classes:
+                code = (attr(el.group(2), "lang") or "es").split("-")[0]
+                if code in UNSPACED:
+                    continue
                 if prev and len(body_text.split()) > len(prev.split()) * 1.2:
                     rep.warn(
                         f"Slide {i} ({title}): the Spanish line is longer than the English "
@@ -329,6 +356,55 @@ def check_language_access(html: str, sl: list, rep: Report) -> None:
                     )
             elif el.group(1).lower() in ("h1", "h2") or "instruct" in classes:
                 prev = body_text
+
+
+def check_talk(sl: list, rep: Report) -> None:
+    """Student talk is the non-negotiable, and the deck is what runs it.
+
+    A talk slide carries data-phases (think, A talks, B talks, share), and its
+    data-timer is their sum -- the timer runs the phases, and the period math
+    runs on data-timer, so the two have to agree or one of them is lying.
+    """
+    talk = 0
+    for i, (a, body) in enumerate(sl, 1):
+        title = attr(a, "data-title") or f"slide {i}"
+        spec = attr(a, "data-phases")
+        if not spec:
+            continue
+        talk += 1
+        phases = []
+        for part in spec.split(";"):
+            bits = part.split("|")
+            if len(bits) != 2 or not bits[1].strip().isdigit():
+                rep.error(f"Slide {i} ({title}): data-phases entry {part.strip()!r} should read "
+                          "'Name|seconds', e.g. 'A talks|60'.")
+                continue
+            phases.append((bits[0].strip(), int(bits[1])))
+        timer = attr(a, "data-timer")
+        total = sum(sec for _, sec in phases)
+        if not timer:
+            rep.error(f"Slide {i} ({title}) has data-phases but no data-timer. Add "
+                      f'data-timer="{total}", the sum of the phases.')
+        elif timer.isdigit() and int(timer) != total:
+            rep.error(f"Slide {i} ({title}): the phases add up to {total}s but data-timer "
+                      f"is {timer}s. Make them agree.")
+        if not re.search(r"<img|<svg|dv-|data-yt|class=\"vote", body):
+            rep.error(f"Slide {i} ({title}) is a talk slide with nothing to look at. Students "
+                      "talk best about something in front of them: put the photograph, chart, "
+                      "or diagram they are discussing in the .talk layout's visual.")
+        names = {n for n, _ in phases}
+        for want in re.findall(r'data-phase="([^"]*)"', body):
+            if want not in names:
+                rep.warn(f"Slide {i} ({title}): an element waits for phase {want!r}, which "
+                         f"isn't one of {sorted(names)}. It will never light up.")
+    if talk == 0:
+        rep.error(
+            "No talk slide. Every lesson runs at least one student-to-student talk move on "
+            'screen: a slide with data-phases="Think|30; A talks|60; B talks|60; Share|60", '
+            'the roles, and a "Say it" stem. See "Talk slides" in references/deck.md.'
+        )
+    else:
+        rep.note(f"{talk} talk slide(s) with phased timers.")
 
 
 def check_template_wiring(raw: str, html: str, rep: Report) -> None:
@@ -468,6 +544,8 @@ def main() -> int:
     ap.add_argument("deck")
     ap.add_argument("--minutes", type=int, default=60,
                     help="length of the class period (default 60)")
+    ap.add_argument("--languages", default="es",
+                    help="home languages in the room, comma-separated codes (default es)")
     args = ap.parse_args()
 
     try:
@@ -493,7 +571,9 @@ def main() -> int:
     check_photos(html, sl, args.minutes, rep)
     check_template_wiring(raw, html, rep)
     check_teaching(raw, html, sl, rep)
-    check_language_access(html, sl, rep)
+    check_talk(sl, rep)
+    langs = [c.strip() for c in args.languages.split(",") if c.strip()] or ["es"]
+    check_language_access(html, sl, rep, langs)
 
     size_mb = len(html.encode()) / 1e6
     if size_mb > 1.0:

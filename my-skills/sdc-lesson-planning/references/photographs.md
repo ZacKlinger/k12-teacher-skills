@@ -72,53 +72,77 @@ notice-and-wonder pair, the moment something goes wrong in a system.
 
 ---
 
-## 3. Sources
+## 3. Sources, cheapest and best first
 
-**Wikimedia Commons is the workhorse.** Free to use with a credit line, does not block hotlinking,
-and holds real photography for nearly every science and applied-math topic. Federal public-domain
-collections are the other good source: NASA (`images-assets.nasa.gov`), USDA, NOAA, USGS, NIH.
+Most of what a deck costs to build is spent finding photographs, and nearly all of that is spent
+looking: one real build took 121 screenshots. So take photographs from the first of these that has
+one, and only search when none does.
+
+1. **The unit photo library, kept by the skill.** A semester unit comes back to the same subjects
+   every week (the frame, roots, a pump, a channel). Every photo that passes §6 goes into
+   `photo-library.md` in the working folder, which the skill writes and reads itself: claim, file
+   name, `--focus`, credit, alt text, one row each. The next lesson reads the table before it
+   searches. Zero screenshots for a subject already found, and the class sees the same pump on
+   Friday that it saw on Monday, which is a feature: recognition is cheap for a reader.
+   **Never ask Zac for photographs.** Sourcing them is the skill's job, every time.
+2. **Wikimedia Commons**, searched once per slot and judged on a contact sheet (§4). Free to use
+   with a credit line, doesn't block hotlinking, and holds real photography for nearly every
+   science and applied-math topic. Federal public-domain collections are the next stop: NASA
+   (`images-assets.nasa.gov`), USDA, NOAA, USGS, NIH.
 
 **Never** pull an image from a Google Images result page, a stock site, a news article, a blog, a
 Pinterest pin, or a district website. Those URLs are licensed, unstable, or hotlink-blocked, and
-they are the reason a deck shows a broken icon in front of a class.
+they are the reason a deck shows a broken icon in front of a class. Stock libraries (Unsplash,
+Pexels) are beautiful and wrong for this: they show the idea of hydroponics, not the root that
+proves the claim.
 
-**Link photographs by URL. Do not base64-inline them.** An earlier build inlined all ten and
-produced a 1.9 MB file that was slow to open in front of a class. The deck is a single file in the
-sense that it has no sidecar folder — remote image URLs are expected and fine.
+**Link photographs by URL.** An earlier build inlined all ten and produced a 1.9 MB file that was
+slow to open in front of a class.
 
 ---
 
-## 4. Finding candidates
+## 4. Finding candidates: one search, one contact sheet
 
 ### Chrome connected (preferred)
 
-Open any page, then query the Commons API from it:
+For each slot, run one script from any open page. It queries Commons, drops scans and small files,
+and lays the candidates out as a numbered grid, so **one screenshot judges all of them** (and every
+tile that shows a photo has also passed the load probe):
 
 ```js
-const q = 'lettuce roots net pot bare';   // the frame test's nouns, not the topic
-const url = 'https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*'
-  + '&generator=search&gsrnamespace=6&gsrlimit=12&prop=imageinfo&iiprop=size|extmetadata'
+const q = 'lettuce roots net pot bare filetype:bitmap';   // the frame test's nouns
+const api = 'https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*'
+  + '&generator=search&gsrnamespace=6&gsrlimit=16&prop=imageinfo&iiprop=size|extmetadata'
   + '&gsrsearch=' + encodeURIComponent(q);
-const r = await fetch(url).then(x => x.json());
-Object.values(r.query.pages).map(p =>
-  p.title.replace('File:','') + ' | ' +
-  (p.imageinfo[0].extmetadata.LicenseShortName?.value || '?') + ' | ' +
-  p.imageinfo[0].width + 'x' + p.imageinfo[0].height);
+const pages = Object.values((await fetch(api).then(r => r.json())).query.pages)
+  .filter(p => /\.(jpe?g|png|webp)$/i.test(p.title) && p.imageinfo[0].width >= 1000)
+  .slice(0, 12);
+document.body.innerHTML = '<div id="cs" style="display:grid;grid-template-columns:repeat(4,1fr);'
+  + 'gap:6px;background:#222;padding:6px"></div>';
+pages.forEach((p, i) => {
+  const f = p.title.replace('File:', ''), m = p.imageinfo[0].extmetadata;
+  const src = 'https://commons.wikimedia.org/wiki/Special:FilePath/' + encodeURIComponent(f) + '?width=400';
+  cs.insertAdjacentHTML('beforeend', '<figure style="margin:0;background:#fff">'
+    + '<img src="' + src + '" style="width:100%;height:170px;object-fit:cover">'
+    + '<figcaption style="font:13px sans-serif;padding:3px 5px">#' + (i + 1) + ' · '
+    + (m.LicenseShortName ? m.LicenseShortName.value : '?') + ' · ' + p.imageinfo[0].width
+    + 'px</figcaption></figure>');
+});
+pages.map((p, i) => '#' + (i + 1) + ' ' + p.title.replace('File:', '')).join('\n');
 ```
 
-**Put `filetype:bitmap` in the query.** Commons indexes scanned books, PDFs and DjVu files in the
-same namespace, and without the filter a plain search returns them first: a real search for
-`classroom projector screen students` came back with seven PDFs and one photograph. The filter is
-the difference between a usable candidate list and a page of book scans.
+Wait two seconds, take **one** screenshot, and judge the grid against the frame test (§6). The
+script returns the numbered file names, so the pick goes straight into §5. If nothing passes,
+change the search nouns and run it again; that is still two screenshots, not twenty.
 
-Return titles, licenses, and dimensions only — **never return the API's `thumburl`**, because the
-tool blocks output containing query strings and you'll lose the whole result. Build the URLs
-yourself from the titles. Discard anything still ending `.pdf`, `.tif`, or `.svg`, and anything
-under about 1000px wide.
+Keep `filetype:bitmap` in the query: Commons indexes scanned books and PDFs in the same namespace,
+and without it a real search for `classroom projector screen students` came back with seven PDFs
+and one photograph. Return file names only, never the API's `thumburl`: the tool blocks output
+containing query strings and you lose the whole result.
 
-Pull **more candidates than slots** — 8 to 12 per slot. This is the *flare*: generate before you
-judge, because searching and judging at the same time stops at the first acceptable hit. The point
-of §6 is to reject, and you can only reject if you have somewhere to go.
+**A crop still needs its own look.** The contact sheet shows candidates center-cropped; a photo in
+`.pgrid`, `.vc.shot`, `.photo.fill` or `.talk-visual` is cropped again by the slide. Check those
+slides once at projection size (§6, last paragraph), not every candidate.
 
 ### Chrome not connected
 

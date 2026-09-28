@@ -31,11 +31,12 @@
   data-timer, otherwise the plain duration from data-mins. The packet chip is injected
   into the head from data-packet. Never place either by hand — that is what used to collide.
 
-  Keys: ← → slides · S start/pause timer · R reset · G jump menu.
+  Keys: ← → slides (→ reveals data-step items first) · S start/pause timer · R reset ·
+  G jump menu · A read the slide aloud · P pick a pair · click a photo to look closer.
 -->
 <style>
   :root{
-    --bg:#FFFFFF; --paper:#F5F7FA; --ink:#1B1F24; --muted:#697079; --rule:#E4E7EB;
+    --bg:#FFFFFF; --paper:#F5F7FA; --ink:#1B1F24; --ink-2:#3A3F45; --muted:#697079; --rule:#E4E7EB;
     /* Caviar carries every dark surface: checkpoints, the vocabulary word cell,
        the jump menu, the video letterbox. It is a warm near-black -- the old
        dark surface was #1B1F24, cool enough to read as navy on a projector.
@@ -86,13 +87,13 @@
   h2{font-size:clamp(27px,3.9vw,56px);max-width:24ch}
   /* the standfirst is the old lede: quiet sans under the serif headline. It exists so a
      slide always says something beyond its title — that is content, not decoration. */
-  .stand{font-size:clamp(15px,1.75vw,25px);line-height:1.5;color:var(--muted);
+  .stand{font-size:clamp(17px,2vw,29px);line-height:1.45;color:var(--ink-2);
     max-width:54ch;margin-top:1.8vh}
   .body{flex:1;display:flex;flex-direction:column;justify-content:center;
     margin:2.4vh 0 1.6vh;min-height:0}
   /* The only line allowed under the body is a direction — what students physically do.
      No summary line, no takeaway, no closing thought. The content said it already. */
-  .instruct{color:var(--muted);font-size:clamp(13px,1.42vw,20px);line-height:1.4;max-width:70ch}
+  .instruct{color:var(--ink-2);font-size:clamp(17px,1.9vw,27px);line-height:1.4;max-width:62ch}
   .quiet{color:var(--muted)}
 
   /* ---- the Spanish line --------------------------------------------------
@@ -101,9 +102,12 @@
      that still carry it. The tick of accent on the left is how a student finds it
      from across the room; it is NOT italic, because italic costs a striving
      reader speed and this line is read by the students with the least to spare. */
-  .es{color:var(--muted);font-size:clamp(13px,1.4vw,19px);line-height:1.4;max-width:56ch;
+  .es{color:var(--ink-2);font-size:clamp(16px,1.8vw,26px);line-height:1.4;max-width:56ch;
     border-left:2px solid var(--accent-soft);padding-left:.75em;margin-top:1.2vh}
   h1 + .es,h2 + .es{margin-top:1.6vh}
+  /* a second home language stacks tight under the first; right-to-left scripts mirror the rule */
+  .es + .es{margin-top:.4vh}
+  .es[dir=rtl]{border-left:0;border-right:2px solid var(--accent-soft);padding-left:0;padding-right:.75em;text-align:right}
   .instruct + .es{margin-top:.9vh}
   .slide.dark .es{color:#C9CDD3;border-left-color:var(--caviar-line)}
 
@@ -122,7 +126,7 @@
     color:var(--accent-deep);font-weight:700;margin-bottom:.9vh}
   .card h3{font-family:var(--serif);font-weight:400;font-size:clamp(16px,1.75vw,26px);
     line-height:1.15;margin-bottom:.9vh}
-  .card p{font-size:clamp(13px,1.34vw,19px);line-height:1.45;color:var(--muted)}
+  .card p{font-size:clamp(16px,1.75vw,25px);line-height:1.4;color:var(--ink-2)}
   .card .big{font-family:var(--serif);color:var(--accent-deep);font-size:clamp(22px,2.8vw,42px);
     line-height:1.05;margin-bottom:.6vh}
 
@@ -134,7 +138,7 @@
     color:var(--accent-deep);font-weight:700;margin-bottom:.8vh}
   .flow .step .t{font-family:var(--serif);font-size:clamp(16px,1.75vw,26px);line-height:1.15;
     margin-bottom:.7vh}
-  .flow .step p{font-size:clamp(12px,1.28vw,18px);line-height:1.4;color:var(--muted)}
+  .flow .step p{font-size:clamp(15px,1.6vw,23px);line-height:1.4;color:var(--ink-2)}
   .flow .arrow{flex:0 0 auto;align-self:center;color:var(--accent);padding:0 .7vw;
     font-size:clamp(16px,2vw,30px);line-height:1}
   .flow.stack{flex-direction:column}
@@ -162,7 +166,7 @@
     color:var(--accent-deep);font-weight:700;margin-bottom:1.2vh}
   .frame{background:var(--paper);border-left:2px solid var(--accent-soft);
     padding:1.5vh 1.3em;margin-bottom:1.2vh;font-family:var(--serif);
-    font-size:clamp(15px,1.62vw,24px);line-height:1.6}
+    font-size:clamp(19px,2.2vw,32px);line-height:1.55}
   .blank{display:inline-block;min-width:5.5em;border-bottom:1.5px solid currentColor;margin:0 .18em}
   .blank.long{min-width:11em}
 
@@ -178,7 +182,7 @@
   /* the word in Spanish sits with the word, not in a line of its own */
   .vc .es{font-size:clamp(12px,1.25vw,17px);margin-top:1.1vh;border-left-color:var(--accent-deep)}
   .vc.word .es{color:#C9CDD3;border-left-color:var(--accent)}
-  .vc .d,.vc .ex{font-size:clamp(13px,1.4vw,20px);line-height:1.45;color:var(--muted)}
+  .vc .d,.vc .ex{font-size:clamp(16px,1.8vw,26px);line-height:1.4;color:var(--ink-2)}
   .term{border-bottom:2px solid var(--accent);padding-bottom:.04em}
 
   /* ---- stats ------------------------------------------------------------- */
@@ -192,7 +196,7 @@
   .bars{width:100%;max-width:78ch}
   .bar-row{display:grid;grid-template-columns:minmax(8em,16ch) 1fr auto;align-items:center;
     gap:1.1em;margin-bottom:1.5vh}
-  .bar-label{font-size:clamp(13px,1.38vw,20px);line-height:1.2}
+  .bar-label{font-size:clamp(16px,1.75vw,25px);line-height:1.2}
   .bar-track{background:var(--paper);height:clamp(18px,2.9vh,34px);position:relative;overflow:hidden}
   .bar-fill{position:absolute;left:0;top:0;bottom:0;width:var(--w,50%);background:var(--c,var(--accent))}
   .bar-val{font-family:var(--serif);font-size:clamp(15px,1.8vw,26px);
@@ -216,7 +220,7 @@
   .compare .vs{align-self:center;font-family:var(--serif);color:var(--muted);
     font-size:clamp(15px,1.9vw,27px)}
   .compare ul{list-style:none}
-  .compare li{font-size:clamp(13px,1.36vw,19px);line-height:1.45;
+  .compare li{font-size:clamp(16px,1.75vw,25px);line-height:1.4;
     padding:.55vh 0 .55vh 1em;position:relative;color:var(--muted)}
   .compare li::before{content:"";position:absolute;left:0;top:.75em;width:.45em;height:2px;
     background:var(--muted);border-radius:2px}
@@ -271,7 +275,7 @@
 
   /* ---- chrome ------------------------------------------------------------ */
   .timer-time{font-family:var(--serif);font-variant-numeric:tabular-nums;
-    font-size:clamp(19px,2.4vw,36px);line-height:1;cursor:pointer;letter-spacing:-.02em;
+    font-size:clamp(26px,3.2vw,48px);line-height:1;cursor:pointer;letter-spacing:-.02em;
     color:var(--ink)}
   .slide.dark .timer-time{color:#F7F8FA}
   .timer.running .timer-time{color:var(--accent-deep)}
@@ -312,6 +316,9 @@
     .compare .vs{display:none}
   }
   @media print{
+    .slide.dark{background:#fff !important;color:var(--ink) !important}
+    .slide.dark *{color:var(--ink) !important}
+    .zoom{display:none !important}
     .slide{display:block !important;position:static;height:auto;page-break-after:always;
       border-bottom:1px solid var(--rule);padding:6vh 6vw}
     .footer,.progress,.jump{display:none !important}
@@ -330,7 +337,7 @@
   /* .photo.fill crops to the full band instead of letterboxing -- use it when the
      photo is the slide and the subject can survive a crop. --focus is required. */
   .photo.fill img{width:100%;height:100%;max-height:100%;object-fit:cover}
-  .cap{font-size:clamp(12px,1.3vw,18px);line-height:1.4;color:var(--muted);text-align:center;
+  .cap{font-size:clamp(15px,1.6vw,23px);line-height:1.4;color:var(--ink-2);text-align:center;
     max-width:70ch;flex:0 0 auto}
   .cap .cred{display:block;font-size:.78em;letter-spacing:.06em;color:#9AA1A9;margin-top:.5vh}
   .pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1.2vw;
@@ -373,6 +380,94 @@
      references/deck.md -- and stretching the furniture only draws a bigger box
      around the hole. */
   .body > .pgrid{flex:1 1 auto;min-height:0}
+  /* ---- talk kit ----------------------------------------------------------
+     Student talk is the non-negotiable, so the deck's job on a talk slide is to
+     run the talk: who speaks, what the listener does, the words to start with,
+     how long each turn is, and who reports. See "Talk slides" in deck.md. */
+  .timer-phase{font-size:clamp(10px,1vw,14px);letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent-deep);font-weight:700}
+  .timer-phase:empty{display:none}
+  .slide.dark .timer-phase{color:var(--accent)}
+  .roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.1vw;width:100%}
+  /* the talk layout: the thing to talk about on the left, at the size of a wall,
+     and the turns on the right, stacked in the order they happen */
+  .talk{display:grid;grid-template-columns:1.25fr 1fr;gap:2.4vw;width:100%;flex:1;min-height:0;
+    align-items:stretch}
+  .talk-visual{display:flex;flex-direction:column;min-height:0;gap:1vh}
+  .talk-visual img{flex:1 1 auto;min-height:0;width:100%;object-fit:cover;
+    object-position:var(--focus,50% 50%);background:var(--paper);display:block}
+  .talk-visual .cap{text-align:left;flex:0 0 auto}
+  .talk-side{display:flex;flex-direction:column;justify-content:center;gap:1.4vh;min-width:0}
+  .talk-side .roles{grid-template-columns:1fr;gap:.8vh}
+  .talk-side .role{padding:1.3vh 1.1em}
+  .talk-side .frames{margin-top:.6vh}
+  .role{background:var(--paper);border-top:2px solid var(--rule);padding:2vh 1.4em;
+    transition:background .25s,border-color .25s}
+  .role .k{font-size:clamp(10px,1.02vw,14px);letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);font-weight:700;margin-bottom:.8vh}
+  .role p{font-family:var(--serif);font-size:clamp(16px,1.75vw,26px);line-height:1.25}
+  .role.live{background:var(--accent-soft);border-top-color:var(--accent-deep)}
+  .role.live .k{color:var(--accent-deep)}
+  .role.live .k::after{content:" · now"}
+  .roles + .frames{margin-top:2.2vh}
+
+  .js-steps [data-step]{transition:opacity .35s}
+  .js-steps [data-step]:not(.shown){opacity:0;visibility:hidden}
+
+  .vote{width:100%;max-width:90ch;font-size:clamp(13px,1.4vw,20px)}
+  .vote .rounds{display:flex;gap:.6em;margin-bottom:1.6vh;flex-wrap:wrap}
+  .vote .rounds button,.picker button{font:inherit;font-size:.78em;letter-spacing:.08em;
+    text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--muted);
+    padding:.5em 1em;cursor:pointer}
+  .vote .rounds button.on{border-color:var(--accent-deep);color:var(--accent-deep);font-weight:700}
+  .vote .vrow{display:grid;grid-template-columns:minmax(6em,16ch) 1fr auto auto;gap:1em;
+    align-items:center;margin-bottom:1.2vh}
+  .vote .vlab{line-height:1.2}
+  .vote .vbars{display:flex;flex-direction:column;gap:.25em}
+  .vote .vbar{height:1.3em;background:var(--paper);position:relative}
+  .vote .vbar i{position:absolute;inset:0 auto 0 0;width:0;transition:width .5s cubic-bezier(.2,.7,.3,1)}
+  .vote .vbar.r1 i{background:var(--blue)}
+  .vote .vbar.r2 i{background:var(--accent-deep)}
+  .vote .vn{font-family:var(--serif);font-size:1.3em;font-variant-numeric:tabular-nums;
+    white-space:nowrap;min-width:4.5ch;text-align:right}
+  .vote .vn .arrow{color:var(--muted);font-size:.7em;margin:0 .25em}
+  .vote .vctl{display:flex;gap:.3em}
+  .vote .vctl button{font:inherit;width:1.8em;height:1.8em;border-radius:50%;border:1px solid var(--rule);
+    background:var(--bg);color:var(--muted);cursor:pointer;line-height:1}
+  .vote .vctl button:hover{color:var(--accent-deep);border-color:var(--accent-deep)}
+  .vote .key{font-size:.72em;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:1vh}
+  .vote .key b{display:inline-block;width:1.4em;height:.7em;margin:0 .4em 0 1em;vertical-align:middle}
+
+  .picker{display:flex;align-items:center;gap:2vw;flex-wrap:wrap}
+  .picker .pick-now{font-family:var(--serif);font-size:clamp(40px,7vw,110px);line-height:1;
+    min-width:4ch;color:var(--accent-deep);font-variant-numeric:tabular-nums}
+  .picker .pick-label{font-size:clamp(11px,1.1vw,15px);letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);font-weight:700}
+  .picker .called{display:flex;gap:.35em;flex-wrap:wrap;margin-top:1vh}
+  .picker .called span{font-size:clamp(11px,1.1vw,15px);width:2em;height:2em;display:flex;
+    align-items:center;justify-content:center;background:var(--paper);color:var(--muted)}
+  .picker .called span.done{background:var(--rule);color:#B5BAC1;text-decoration:line-through}
+
+  .heard{width:100%}
+  .heard .hlabel{font-size:clamp(10px,1.02vw,14px);letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent-deep);font-weight:700;margin-bottom:1vh}
+  .heard textarea{width:100%;min-height:24vh;font-family:var(--serif);font-size:clamp(16px,1.8vw,27px);
+    line-height:1.5;border:0;border-left:2px solid var(--accent-soft);background:var(--paper);
+    padding:1.2vh 1em;color:var(--ink);resize:vertical}
+  .heard textarea:focus{outline:none;border-left-color:var(--accent-deep)}
+
+  /* look closer: a photo opens at wall size with the slide's question under it, so
+     the class talks about the thing itself, not about a thumbnail of it */
+  .zoom{position:fixed;inset:0;background:var(--caviar);z-index:80;display:none;
+    flex-direction:column;align-items:center;justify-content:center;padding:3vh 3vw;cursor:zoom-out}
+  .zoom.on{display:flex}
+  .zoom img{max-width:100%;max-height:82vh;object-fit:contain;display:block}
+  .zoom .zq{color:#F7F8FA;font-family:var(--serif);font-size:clamp(22px,2.8vw,42px);
+    line-height:1.2;margin-top:2.2vh;text-align:center;max-width:40ch}
+  .zoom .zes{color:#C9CDD3;font-size:clamp(16px,1.8vw,26px);margin-top:.8vh;text-align:center}
+  .photo img,.pgrid img,.vc.shot img,.talk-visual img{cursor:zoom-in}
+  @media print{ .js-steps [data-step]{opacity:1 !important;visibility:visible !important} }
+
 </style>
 
 <!-- ===== CHART KIT =======================================================
@@ -629,7 +724,7 @@
            data-rows="In a field|250|var(--dv-c)|what most lettuce costs to grow; Hydroponics|20|var(--dv-a)"
            data-unit=" L"
            data-ratio="12 times less water for the same head of lettuce"
-           data-caption="The bar is the finding. The words above it are its caption."></div>
+           data-caption="A field needs twelve times the water for the same head of lettuce."></div>
     </div>
     <p class="instruct">Ask for a guess out loud before the first click.</p>
     <p class="es">Adivina primero. Después miramos.</p>
@@ -674,6 +769,55 @@
     </div>
   </section>
 
+  <!-- ============ TALK — turn-and-talk with a phased timer ==================
+       data-phases runs the turns: each phase chimes into the next, and any
+       element with a matching data-phase lights up while its turn is on.
+       data-timer stays: it is the sum of the phases, and it is what the
+       checker adds up against the period. -->
+  <section class="slide" data-day="Day 1" data-title="Turn and talk" data-packet="p. 2"
+           data-timer="210" data-mins="3.5 min"
+           data-phases="Think|30; A talks|60; B talks|60; Share|60">
+    <header class="head"><div class="eyebrow">Turn and talk · with your partner</div></header>
+    <h2>Which would you build first, the pump or the reservoir?</h2>
+    <p class="es">¿Qué construirías primero: la bomba o el tanque?</p>
+    <div class="body">
+      <div class="talk">
+        <figure class="talk-visual" style="--focus:50% 55%">
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Salades%20dans%20un%20canal%20NFT.jpg?width=1200"
+               alt="Rows of lettuce growing in long white plastic channels, with water running underneath them.">
+          <figcaption class="cap">Every plant here drinks from the same pumped water.
+            <span class="cred">Wikimedia Commons · CC0</span></figcaption>
+        </figure>
+        <div class="talk-side">
+          <div class="roles">
+            <div class="role" data-phase="Think"><div class="k">Everyone</div><p>Look. Pick one.</p></div>
+            <div class="role" data-phase="A talks"><div class="k">Partner A</div><p>Say your pick and one reason.</p></div>
+            <div class="role" data-phase="B talks"><div class="k">Partner B</div><p>Say it back: "You said…" Then add yours.</p></div>
+          </div>
+          <div class="frames">
+            <div class="frames-label">Say it</div>
+            <div class="frame">I would build the <span class="blank"></span> first because…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VOTE, TALK, REVOTE ========================================
+       Count hands for round 1, run the talk, count again for round 2. The
+       shift between the two bars is what the talk did. The picker calls on a
+       pair by number, never by name, after they have rehearsed. -->
+  <section class="slide" data-day="Day 1" data-title="Vote, talk, revote" data-mins="6 min">
+    <header class="head"><div class="eyebrow">Vote · talk · vote again</div></header>
+    <h2>Which part fails first if nobody checks on it?</h2>
+    <p class="es">¿Qué parte falla primero si nadie la revisa?</p>
+    <div class="body">
+      <div class="vote" data-options="Pump|Reservoir|Tubing|Monitoring"
+           data-rounds="Before we talk|After we talk"></div>
+      <div class="picker" data-count="8" data-label="Pair" data-step style="margin-top:2.4vh"></div>
+    </div>
+  </section>
+
   <!-- ============ CHECKPOINT — the one sparse slide type ================== -->
   <section class="slide dark" data-day="Day 1" data-title="Checkpoint" data-timer="120" data-mins="2 min">
     <header class="head"><div class="eyebrow">Stop and think · nothing written down</div></header>
@@ -686,7 +830,7 @@
 
 <div class="footer">
   <span class="day-tag" id="dayTag">Day 1</span>
-  <span class="hint">← → slides · S timer · R reset · G jump</span>
+  <span class="hint">← → slides · S timer · A read aloud · G jump · click a photo to enlarge</span>
   <span class="nav">
     <button id="prev" aria-label="Previous slide">&#8592;</button>
     <span id="counter">1 / 1</span>
@@ -698,6 +842,7 @@
 <div class="jump" id="jump"><h4>Jump to</h4><ol id="jumpList"></ol></div>
 
 <div class="timer" id="timer" hidden>
+  <span class="timer-phase" id="timerPhase"></span>
   <span class="timer-time" id="timerTime">0:00</span>
   <button class="timer-ctl" id="timerToggle">start</button>
   <button class="timer-ctl" id="timerReset">reset</button>
@@ -717,6 +862,11 @@
   var jump = document.getElementById('jump');
   var jumpList = document.getElementById('jumpList');
   var total = 0, left = 0, tick = null, running = false, chime = null;
+  // a talk slide's timer runs in phases (think, A talks, B talks, share), chiming
+  // at each switch so the teacher can circulate instead of watching the clock
+  var phases = null, pi = 0;
+  var phaseEl = document.getElementById('timerPhase');
+  document.body.classList.add('js-steps');
 
   // Each slide gets its own head-right slot. The timer is MOVED into the current
   // slide's slot rather than floated over the page — which is why nothing collides.
@@ -746,6 +896,12 @@
     timerEl.classList.toggle('running', running && left > 0);
     timerEl.classList.toggle('done', total > 0 && left === 0);
     toggleBtn.textContent = running ? 'pause' : (left === total ? 'start' : 'resume');
+    var name = phases ? phases[pi].name : '';
+    phaseEl.textContent = name;
+    var begun = running || left < total || pi > 0;
+    Array.prototype.forEach.call(slides[idx].querySelectorAll('[data-phase]'), function(el){
+      el.classList.toggle('live', !!phases && begun && el.getAttribute('data-phase') === name);
+    });
   }
   function stop(){ if (tick) { clearInterval(tick); tick = null; } running = false; }
   function beep(){
@@ -765,18 +921,33 @@
     stop(); running = true;
     tick = setInterval(function(){
       left -= 1;
-      if (left <= 0) { left = 0; stop(); beep(); }
+      if (left <= 0 && phases && pi < phases.length - 1) {
+        beep(); pi += 1; total = left = phases[pi].secs;
+      } else if (left <= 0) { left = 0; stop(); beep(); }
       paint();
     }, 1000);
     paint();
   }
   function toggle(){ running ? (stop(), paint()) : start(); }
-  function reset(){ stop(); left = total; timerEl.classList.remove('done'); paint(); }
+  function reset(){
+    stop();
+    if (phases) { pi = 0; total = phases[0].secs; }
+    left = total; timerEl.classList.remove('done'); paint();
+  }
 
   function loadTimer(slide){
     stop();
     var secs = parseInt(slide.getAttribute('data-timer') || '0', 10);
     total = isNaN(secs) ? 0 : secs;
+    // data-phases="Think|30; A talks|60; B talks|60; Share|90"
+    phases = null; pi = 0;
+    var spec = slide.getAttribute('data-phases');
+    if (spec) {
+      phases = spec.split(';').map(function(p){
+        var bits = p.split('|'); return {name: bits[0].trim(), secs: parseInt(bits[1], 10) || 0};
+      }).filter(function(p){ return p.name && p.secs > 0; });
+      if (phases.length) total = phases[0].secs; else phases = null;
+    }
     left = total;
     timerEl.classList.remove('done','running');
     // Timers never start on their own — the teacher decides when the work begins.
@@ -788,12 +959,28 @@
     }
   }
 
-  function show(n){
+  // data-step items appear one per → press before the deck moves on, so a
+  // prediction can be asked before its answer is on the screen. Coming back
+  // with ← shows the slide whole.
+  function steps(s){
+    return Array.prototype.slice.call(s.querySelectorAll('[data-step]')).sort(function(a, b){
+      return (parseFloat(a.getAttribute('data-step')) || 0) - (parseFloat(b.getAttribute('data-step')) || 0);
+    });
+  }
+  function next(){
+    var hidden = steps(slides[idx]).filter(function(el){ return !el.classList.contains('shown'); });
+    if (hidden.length) { hidden[0].classList.add('shown'); return; }
+    show(idx + 1);
+  }
+  function prev(){ show(idx - 1, true); }
+
+  function show(n, whole){
     if (n < 0) n = 0;
     if (n > slides.length - 1) n = slides.length - 1;
     slides[idx].classList.remove('on');
     idx = n;
     var s = slides[idx];
+    steps(s).forEach(function(el){ el.classList.toggle('shown', !!whole); });
     s.classList.add('on');
     counter.textContent = (idx + 1) + ' / ' + slides.length;
     dayTag.textContent = s.getAttribute('data-day') || '';
@@ -811,8 +998,49 @@
     jumpList.appendChild(li);
   });
 
-  document.getElementById('next').addEventListener('click', function(){ show(idx + 1); });
-  document.getElementById('prev').addEventListener('click', function(){ show(idx - 1); });
+  document.getElementById('next').addEventListener('click', next);
+  document.getElementById('prev').addEventListener('click', prev);
+
+  // A reads the slide aloud: the headline, then each language line in its own
+  // voice, then the direction. Reading is the barrier in this room; the screen
+  // can carry the question to a student who can't yet carry it off the page.
+  function readAloud(){
+    var synth = window.speechSynthesis;
+    if (!synth) return;
+    if (synth.speaking) { synth.cancel(); return; }
+    var s = slides[idx], voices = synth.getVoices();
+    function say(text, lang){
+      text = (text || '').replace(/\s+/g, ' ').trim();
+      if (!text) return;
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang = lang; u.rate = 0.92;
+      var v = voices.filter(function(x){ return x.lang && x.lang.toLowerCase().indexOf(lang.slice(0, 2)) === 0; })[0];
+      if (lang.slice(0, 2) !== 'en' && !v) return;   // no voice for it: skip rather than mangle it
+      if (v) u.voice = v;
+      synth.speak(u);
+    }
+    function visible(el){ var st = el.closest('[data-step]'); return !st || st.classList.contains('shown'); }
+    Array.prototype.forEach.call(s.querySelectorAll('h1, h2, .es, .instruct'), function(el){
+      if (!visible(el)) return;
+      if (el.classList.contains('es')) say(el.textContent, el.getAttribute('lang') || 'es-US');
+      else say(el.textContent, 'en-US');
+    });
+  }
+  var zoom = document.createElement('div');
+  zoom.className = 'zoom';
+  document.body.appendChild(zoom);
+  document.addEventListener('click', function(e){
+    if (zoom.classList.contains('on')) { zoom.classList.remove('on'); return; }
+    var img = e.target.closest && e.target.closest('.slide img');
+    if (!img || img.closest('.vfacade')) return;
+    var s = slides[idx], q = s.querySelector('h1, h2'), es = s.querySelector('h1 + .es, h2 + .es');
+    zoom.innerHTML = '';
+    var big = document.createElement('img'); big.src = img.currentSrc || img.src; big.alt = img.alt;
+    zoom.appendChild(big);
+    if (q) { var zq = document.createElement('div'); zq.className = 'zq'; zq.textContent = q.textContent; zoom.appendChild(zq); }
+    if (es) { var ze = document.createElement('div'); ze.className = 'zes'; ze.textContent = es.textContent; zoom.appendChild(ze); }
+    zoom.classList.add('on');
+  });
   toggleBtn.addEventListener('click', function(e){ e.stopPropagation(); toggle(); });
   resetBtn.addEventListener('click', function(e){ e.stopPropagation(); reset(); });
   timeEl.addEventListener('click', function(e){ e.stopPropagation(); toggle(); });
@@ -820,14 +1048,16 @@
 
   document.addEventListener('keydown', function(e){
     var t = e.target.tagName;
-    if (t === 'INPUT' || t === 'TEXTAREA') return;
+    if (t === 'INPUT' || t === 'TEXTAREA' || e.target.isContentEditable) return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
     switch (e.key) {
-      case 'ArrowRight': case 'PageDown': show(idx + 1); break;
-      case 'ArrowLeft':  case 'PageUp':   show(idx - 1); break;
+      case 'ArrowRight': case 'PageDown': next(); break;
+      case 'ArrowLeft':  case 'PageUp':   prev(); break;
+      case 'a': case 'A': readAloud(); break;
       case 'Home': show(0); break;
       case 'End':  show(slides.length - 1); break;
       case 'g': case 'G': jump.classList.toggle('show'); break;
-      case 'Escape': jump.classList.remove('show'); break;
+      case 'Escape': jump.classList.remove('show'); zoom.classList.remove('on'); break;
       case 's': case 'S': if (total > 0) { e.preventDefault(); toggle(); } break;
       case 'r': case 'R': if (total > 0) { e.preventDefault(); reset(); } break;
       case ' ': if (total > 0) { e.preventDefault(); toggle(); } break;
@@ -1119,5 +1349,107 @@
 
 })();
 </script>
+<!-- Talk kit script: the vote, the pair picker, and the "what we heard" board.
+     Configured entirely by data- attributes, like the chart kit. Don't edit it;
+     see "Talk slides" in references/deck.md. -->
+<script>
+(function(){
+  function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls;
+    if (text != null) e.textContent = text; return e; }
+
+  // vote, talk, revote: data-options="A|B|C", data-rounds="Before we talk|After we talk"
+  Array.prototype.forEach.call(document.querySelectorAll('.vote'), function(v){
+    var opts = (v.getAttribute('data-options') || '').split('|').map(function(x){ return x.trim(); }).filter(Boolean);
+    var names = (v.getAttribute('data-rounds') || 'Before we talk|After we talk').split('|');
+    var two = names.length > 1, round = 0;
+    var counts = opts.map(function(){ return [0, 0]; });
+    var bar = el('div', 'rounds'), rows = [];
+    var btns = names.slice(0, 2).map(function(n, r){
+      var b = el('button', r === 0 ? 'on' : '', 'Round ' + (r + 1) + ': ' + n);
+      b.type = 'button';
+      b.addEventListener('click', function(){ round = r; btns.forEach(function(x, i){ x.classList.toggle('on', i === r); }); });
+      bar.appendChild(b); return b;
+    });
+    if (two) v.appendChild(bar);
+    function paint(){
+      var max = 1; counts.forEach(function(c){ max = Math.max(max, c[0], c[1]); });
+      rows.forEach(function(r, i){
+        r.b1.style.width = (counts[i][0] / max * 100) + '%';
+        if (r.b2) r.b2.style.width = (counts[i][1] / max * 100) + '%';
+        r.n.innerHTML = '';
+        r.n.appendChild(document.createTextNode(counts[i][0]));
+        if (two) { r.n.appendChild(el('span', 'arrow', '→')); r.n.appendChild(document.createTextNode(counts[i][1])); }
+      });
+    }
+    opts.forEach(function(o, i){
+      var row = el('div', 'vrow'), bars = el('div', 'vbars');
+      var t1 = el('div', 'vbar r1'), b1 = el('i'); t1.appendChild(b1); bars.appendChild(t1);
+      var b2 = null;
+      if (two) { var t2 = el('div', 'vbar r2'); b2 = el('i'); t2.appendChild(b2); bars.appendChild(t2); }
+      var n = el('div', 'vn'), ctl = el('div', 'vctl');
+      [['−', -1], ['+', 1]].forEach(function(d){
+        var b = el('button', '', d[0]); b.type = 'button';
+        b.setAttribute('aria-label', (d[1] > 0 ? 'Add a vote for ' : 'Remove a vote for ') + o);
+        b.addEventListener('click', function(){ counts[i][round] = Math.max(0, counts[i][round] + d[1]); paint(); });
+        ctl.appendChild(b);
+      });
+      row.appendChild(el('div', 'vlab', o)); row.appendChild(bars); row.appendChild(n); row.appendChild(ctl);
+      v.appendChild(row); rows.push({b1: b1, b2: b2, n: n});
+    });
+    if (two) {
+      var key = el('div', 'key');
+      key.innerHTML = '<b style="background:var(--blue)"></b>' + names[0] + '<b style="background:var(--accent-deep)"></b>' + names[1];
+      v.appendChild(key);
+    }
+    paint();
+  });
+
+  // pair picker: data-count="8", data-label="Pair". Random, no repeats until
+  // every pair has been called. P picks on the current slide.
+  Array.prototype.forEach.call(document.querySelectorAll('.picker'), function(p){
+    var n = parseInt(p.getAttribute('data-count'), 10) || 6;
+    var label = p.getAttribute('data-label') || 'Pair';
+    var left = [], chips = [];
+    var now = el('div', 'pick-now', '–'), side = el('div'), btn = el('button', '', 'Pick a ' + label.toLowerCase() + ' (P)');
+    btn.type = 'button';
+    var called = el('div', 'called');
+    for (var i = 1; i <= n; i++) { var c = el('span', '', i); chips.push(c); called.appendChild(c); }
+    function refill(){ left = []; for (var i = 1; i <= n; i++) left.push(i);
+      chips.forEach(function(c){ c.classList.remove('done'); }); }
+    function pick(){
+      if (!left.length) refill();
+      var k = left.splice(Math.floor(Math.random() * left.length), 1)[0];
+      now.textContent = k; chips[k - 1].classList.add('done');
+    }
+    refill();
+    btn.addEventListener('click', pick);
+    p.pick = pick;
+    side.appendChild(el('div', 'pick-label', label)); side.appendChild(btn); side.appendChild(called);
+    p.appendChild(now); p.appendChild(side);
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key !== 'p' && e.key !== 'P') return;
+    var t = e.target.tagName;
+    if (t === 'INPUT' || t === 'TEXTAREA' || e.metaKey || e.ctrlKey) return;
+    var slide = document.querySelector('.slide.on');
+    var p = slide && slide.querySelector('.picker');
+    if (p && p.pick) p.pick();
+  });
+
+  // what we heard: data-key names the board, so it keeps what was typed on
+  // this computer through a reload. One idea per line, credited to a pair.
+  Array.prototype.forEach.call(document.querySelectorAll('.heard'), function(h){
+    var key = 'heard:' + (h.getAttribute('data-key') || location.pathname);
+    h.appendChild(el('div', 'hlabel', h.getAttribute('data-label') || 'What we heard'));
+    var ta = el('textarea');
+    ta.setAttribute('aria-label', 'Ideas from the class');
+    ta.placeholder = 'Pair 3: the pump needs power all day…';
+    try { ta.value = localStorage.getItem(key) || ''; } catch (err) {}
+    ta.addEventListener('input', function(){ try { localStorage.setItem(key, ta.value); } catch (err) {} });
+    h.appendChild(ta);
+  });
+})();
+</script>
+
 </body>
 </html>

@@ -41,6 +41,29 @@ you actually want:
 
 Writing lines are set at 30-point pitch — big-handwriting friendly. Don't shrink them.
 
+**Sentence starters sit on the writing line.** A question's `stems` print on its first lines, with
+gaps on the rule where the words go and a trailing blank left as the rest of the line, so the
+student starts writing where the sentence starts. `count` is the total number of lines, the
+starters' own lines included: one starter and one sentence of answer is `count: 2`.
+
+**Circle one** is `"choices": ["not yet", "almost", "ready to go"]` on the question, not a list
+inside the prompt. The options print on their own line, spaced wide enough to circle.
+
+**Graphic organizers** are an `organizer` block, chosen by the thinking the task asks for
+(`references/design_criteria.md` has the table):
+
+```json
+{"type": "organizer", "kind": "tchart", "label": "Tank vs. garden", "columns": ["Our tank", "The garden"], "rows": 4, "es": "Compara."}
+{"type": "organizer", "kind": "notice_wonder", "label": "Look at the frame", "rows": 3}
+{"type": "organizer", "kind": "flow", "label": "Where the water goes", "steps": ["Tote", "", "", "Channels"]}
+{"type": "organizer", "kind": "cer", "stems": {"claim": "The top gets ______ water."}}
+{"type": "organizer", "kind": "frayer", "word": "impeller"}
+```
+
+**Page budget.** Two pages for a 60-minute lesson, even page counts, every page three-quarters
+full. `scripts/check_packet.py` measures it; the order for fixing it is in
+`references/design_criteria.md`.
+
 ## Every packet also carries
 
 - **One reflection prompt**, usually under the closing: "Which part was hardest? What made it
@@ -142,7 +165,8 @@ Everyone gets the same packet. Push and support inside the task:
 ```
 {
   "audience": "student" | "teacher",
-  "meta":   {"title", "course", "day", "period", "name_line": true},
+  "meta":   {"code", "title", "course", "day", "period", "name_line": true,
+             "languages": ["es"], "large_print": false},
   "objective": "I can …",
   "standard":  "CODE — ten-word gist",
   "agenda":  [["Do Now", 5], ["Model", 12], …],      // prints on the lesson plan only
@@ -156,7 +180,7 @@ Blocks:
 |---|---|---|
 | `heading` | `text`, `minutes?` | A phase title on the student page |
 | `phase` | `name`, `minutes` | Same thing on the lesson plan |
-| `question` | `number`, `prompt`, `es?`, `hint?`, `example?`, `stems[]?`, `parts[]?`, `space`, `minutes?` | Any task a student does |
+| `question` | `number`, `prompt`, `es?`, `hint?`, `example?`, `stems[]?`, `parts[]?`, `choices[]?`, `space`, `minutes?` | Any task a student does |
 | `text` | `text` | A sentence of directions or context |
 | `labeled` | `label`, `text` | A short lead-in plus its line |
 | `list` / `steps` | `label?`, `items[]`, `ordered?` | Directions, procedures, materials |
@@ -164,12 +188,21 @@ Blocks:
 | `fill_table` | `headers[]`, `rows[][]?`, `blank_rows?`, `row_height_in?` | An organizer students write into |
 | `note` | `label?`, `text` | A boxed reminder, a watch-for, a teacher note |
 | `wordbank` | `label?`, `items[]` | Vocabulary or numbers a task needs |
+| `organizer` | `kind` (`tchart`, `notice_wonder`, `flow`, `cer`, `frayer`), `label?`, `es?`, and per kind `columns[]`/`rows`, `steps[]`, `stems{}`, `word`, `height_in?` | A graphic organizer matched to the thinking |
 | `stem` | `text` | A standalone sentence frame |
 | `space` | `kind`, `count`/`height_in`/`label` | Write space not attached to a question |
 | `page_break` | — | Force a new page |
 
 `heading`, `text`, `labeled`, `note`, `list` / `steps` and `wordbank` each take an optional `es`
 as well — one short Spanish line, rendered under the block. See "The Spanish line" above.
+
+**`meta` fields worth knowing.** `code` is the lesson code from the profile ("Science 1.7"); it
+leads the header and the footer, so `course` can usually be left out and `day` can carry the unit
+name ("Hydroponics"). `languages` lists the home languages in print order (default `["es"]`); each
+block then takes one line per code, `"es"` and `"zh"` side by side, and the renderer reports any
+question missing any of them. Right-to-left languages (`ar`, `fa`, `ur`, `he`) print right-aligned
+on their own. `large_print: true` sets the whole packet about a quarter larger, for the students
+whose plans call for it; it adds pages, so cut a question before it adds more than one.
 
 `**bold**` works inside any text field. Nothing else marks up — no markdown headings, no pipes,
 no emoji.
