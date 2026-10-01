@@ -54,7 +54,7 @@ Quantity first; judgement is a separate pass and mixing them kills the quantity.
 about — the frame test for a photograph, the point of view for an activity. A criterion written
 afterwards is a justification for what you already picked.
 
-This is why `references/photographs.md` tells you to pull 8-12 candidates and expect to reject.
+This is why the slideshow skill's photographs reference pulls 8-12 candidates and expects to reject.
 Rejection is not waste; it is the only thing that makes the choice mean anything.
 
 The talk-through in Step 2 is where the flare becomes visible to Zac. Offering him two real videos
@@ -94,7 +94,7 @@ that "I wish" is easier to say honestly than "this is wrong," so more real infor
 ## Show, don't tell — the one mindset that touches every slide
 
 The rest of the method shapes the process; this one shapes each artifact, which is why it also
-appears in `references/deck.md` as the test a slide has to pass.
+appears in the slideshow skill's deck reference as the test a slide has to pass.
 
 The strongest version of any slide is the one where the evidence is on screen and the sentence is
 unnecessary. Before writing a sentence, ask what could be shown instead: the photograph, the two

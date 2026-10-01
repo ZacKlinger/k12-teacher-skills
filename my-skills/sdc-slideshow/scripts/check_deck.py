@@ -16,6 +16,7 @@ Exit code 0 = clean (warnings allowed), 1 = at least one error.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from collections import Counter
@@ -423,6 +424,44 @@ def check_vocab(html: str, words: list, rep: Report) -> None:
         rep.note(f"{len(words)} key word(s), each on a slide and marked.")
 
 
+def norm(text: str) -> str:
+    """Words only, lowercase: punctuation, bold marks and blanks don't count as a difference."""
+    text = re.sub(r"\*\*|_{2,}", " ", str(text)).replace("\u2019", "'").lower()
+    return " ".join(re.findall(r"[\w']+", text))
+
+
+def check_against_packet(html: str, packet: dict, rep: Report) -> None:
+    """The deck is the packet on the wall. Every question a student answers on paper is on
+    a slide in the packet's own words, with the packet's language lines, so a student who
+    looks up recognizes the task without reading it twice."""
+    def questions(blocks):
+        for b in blocks:
+            if b.get("type") == "question":
+                yield b
+    langs = packet.get("meta", {}).get("languages") or ["es"]
+    wall = norm(text_of(html))
+    missing, lines = [], []
+    for q in questions(packet.get("sections", [])):
+        prompt = norm(q.get("prompt", ""))
+        # the first sentence carries the task; context before it may be cut on a slide
+        first = norm(re.split(r"(?<=[.?!])\s+", str(q.get("prompt", "")).strip())[-1])
+        num = q.get("number", "?")
+        if prompt not in wall and (len(first.split()) < 4 or first not in wall):
+            missing.append(str(num))
+        for code in langs:
+            if q.get(code) and norm(q[code]) not in wall:
+                lines.append(f"{num} ({code})")
+    if missing:
+        rep.warn("Packet question(s) not on any slide in the packet's words: "
+                 + ", ".join(missing) + ". Every task a student writes appears on a slide, "
+                 "worded the same, with its packet page named.")
+    else:
+        rep.note("Every packet question is on a slide in the packet's words.")
+    if lines:
+        rep.warn("A slide's language line differs from the packet's, or is missing, for: "
+                 + ", ".join(lines) + ". Use the packet's line word for word.")
+
+
 def check_talk(sl: list, rep: Report, games: int = 0) -> None:
     """Student talk is the non-negotiable, and the deck is what runs it.
 
@@ -616,6 +655,7 @@ def main() -> int:
                     help="home languages in the room, comma-separated codes (default es)")
     ap.add_argument("--vocab", default="",
                     help="the packet's key words, comma-separated; each should be on a slide")
+    ap.add_argument("--packet", help="the lesson's packet.json; the deck is checked against it")
     args = ap.parse_args()
 
     try:
@@ -641,6 +681,19 @@ def main() -> int:
     check_photos(html, sl, args.minutes, rep)
     check_template_wiring(raw, html, rep)
     check_teaching(raw, html, sl, rep)
+    packet = None
+    if args.packet:
+        try:
+            packet = json.load(open(args.packet, encoding="utf-8"))
+        except (OSError, ValueError) as e:
+            rep.warn(f"Could not read {args.packet}: {e}")
+        if packet:
+            meta = packet.get("meta", {})
+            if not args.vocab and meta.get("vocab"):
+                args.vocab = ",".join(meta["vocab"])
+            if args.languages == "es" and meta.get("languages"):
+                args.languages = ",".join(meta["languages"])
+            check_against_packet(html, packet, rep)
     games = check_games(sl, rep)
     check_talk(sl, rep, games)
     check_vocab(html, [w.strip() for w in args.vocab.split(",") if w.strip()], rep)

@@ -9,7 +9,7 @@ with an answer key) and changes only what the shape needs.
 |---|---|---|
 | Multi-day lesson | "Day 1 and 2 of field trip prep", "one packet for the whole week", "plan Monday through Wednesday" | One packet with a section per day; one deck per day |
 | Viewing guide | "a viewing guide for Top Gun", "worksheet for this tubing video" | Packet only, unless slides are asked for |
-| Review game | "make a Jeopardy for this", "a game to review the six parts" | One HTML game from `assets/review_game_template.html` |
+| Review game | "make a Jeopardy for this", "a game to review the six parts" | One HTML game board, built by the `sdc-slideshow` skill |
 
 When the request doesn't name a shape, it's a lesson. When it names one of these, skip the parts of
 Steps 2-3 that don't apply (a viewing guide has no movement or chart requirement) and say in one
@@ -97,22 +97,6 @@ the packet does too, and every day still stands on its own:
 
 ## Review game
 
-A Jeopardy-style board on the projector, built from `assets/review_game_template.html`. Copy the
-template and fill the `GAME` object at the bottom — title, categories, clues. The board, scoring,
-keyboard controls, and dark and light themes are already wired; change nothing else.
-
-- **Categories** are the lesson's parts or the unit's ideas (the six parts of the system, the four
-  forces). Two to six of them.
-- **Values are rungs, not random.** 100 is a fact a student can guess from everyday life, 200 applies
-  it to our build, 300 asks why. Every question should be a *fair guess*: nobody needs to already
-  know the answer, which is what keeps the whole room in it.
-- **Each clue carries** `q` (the question), a line for each language in `GAME.languages` under its
-  code (`es`, `zh` …, the same abbreviated line as the packet), and `a`, the reveal: one or two
-  sentences of explanation a student could repeat to a partner, not a bare answer.
-- **Run it as talk.** Partners get think time and agree on a guess before a team answers. Say so in
-  the plan; it turns a game into a talk move.
-- Name it by the lesson code, `Science 1.6 - Readiness game.html`. In claude.ai, also show it as an
-  artifact so it opens straight from the chat.
-
-Before handing it over: every category has one clue per value, every clue has its language lines,
-and every reveal explains rather than only answers.
+A Jeopardy-style board on the projector is a slide shape, so the slideshow skill builds it: load
+`sdc-slideshow` and ask it for "a review game board", handing it the packet. In the plan, say the
+game runs as talk: partners agree on a guess before a team answers.

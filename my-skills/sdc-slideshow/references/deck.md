@@ -4,7 +4,7 @@ Write only the slides, the `<section class="slide">` elements, into `slides.html
 `scripts/build_deck.py`, which puts them inside `assets/deck_template.html` and runs the checker.
 The chrome (navigation, countdown, day tag, packet chip, progress bar, jump menu, photo zoom)
 already works. Don't open the template's stylesheet or scripts, don't rewrite them, and don't
-position anything by hand. `references/design_criteria.md` sets the type sizes and contrast the
+position anything by hand. `references/slide_criteria.md` sets the type sizes and contrast the
 template is built to.
 
 The deck does two jobs at once. It's what Zac teaches from, and it's what a student looks up at
@@ -87,9 +87,8 @@ isn't finished. The payload is one of:
 
 ### The test every slide has to pass
 
-`references/design_method.md` carries the method behind the whole skill; two of its mindsets do
-their work here, on each slide, and they are the fastest way to tell a finished slide from an
-unfinished one.
+Two mindsets from the design method behind these lessons do their work here, on each slide, and
+they are the fastest way to tell a finished slide from an unfinished one.
 
 **Show, don't tell.** The strongest version of any slide is the one where the evidence is on screen
 and the sentence is unnecessary. Before writing a sentence, ask what could be shown instead — the
@@ -253,7 +252,7 @@ errors on a deck with no talk slide and warns on a deck with only one:
 6. **Who reports** — the `.picker` on the share slide, after rehearsal. Pairs are numbered, never
    named; the file never holds a student's name.
 
-How each move in the talk catalog lands on screen:
+How each talk move (the lesson skill's talk catalog, or whatever the plan names) lands on screen:
 
 | Move | The slide carries |
 |---|---|
@@ -319,12 +318,34 @@ Both need a real `data-why`: the reveal explains in a sentence a student could r
 partner, and never just marks an answer right. The checker reports an error for a game without one, for an answer
 or a bin number out of range, and warns on a game slide with no timer.
 
+### A whole review game
+
+A Jeopardy-style board on the projector, built from `assets/review_game_template.html`. Copy the
+template and fill the `GAME` object at the bottom — title, categories, clues. The board, scoring,
+keyboard controls, and dark and light themes are already wired; change nothing else.
+
+- **Categories** are the lesson's parts or the unit's ideas (the six parts of the system, the four
+  forces). Two to six of them.
+- **Values are rungs, not random.** 100 is a fact a student can guess from everyday life, 200 applies
+  it to our build, 300 asks why. Every question should be a *fair guess*: nobody needs to already
+  know the answer, which is what keeps the whole room in it.
+- **Each clue carries** `q` (the question), a line for each language in `GAME.languages` under its
+  code (`es`, `zh` …, the same abbreviated line as the packet), and `a`, the reveal: one or two
+  sentences of explanation a student could repeat to a partner, not a bare answer.
+- **Run it as talk.** Partners get think time and agree on a guess before a team answers. Say so in
+  the plan or the handover; it turns a game into a talk move.
+- Name it by the lesson code, `Science 1.6 - Readiness game.html`. In claude.ai, also show it as an
+  artifact so it opens straight from the chat.
+
+Before handing it over: every category has one clue per value, every clue has its language lines,
+and every reveal explains rather than only answers.
+
 ## Key words
 
-`build_deck.py --vocab "reservoir,pump,gallon"` takes the packet's `meta.vocab` and the deck marks
-every one of those words wherever it appears on a slide, bold on the same yellow the packet uses,
-so the word a student is learning looks the same on the wall and on the page. Language lines,
-credits and eyebrows are left plain. Put `data-no-kw` on an element to leave it plain too. The
+`build_deck.py --packet packet.json` (or `--vocab "reservoir,pump,gallon"`) takes the packet's
+`meta.vocab` and the deck marks every one of those words wherever it appears on a slide, bold on
+the same yellow the packet uses, so the word a student is learning looks the same on the wall and
+on the page. Language lines, credits and eyebrows are left plain. Put `data-no-kw` on an element to leave it plain too. The
 checker warns about a key word that never appears on any slide: every key word gets its word slide
 and shows up where it is used.
 
@@ -393,7 +414,7 @@ Run the checker first — it catches the things that have actually gone wrong be
 template placeholder text left in, base64 bloat, un-aimed crops):
 
 ```bash
-python3 scripts/check_deck.py "$OUTPUT_DIR/<topic>_deck.html" --minutes <60 or 90>
+python3 scripts/check_deck.py "$OUTPUT_DIR/<code> - <short title> - deck.html" --minutes <period> --packet packet.json
 ```
 
 `--minutes` must be the real period length: the slide bounds (14-20 / 20-28) and the photograph

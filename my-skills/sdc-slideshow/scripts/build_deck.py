@@ -3,8 +3,11 @@
 
 Usage:
     python3 build_deck.py slides.html "Science 1.7 - Pump build - deck.html" \
-        --title "Science 1.7 · Pump build" --minutes 65 --languages es \
-        --vocab "reservoir,pump,gallon"
+        --title "Science 1.7 · Pump build" --minutes 65 --packet packet.json
+
+--packet reads the key words and the languages from the packet's meta, and the checker
+holds the deck to the packet: every question on a slide, in the packet's words. Without a
+packet, pass --vocab "reservoir,pump,gallon" and --languages es.
 
 `slides.html` holds only the <section class="slide"> elements, in order. Everything
 else -- the stylesheet, navigation, timers, the talk kit, the chart kit, the photo
@@ -17,6 +20,7 @@ builds and checks.
 """
 
 import argparse
+import json
 import os
 import re
 import subprocess
@@ -38,6 +42,8 @@ def main():
     ap.add_argument("--languages", default="es")
     ap.add_argument("--vocab", default="",
                     help="the packet's key words (meta.vocab), comma-separated; marked on every slide")
+    ap.add_argument("--packet", help="the lesson's packet.json: key words, languages, and the "
+                                     "questions the deck has to carry")
     args = ap.parse_args()
 
     template = open(TEMPLATE, encoding="utf-8").read()
@@ -53,6 +59,13 @@ def main():
     deck = template[:a] + "\n\n" + slides + "\n" + template[b:]
     deck = re.sub(r"<title>.*?</title>", "<title>" + args.title.replace("<", "&lt;") + "</title>",
                   deck, count=1, flags=re.S)
+    meta = {}
+    if args.packet:
+        meta = json.load(open(args.packet, encoding="utf-8")).get("meta", {})
+        if not args.vocab and meta.get("vocab"):
+            args.vocab = ",".join(meta["vocab"])
+        if args.languages == "es" and meta.get("languages"):
+            args.languages = ",".join(meta["languages"])
     words = [w.strip() for w in args.vocab.split(",") if w.strip()]
     if words:
         attr = "|".join(w.replace("&", "&amp;").replace('"', "&quot;") for w in words)
@@ -66,7 +79,8 @@ def main():
 
     check = os.path.join(HERE, "check_deck.py")
     r = subprocess.run([sys.executable, check, args.out, "--minutes", str(args.minutes),
-                        "--languages", args.languages] + (["--vocab", args.vocab] if words else []))
+                        "--languages", args.languages] + (["--vocab", args.vocab] if words else [])
+                       + (["--packet", args.packet] if args.packet else []))
     return r.returncode
 
 

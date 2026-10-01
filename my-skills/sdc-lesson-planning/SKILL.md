@@ -1,6 +1,6 @@
 ---
 name: "sdc-lesson-planning"
-description: "Plans a class session for Zac's SDC (special day class) grades 9-10 science and math, then delivers a student packet built to print from Google Docs and an HTML slide deck with real photographs, timers, interactive charts, games, and embedded videos, with the lesson plan written straight into the chat. Load this skill BEFORE asking any clarifying question about the lesson. Use it whenever Zac is planning what to teach: explicit asks (\"plan tomorrow's lesson\", \"Science 1.7\", \"Day 4 of the hydroponics unit\") and implicit ones (\"I'm teaching surface area Thursday\", \"need something for period 3 tomorrow\"). Also use it for just a packet, just slides, or just an agenda, a viewing guide, a review game such as a Jeopardy board, or a multi-day lesson when he asks for more than one day. One session at a time unless asked. Do NOT use it for grading, rubrics, IEP paperwork, parent emails, or standards lookups; answer those directly."
+description: "Plans a class session for Zac's SDC (special day class) grades 9-10 science and math, then delivers a student packet built to print from Google Docs and, through the sdc-slideshow skill, an HTML slide deck with real photographs, timers, interactive charts, games, and embedded videos, with the lesson plan written straight into the chat. Load this skill BEFORE asking any clarifying question about the lesson. Use it whenever Zac is planning what to teach: explicit asks (\"plan tomorrow's lesson\", \"Science 1.7\", \"Day 4 of the hydroponics unit\") and implicit ones (\"I'm teaching surface area Thursday\", \"need something for period 3 tomorrow\"). Also use it for just a packet, just slides, or just an agenda, a viewing guide, a review game such as a Jeopardy board, or a multi-day lesson when he asks for more than one day. One session at a time unless asked. Do NOT use it for grading, rubrics, IEP paperwork, parent emails, or standards lookups; answer those directly."
 license: MIT
 ---
 
@@ -14,7 +14,7 @@ third party. Two files, plus the plan in chat:
 |---|---|---|
 | Lesson plan | **Chat message, never a file** | Zac, read on screen |
 | Student packet | Word document that Zac adds to Google Drive, where it becomes the Google Doc he prints | Students, on paper |
-| Slide deck | Single HTML file opened in Chrome: photographs, timers, charts, videos | Projected; students use it to navigate the packet |
+| Slide deck | Single HTML file opened in Chrome, built by the `sdc-slideshow` skill from this packet | Projected; students use it to navigate the packet |
 
 Both files travel through Google Drive, and the Google Doc is the page students actually get; see
 "Google Drive" below for what that asks of every build.
@@ -158,18 +158,12 @@ inventing an ID — a dead embed in front of a class is a bad minute.
 
 Read the build references before writing anything:
 
-- `references/design_criteria.md` — what a good page and a good slide are made of: the page
-  budget, ink, readability, organizers, and the back-row type sizes. Everything below serves it.
+- `references/design_criteria.md` — what a good page is made of: the page budget, ink,
+  readability, key words, organizers, whole tasks. Everything below serves it.
 - `references/packet.md` — the student packet rules and the `packet.json` schema.
-- `references/deck.md` — the slide deck spec and the component catalog.
-- `references/dataviz.md` — the chart kit and how to use it. Not optional: every deck carries at
-  least one interactive chart, and two to four whenever the lesson touches a number, which is
-  nearly always in science and always in math. Reading is the barrier in this room; a chart a
-  student can interpret carries more of the lesson than any paragraph, and each one is predicted
-  before it's revealed.
-- `references/photographs.md` — the deck carries real photographs and they are not optional. This
-  reference is where the claim-first selection method lives, and it is the difference between
-  photographs that argue for the lesson and photographs that merely sit near it.
+
+The deck has its own skill, `sdc-slideshow`, with its own references (the slide spec, the chart
+kit, the photographs method, games); it reads them when you hand the deck over below.
 
 Order of work: settle the plan and the packet content first, then build the deck from that same
 content so the two cannot drift. Slide text is drawn from the packet's actual wording — a student
@@ -243,50 +237,19 @@ in this order, tight enough to skim:
 Prose and short lists, no headers-within-headers. If it runs past what fits on a screen or two,
 it's too long: cut the parts a teacher already knows how to do.
 
-**Slide deck (HTML).** Write only the slides, the `<section class="slide">` elements in order, to
-`slides.html`, using the components in `references/deck.md`. Don't open or copy
-`assets/deck_template.html`: `build_deck.py` puts the slides inside it, and the template already
-carries the navigation, the per-slide countdown timers, the day tag, the photo styles and zoom, the
-blocked-image fallback, the click-to-play video, the interactive chart kit, and the talk kit (phased
-talk timers, vote-talk-revote, a pair picker, build steps, read-aloud). Every talk move in the plan
-gets a talk slide built the way `references/deck.md` "Talk slides" describes, with the thing
-students talk about on it.
+**Slide deck: hand it to `sdc-slideshow`.** Once the packet renders clean, load the
+`sdc-slideshow` skill (it is installed beside this one) and follow it to build the deck, handing it
+`packet.json` and the plan you are about to deliver. The code, the minutes, the languages and the
+key words ride in the packet's `meta`; the talk moves, the photographs you promised by subject and
+the verified video come from the talk-through in Step 2. The deck is the packet seen on the wall,
+so it is built from the packet's words and checked against them, never reworded. Photographs are
+its job too: never ask Zac for one. If `sdc-slideshow` isn't available, say so in one line and
+deliver the packet and the plan.
 
-```bash
-python3 scripts/build_deck.py slides.html "$OUTPUT_DIR/<code> - <short title> - deck.html" \
-  --title "<code> · <short title>" --minutes <period length> --languages es \
-  --vocab "<the packet's meta.vocab, comma-separated>"
-```
-
-Use a game where it earns its place: a **game round** for a fair-guess question, a **sort** for
-anything students can classify with their hands (`references/deck.md`, "Games"). Run as talk, a
-game counts as one of the lesson's two talk moves.
-
-It writes the deck and runs the checker in one step. Zac opens the deck with **Open in Chrome**, as a
-local file, not in the chat's preview, so everything in it has to work from a file in Chrome, which
-the template does.
-
-Every deck carries **at least one interactive chart**, two to four when the lesson has numbers in
-it. In a room where reading is the barrier, the chart is the explanation and the words are its
-caption — a deck with no chart has put the lesson back into prose.
-
-The checker's report is the first check of the work — it is faster and more reliable than reading
-the file, and every rule in it is one that a previous build silently broke. To re-check after a fix,
-re-run `build_deck.py`, or `check_deck.py` on the deck directly.
-
-Pass the period length you settled in Step 1. The slide count and the photograph floor
-both scale off it, so a block-day deck checked at 60 gets told it has too many slides, and a
-checker that is wrong once is a checker that gets ignored after that.
-
-Fix every error and re-run until it exits clean; then read the warnings and make a decision about
-each one rather than ignoring them. What the checker cannot judge, you still have to: whether each
-photograph is the *right* photograph for its claim, whether the slides look right at projection
-size, and whether the arithmetic holds. So also list `$OUTPUT_DIR` and confirm both files exist and
-are non-trivial in size; look at the packet's page image from `check_packet.py`; run
-`scripts/find_photos.py probe` on the deck so every photograph and the video are known to load;
-open the deck and click through it. Work every calculation
-in the lesson — the answer key, the worked example, and the numbers on the slides all have to
-agree.
+Then check the whole lesson the way it will be taught: list `$OUTPUT_DIR` and confirm both files
+exist and are non-trivial in size; look at the packet's page image from `check_packet.py`; read the
+slideshow skill's report. Work every calculation in the lesson — the answer key, the worked
+example, the numbers on the slides, the game answers — they all have to agree.
 
 ---
 
@@ -310,10 +273,10 @@ the shortest text on the page, and doubling the words on a page is how a struggl
 reading it. Plain everyday Spanish, `tú`-form imperatives, and the same wording in both files for
 the same question.
 
-`references/packet.md` carries the `"es"` field and the list of blocks that take one;
-`references/deck.md` carries `.es` and where it sits on a slide. `check_deck.py` errors on a deck
-with no Spanish and `render_packet.py` reports any question missing it — both are the only thing
-checking this, so read what they print.
+`references/packet.md` carries the `"es"` field and the list of blocks that take one; the slideshow
+skill puts the packet's own lines on the slides and checks them against the packet.
+`render_packet.py` reports any question missing a line — it is the only thing checking the page, so
+read what it prints.
 
 ## Accommodations
 
@@ -396,31 +359,13 @@ text, never a picture of text, so a student who opens the Doc on a device can ha
 zoom it, or search it, and the lesson code in the header and footer is what Step 0 searches for
 next time.
 
-**The deck works from anywhere it lands.** Template, timers, charts and talk kit are inside the
-file; photographs and the video are linked by URL. The same file works opened from the working
-folder, from a Drive download, or from a USB stick on the classroom computer. Never point a slide
-at a local file or a folder path: it works on Claude's computer and shows a broken image on the
-projector.
+**The deck works from anywhere it lands.** The slideshow skill builds it as one file: timers,
+charts, talk kit and games inside it, photographs and the video linked by URL, so it works opened
+from the working folder, from a Drive download, or from a USB stick on the classroom computer.
 
 **What the skill does in Drive itself.** It reads: the previous lesson, by its code (Step 0). It
 doesn't upload the packet; the lesson-coded file name already makes adding it one step with
 nothing to rename.
-
-## Photographs
-
-`references/photographs.md` governs them end to end — where one is required, how to choose it so it
-argues for the slide's claim instead of merely matching the topic, how to aim the crop, how to
-judge what came back, and the four patterns. Read it whenever you build a deck.
-
-The two things worth carrying in your head before you get there: **write the claim and the frame
-test before you search**, because a search for the topic returns pictures of the topic and none of
-them argue for anything; and **the load probe is not the quality gate** — bytes arriving says
-nothing about whether the subject is in frame.
-
-Two rules that hold on every build. **Photographs never depend on Zac**: never ask him for one and
-never wait on an upload. **No browser tab, ever, for photographs**: `scripts/find_photos.py`
-searches Commons from the sandbox, lays every slot's candidates out as one numbered image, load-tests
-the pick, and previews its crop, so a deck's photographs cost one search and one look per slot.
 
 ## Step 4 — Test: hand it over
 
@@ -436,8 +381,8 @@ write the lesson plan into the chat as described in Step 3. In the same message:
   question 1."* This is the difference between handing over a lesson and handing over a test.
 - Say what the talk moves need (partner assignments, corner signs, cards) if they need anything,
   and offer to make the printable if so.
-- If the photographs could not be load-tested this session, say so in one line, and name the
-  fix: network access to `commons.wikimedia.org` and `upload.wikimedia.org` for Claude's sandbox.
+- Pass on anything the slideshow skill reported that he should know, in a line each: photographs
+  it couldn't load-test (and the setting that fixes it), a video that won't play embedded.
 - **Ask for reaction in the I like / I wish / What if form** — "tell me an *I like*, an *I wish*,
   and a *what if*." It reads as an invitation rather than a request for approval, and "I wish"
   gets an honest complaint out of a busy person faster than "any changes?" does. Run it on your own
@@ -460,28 +405,6 @@ yourself, and update the class notes.
 
 Keep the machinery invisible. Say "student packet" and "slide deck," never "JSON" or "renderer";
 the only file names he sees are the lesson-coded ones he will keep.
-
----
-
-## Before you call the deck done
-
-`scripts/check_deck.py` enforces the mechanical rules — photo count, duplicates, alt text,
-captions, credits, aimed crops, the fallback script, leftover placeholder text, base64 bloat, empty
-bodies. Run it and get it clean; the closing checklists in `references/deck.md` and
-`references/photographs.md` cover the judgement calls it can't make.
-
-Probe the video before you hand it over. The checker can tell you the id is well-formed and the
-poster is there; `find_photos.py probe` asks YouTube whether the video will play inside the deck
-and prints its title, so an owner who turned embedding off is caught at your desk, not at the
-projector.
-
-The two questions worth asking yourself once the checker is quiet, because nothing automated will
-ask them for you: *does every photograph argue for the claim on its slide*, and *would a student
-looking at any single slide for ten seconds, hearing nothing, come away with something.*
-
-A third, which the checker can only half-ask: read the Spanish lines end to end. The checker knows
-they exist and that they are short; it cannot tell you that they say the task, that they use the
-same numbers and terms as the English, or that a slide's line matches the packet's.
 
 ---
 

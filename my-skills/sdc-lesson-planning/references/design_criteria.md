@@ -1,10 +1,10 @@
-# What a good page and a good slide are made of
+# What a good page is made of
 
-These are the output criteria for every packet and deck. They come from one room: students who read
-two to six years below grade level, several with attention, processing, or fine-motor supports,
-some reading English as a new language, and a copier that prints in grey. Each criterion says what
-it protects. The two checkers enforce what can be measured; the rest is judgment, and this is what
-the judgment is for.
+These are the output criteria for every packet. They come from one room: students who read two to
+six years below grade level, several with attention, processing, or fine-motor supports, some
+reading English as a new language, and a copier that prints in grey. Each criterion says what it
+protects. `check_packet.py` and the render report measure what can be measured; the rest is
+judgment, and this is what the judgment is for.
 
 ## The worksheet
 
@@ -81,48 +81,14 @@ stay whole in Google Docs; a task that tall is split into two tasks.
 **Headings are one line.** Section name, its gloss in the room's language, the minutes flush right.
 *Protects:* about a third of a page across a packet.
 
-## The slide
-
-**Something to look at, always.** Every content slide carries a photograph, a chart, or a diagram,
-and so does every talk slide: students talk best about a thing in front of them. The talk layout
-puts the visual on the left at the size of a wall and the turns on the right. The screen is never
-blanked. Click any photograph and it opens at full size with the slide's question under it, for
-close looking.
-
-**Readable from the back row.** Headlines are the largest text; everything a student reads (card
-text, directions, sentence starters, the language line) is at least about 1.6% of the screen width,
-roughly 20 pixels on a 1280-wide projector, and in ink, not grey. Grey is for chrome only:
-the eyebrow, the credit, the slide counter. Projectors wash contrast out; the template's colours are
-chosen to survive it.
-
-**One idea per slide, and nothing summarized under it.** A slide says one thing, in a headline that
-is a claim. The only line under the body is a direction students physically follow.
-
-**The same words on the wall and the page.** The question on a slide is the packet's wording, the
-sentence starter is the packet's, the packet page is named on the slide. A student looking up should
-recognize the task without re-reading it.
-
-**Predictable routines.** The same move looks the same every day: a talk slide always has the
-turns on the right and the starter at the bottom, the timer always sits top right, the packet page
-always sits in the eyebrow. Predictability is an accommodation: it frees working memory for the
-content.
-
-**Time you can see, talk you can hear.** Anything with a fixed length has a timer; every talk move
-runs on phases that chime, so the teacher can listen instead of watch the clock.
-
-**Read aloud on demand.** A reads the slide: headline, each language line in its own voice, the
-direction. For a student who can't yet read the question off the wall, the wall reads it to them.
-
-**Key words look the same on the wall and the page.** The packet's key words are marked on every
-slide in the same bold-on-yellow, so recognition carries across from screen to paper.
-
-**Every guess counts.** A game round or a sort puts every student's thinking in play at once and
-gets students out of their seats to the board; partners agree first, so it is talk, not a quiz.
-
 ## Cost
 
-The deck and packet are built from their content alone. The model writes the slides
-(`build_deck.py` supplies the template around them) and the packet's JSON (`render_packet.py`
-draws it), so no build reads or rewrites the 60 KB template. Pages and slides are checked as one
-image each (`check_packet.py --sheet`; `find_photos.py` lays every candidate for a photo slot out
-as one numbered sheet), not one screenshot at a time, and never in a browser tab.
+The packet is built from its content alone: the model writes the packet's JSON and
+`render_packet.py` draws it, and the pages are checked as one image (`check_packet.py --sheet`), not
+page by page.
+
+## The slide
+
+The slide's criteria live with the slideshow skill (`sdc-slideshow`, `references/slide_criteria.md`).
+Two of them depend on the packet: the question on a slide is the packet's wording, and the key
+words are marked on the slides the same way they are on the page.

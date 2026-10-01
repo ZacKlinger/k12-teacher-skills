@@ -21,6 +21,9 @@ import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SCRIPTS = os.path.join(HERE, "..", "..", "sdc-lesson-planning", "scripts")
+# the deck's checker lives with the slideshow skill once the deck is its own skill
+DECK_SCRIPTS = next((d for d in (os.path.join(HERE, "..", "..", "sdc-slideshow", "scripts"), SCRIPTS)
+                     if os.path.exists(os.path.join(d, "check_deck.py"))), SCRIPTS)
 
 
 def run(cmd):
@@ -59,11 +62,13 @@ def main():
 
     minutes = re.search(r"\d+", str(meta.get("period", "")))
     for deck in sorted(glob.glob(os.path.join(folder, "*deck*.html"))):
-        cmd = [os.path.join(SCRIPTS, "check_deck.py"), deck,
+        cmd = [os.path.join(DECK_SCRIPTS, "check_deck.py"), deck,
                "--minutes", minutes.group(0) if minutes else "60",
                "--languages", ",".join(meta.get("languages") or ["es"])]
         if meta.get("vocab"):
             cmd += ["--vocab", ",".join(meta["vocab"])]
+        if js:
+            cmd += ["--packet", js[0]]
         text, code = run(cmd)
         out.append(f"== Deck: {os.path.basename(deck)} (exit {code})\n" + text)
 

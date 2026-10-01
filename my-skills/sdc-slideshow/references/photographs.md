@@ -38,9 +38,9 @@ The frame test is the whole trick. Written first, it is a specification. Written
 a nice-looking picture, it becomes a justification for the picture you already like — which is how
 a wide, pretty, generic greenhouse shot ends up on a slide about roots.
 
-This is the *focus* half of the flare-and-focus move in `references/design_method.md`: §4 tells you
-to pull 8-12 candidates precisely so that §6 has something to reject, and the frame test is the
-criterion that makes rejecting possible. Converging on the first plausible photo is the single most
+This is the *focus* half of flare and focus (generate wide, then judge hard): §4 pulls 8-12
+candidates precisely so that §6 has something to reject, and the frame test is the criterion that
+makes rejecting possible. Converging on the first plausible photo is the single most
 common way a deck ends up with pictures near the topic instead of pictures arguing for the lesson.
 
 Then search using the *frame test's* nouns, not the topic's: `lettuce roots net pot bare` beats
