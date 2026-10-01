@@ -22,6 +22,13 @@ can be looked at once instead of page by page.
 Needs LibreOffice (soffice), poppler (pdftoppm), and Pillow. If any is missing it says
 so and exits 0: the check is worth having, not worth blocking a lesson on.
 
+Every task is checked whole. The renderer prints each task (its heading, prompt, language
+line, starters, lines, and the table or organizer it is answered in) as one table row, and
+Google Docs never splits a row unless it is taller than a page. So the check tags the top
+and bottom of every task, finds both on the printed pages, and reports an error for any task
+that breaks across a page here, or is too tall to stay whole in Google Docs. A prompt is
+never on one page and its answer space on the next.
+
 With --days N (a multi-day packet, only built when one is asked for) it finds where each
 day starts and checks each day on its own: every day starts on the front of a fresh sheet,
 so a day can be handed out, collected, or reprinted from the Google Doc by itself, and each
@@ -87,6 +94,78 @@ def day_starts(pdf, marks):
     return starts
 
 
+MARK = "QZQ{}{}QZQ"     # QZQS12QZQ opens task 12, QZQE12QZQ closes it
+
+
+def mark_tasks(docx_path, out_path):
+    """Copy the packet with an invisible tag (white, 1 pt) at the top and bottom of every
+    one-row table: every task unit, the name line, the objective. Returns a label per tag
+    number, or None when python-docx isn't installed."""
+    try:
+        from docx import Document
+        from docx.shared import Pt, RGBColor
+        from docx.table import Table
+    except ImportError:
+        return None
+    doc = Document(docx_path)
+    labels = {}
+    n = 0
+    for el in doc.element.body.iterchildren():
+        if not el.tag.endswith("}tbl"):
+            continue
+        t = Table(el, doc)
+        if len(t.rows) != 1:
+            continue
+        n += 1
+        text = " ".join("".join(x.text or "" for x in el.iter() if x.tag.endswith("}t")).split())
+        q = re.search(r"(?:^|\s)(\d+[a-z]?)\.\s", text)
+        labels[n] = f"the task with question {q.group(1)}" if q else f'"{text[:40]}"'
+        first = t.rows[0].cells[0].paragraphs[0]
+        last = t.rows[0].cells[-1].paragraphs[-1]
+        for par, kind, at_start in ((first, "S", True), (last, "E", False)):
+            r = par.add_run(MARK.format(kind, n))
+            r.font.size = Pt(1)
+            r.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
+            if at_start:
+                par._p.remove(r._r)
+                ppr = par._p.pPr
+                (ppr.addnext if ppr is not None else lambda e: par._p.insert(0, e))(r._r)
+    doc.save(out_path)
+    return labels
+
+
+def task_breaks(pdf, labels, page_h_pt, margin_in):
+    """Errors for every tagged task that crosses a page, or that would not fit on one page
+    in Google Docs. Empty when pdftotext is missing."""
+    if not labels or not shutil.which("pdftotext"):
+        return [], 0
+    out = subprocess.run(["pdftotext", "-bbox", pdf, "-"], capture_output=True, timeout=60)
+    found = {}
+    for page, body in enumerate(out.stdout.decode("utf-8", "replace").split("<page ")[1:]):
+        for y0, y1, word in re.findall(
+                r'<word xMin="[\d.]+" yMin="([\d.]+)" xMax="[\d.]+" yMax="([\d.]+)">([^<]*)</word>',
+                body):
+            for m in re.finditer(r"QZQ([SE])(\d+)QZQ", word):
+                found.setdefault((m.group(1), int(m.group(2))), (page, float(y0), float(y1)))
+    usable = page_h_pt - 2 * margin_in * 72
+    errors, checked = [], 0
+    for n, label in labels.items():
+        a, b = found.get(("S", n)), found.get(("E", n))
+        if not a or not b:
+            continue
+        checked += 1
+        if a[0] != b[0]:
+            errors.append(f"{label[0].upper() + label[1:]} breaks across pages {a[0] + 1} and "
+                          f"{b[0] + 1}: it is taller than a page. Split it into two tasks, or "
+                          "shorten its table or organizer, so the prompt and its answer space "
+                          "print together.")
+        elif (b[2] - a[1]) * DOCS_FACTOR > usable:
+            errors.append(f"{label[0].upper() + label[1:]} fills about "
+                          f"{(b[2] - a[1]) * DOCS_FACTOR / usable:.0%} of a page in Google "
+                          "Docs, so Docs will break it. Split it into two tasks or shorten it.")
+    return errors, checked
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -110,12 +189,21 @@ def main():
         return 0
 
     work = tempfile.mkdtemp()
+    labels = None
     if from_docs:
         pdfs = [os.path.abspath(args.docx)]
     else:
+        # the tags are white and 1 pt, so the copy measures the same as the packet
+        source = os.path.abspath(args.docx)
+        marked = os.path.join(work, "packet.docx")
+        try:
+            labels = mark_tasks(source, marked)
+        except Exception:
+            labels = None
         env = dict(os.environ, HOME=os.environ.get("HOME") or work)
         subprocess.run([soffice, "--headless", "--convert-to", "pdf", "--outdir", work,
-                        os.path.abspath(args.docx)], capture_output=True, env=env, timeout=180)
+                        marked if labels is not None else source],
+                       capture_output=True, env=env, timeout=180)
         pdfs = glob.glob(os.path.join(work, "*.pdf"))
     if not pdfs:
         print("  skip  LibreOffice could not convert the packet; look at the pages by hand.")
@@ -127,6 +215,15 @@ def main():
 
     errors, warns = [], []
     fills = []
+    if not from_docs:
+        breaks, checked = task_breaks(pdfs[0], labels, pages[0].size[1] / DPI * 72, MARGIN_IN)
+        if checked:
+            print(f"  ok    {checked} task(s) checked whole: no prompt is apart from its "
+                  "answer space" if not breaks else f"  ok    {checked} task(s) checked")
+            errors.extend(breaks)
+        else:
+            warns.append("Could not check that every task stays whole (needs python-docx and "
+                         "pdftotext); look at the page image for a prompt cut from its lines.")
     day_last = set()       # the last page of every day but the final one ends early on purpose
     if args.days > 1:
         if from_docs or not shutil.which("pdftotext"):

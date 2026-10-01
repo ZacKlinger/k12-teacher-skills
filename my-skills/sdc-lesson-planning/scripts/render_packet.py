@@ -26,9 +26,24 @@ and each block carries one short line per language under a key named by its code
 and footer. `meta.large_print: true` sets the whole packet in larger type for the students
 whose plans call for it.
 
+`meta.vocab` lists the lesson's key words. Every place one appears in the English of a
+student packet it is printed bold on a yellow highlight (`meta.vocab_style: "bold"` drops
+the highlight for a copier that turns it to mud), so a new word looks the same in the
+prompt, the word bank, the table, and the sentence starter. On stderr the renderer reports
+how the student text reads against `meta.reading_level` (default grade 5): the sentences
+that run long and the long words that aren't key vocab.
+
+    python3 render_packet.py packet.json out.docx --reduced
+
+builds the reduced packet from the same JSON: questions marked "core": false are left out,
+each question keeps only its first part, the type is large, and every section opens its
+written work with the key words in a word bank.
+
 Requires python-docx. Install with: pip install python-docx --break-system-packages
 """
 
+import argparse
+import copy
 import json
 import re
 import sys
@@ -36,7 +51,8 @@ import sys
 from docx import Document
 from docx.enum.section import WD_SECTION
 from docx.enum.table import WD_TABLE_ALIGNMENT
-from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK, WD_LINE_SPACING, WD_TAB_ALIGNMENT
+from docx.enum.text import (WD_ALIGN_PARAGRAPH, WD_BREAK, WD_COLOR_INDEX, WD_LINE_SPACING,
+                             WD_TAB_ALIGNMENT)
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt, RGBColor
@@ -199,6 +215,60 @@ def _rtl(par, lang):
         r._r.get_or_add_rPr().append(OxmlElement("w:rtl"))
 
 
+# ---------------------------------------------------------------- readability
+
+def syllables(word):
+    """A plain vowel-group count: good to a syllable on everyday English, which is all a
+    reading-level estimate needs."""
+    w = re.sub(r"[^a-z]", "", word.lower())
+    if not w:
+        return 0
+    if len(w) <= 3:
+        return 1
+    w = re.sub(r"(?:[^laeiouy]es|[^laeiouy]ed|[^laeiouy]e)$", "", w)
+    w = re.sub(r"^y", "", w)
+    return max(1, len(re.findall(r"[aeiouy]{1,2}", w)))
+
+
+def readability(items, vocab, target):
+    """Report lines for the student's English: an overall grade estimate (key words count
+    as one syllable, because they are being taught, not assumed), every sentence over 20
+    words, and the long words that are not key vocabulary."""
+    taught = {w.lower() for v in vocab for w in v.split()}
+    words = sents = syl = 0
+    long_sents, hard = [], {}
+    for label, text in items:
+        text = re.sub(r"\*\*|_{2,}", " ", str(text))
+        for sent in re.split(r"(?<=[.?!])\s+", text.strip()):
+            ws = [w for w in re.findall(r"[A-Za-z][A-Za-z'-]*", sent)]
+            if not ws:
+                continue
+            sents += 1
+            words += len(ws)
+            for w in ws:
+                base = re.sub(r"(?:'s|s|es|ed|ing)$", "", w.lower())
+                n = 1 if (w.lower() in taught or base in taught) else syllables(w)
+                syl += n
+                if n >= 4 or (len(w) >= 12 and w.lower() not in taught and base not in taught):
+                    hard.setdefault(label, []).append(w)
+            if len(ws) > 20:
+                long_sents.append(f"{label}: one sentence of {len(ws)} words")
+    if not words:
+        return []
+    grade = 0.39 * words / sents + 11.8 * syl / words - 15.59
+    out = [f"  {'ok  ' if grade <= target + 0.5 else 'note'}  reads at about grade "
+           f"{max(grade, 1):.1f} (target {target:g}), {words / sents:.0f} words a sentence"]
+    for line in long_sents[:6]:
+        out.append(f"  note  {line}. Break it in two.")
+    for label, ws in list(hard.items())[:6]:
+        uniq = list(dict.fromkeys(ws))
+        out.append(f"  note  {label}: " + ", ".join(f"'{w}'" for w in uniq)
+                   + (" is a long word" if len(uniq) == 1 else " are long words")
+                   + " outside the key vocab. Say it shorter, or add it to meta.vocab if it "
+                   "is being taught.")
+    return out
+
+
 class Renderer:
     def __init__(self, data, out_path):
         self.data = data
@@ -213,6 +283,13 @@ class Renderer:
         # the home languages in the room; each carries one short line under the English
         self.langs = [str(c) for c in (meta.get("languages") or ["es"])]
         self.days_seen = 0      # `day` blocks so far; every one after the first starts a page
+        self.vocab = []
+        self._vocab_re = None
+        self._vocab_hits = {}
+        self.add_vocab(meta.get("vocab") or [])
+        self.vocab_style = meta.get("vocab_style", "highlight")
+        self.reading_level = float(meta.get("reading_level", 5))
+        self._read = []         # (label, English text) for every prompt and direction
         self.doc = Document()
         self._setup()
         # every paragraph the renderer emits is registered here so a task group can be
@@ -331,7 +408,7 @@ class Renderer:
             return None
         self._es.append(str(text))
         par = self.p(space_after=space_after, space_before=0, indent=indent)
-        self.rich(par, str(text), size=self.S["es"])
+        self.rich(par, str(text), size=self.S["es"], vocab=False)
         for r in par.runs:
             r.font.color.rgb = ES_INK
         _rtl(par, lang)
@@ -345,7 +422,7 @@ class Renderer:
         par = cell.add_paragraph()
         par.paragraph_format.space_before = Pt(2)
         par.paragraph_format.space_after = Pt(0)
-        self.rich(par, str(text), size=self.S["es"])
+        self.rich(par, str(text), size=self.S["es"], vocab=False)
         for r in par.runs:
             r.font.color.rgb = ES_INK
         _rtl(par, lang)
@@ -364,11 +441,48 @@ class Renderer:
         for code in self.langs:
             self.es_in_cell(cell, blk.get(code), lang=code)
 
-    def rich(self, par, text, size=None):
-        """Renders **bold** spans inside a plain string. Everything else is literal."""
+    def rich(self, par, text, size=None, vocab=True):
+        """Renders **bold** spans inside a plain string, and on a student packet marks every
+        key word (meta.vocab) the same way wherever it falls. Everything else is literal."""
         for i, chunk in enumerate(text.split("**")):
-            if chunk:
-                self.run(par, chunk, size=size, bold=(i % 2 == 1))
+            if not chunk:
+                continue
+            pieces = [(chunk, False)]
+            if vocab and self._vocab_re is not None and self.audience == "student":
+                pieces, last = [], 0
+                for m in self._vocab_re.finditer(chunk):
+                    pieces.append((chunk[last:m.start()], False))
+                    pieces.append((m.group(0), True))
+                    key = m.group(1).lower()
+                    self._vocab_hits[key] = self._vocab_hits.get(key, 0) + 1
+                    last = m.end()
+                pieces.append((chunk[last:], False))
+            for piece, key in pieces:
+                if not piece:
+                    continue
+                r = self.run(par, piece, size=size, bold=(i % 2 == 1) or key)
+                if key:
+                    self.mark_vocab(r)
+
+    def mark_vocab(self, r):
+        r.bold = True
+        if self.vocab_style == "bold":
+            r.font.underline = True
+        else:
+            r.font.highlight_color = WD_COLOR_INDEX.YELLOW
+
+    def add_vocab(self, words):
+        """Key words for this packet (and a day's own words in a multi-day packet). A word
+        matches with an ordinary ending (-s, -es, -ed, -ing) so 'pump' marks 'pumps'."""
+        for w in words:
+            w = " ".join(str(w).split())
+            if w and w.lower() not in (v.lower() for v in self.vocab):
+                self.vocab.append(w)
+        if self.vocab:
+            alts = "|".join(r"\s+".join(map(re.escape, w.split()))
+                            for w in sorted(self.vocab, key=len, reverse=True))
+            self._vocab_re = re.compile(r"(?<![\w-])(" + alts + r")(?:s|es|ed|ing)?(?![\w-])",
+                                        re.IGNORECASE)
 
     # ------------------------------------------------------------ group binding
     def begin_group(self):
@@ -448,6 +562,7 @@ class Renderer:
         the Google Doc on its own; each day carries its own "I can"."""
         later = self.days_seen > 0
         self.days_seen += 1
+        self.add_vocab(blk.get("vocab") or [])
         if later:
             self.page_break()
         eyebrow = "  ·  ".join(str(b) for b in (blk.get("code"), blk.get("day"), blk.get("period"))
@@ -529,6 +644,8 @@ class Renderer:
         if num:
             self.run(par, f"{num}. ", bold=True)
         self.rich(par, blk.get("prompt", ""))
+        self._read.append((f"question {num}" if num else "a question",
+                           " ".join([blk.get("prompt", "")] + list(blk.get("parts") or []))))
         if blk.get("minutes"):
             self.run(par, f"   ({blk['minutes']} min)", size=self.S["small"], color=MUTED)
 
@@ -687,6 +804,7 @@ class Renderer:
         if label:
             self.run(par, label.upper() + "  ", size=self.S["small"], bold=True)
         self.rich(par, blk.get("text", ""))
+        self._read.append((f"the {label.lower()} note" if label else "a note", blk.get("text", "")))
         self.lang_in_cell(cell, blk)
         _no_split(t)
         self.gap(4)
@@ -703,6 +821,7 @@ class Renderer:
             marker = f"{i}. " if ordered else "•  "
             self.run(par, marker, bold=ordered)
             self.rich(par, str(item))
+            self._read.append((blk.get("label") or "a list item", str(item)))
         self.end_group()
 
     def wordbank(self, blk):
@@ -713,7 +832,10 @@ class Renderer:
         par.paragraph_format.space_after = Pt(0)
         self.run(par, (blk.get("label") or "Word bank").upper() + "  ",
                  size=self.S["small"], bold=True)
-        self.run(par, "     ".join(str(i) for i in blk.get("items", [])))
+        for k, item in enumerate(blk.get("items", [])):
+            if k:
+                self.run(par, "     ")
+            self.rich(par, str(item))
         self.lang_in_cell(cell, blk)
         _no_split(t)
         self.gap(4)
@@ -834,6 +956,15 @@ class Renderer:
                 "Cut it to the task itself.",
                 file=sys.stderr,
             )
+        missing = [w for w in self.vocab if not self._vocab_hits.get(w.lower())]
+        if self.vocab:
+            print(f"  ok    key words marked: " + ", ".join(
+                f"{w} ×{self._vocab_hits.get(w.lower(), 0)}" for w in self.vocab), file=sys.stderr)
+        if missing:
+            print("  note  key word(s) never used on the page: " + ", ".join(missing)
+                  + ". Use each one in a task, or take it off meta.vocab.", file=sys.stderr)
+        for line in readability(self._read, self.vocab, self.reading_level):
+            print(line, file=sys.stderr)
 
 
     # ------------------------------------------------------------ units
@@ -880,17 +1011,19 @@ class Renderer:
     @staticmethod
     def units(sections):
         """Group blocks into units that print as one piece: a heading, any lead-ins
-        after it (a direction, a note, a word bank), the task they lead into, and the
-        table or organizer that task is answered in."""
-        tabular = ("table", "fill_table", "organizer")
+        after it (a direction, a note, a word bank, the table a question reads from),
+        the task they lead into, and everything the task is answered in (its lines,
+        a starter after it, a box, a table or organizer). A question and its answer
+        space are never two units, so no page break can ever fall between them."""
         lead = ("heading", "phase", "text", "paragraph", "labeled", "note", "callout",
                 "wordbank", "list", "steps", "stem")
+        answer = ("space", "fill_table", "organizer", "stem")
         out, unit = [], []
         i = 0
         while i < len(sections):
             b = sections[i]
             kind = b.get("type")
-            if kind == "page_break":
+            if kind in ("page_break", "day"):
                 if unit:
                     out.append(unit)
                     unit = []
@@ -903,13 +1036,19 @@ class Renderer:
                 unit = []
             unit.append(b)
             i += 1
-            if kind in lead and i < len(sections):
+            nxt = sections[i].get("type") if i < len(sections) else None
+            if kind in lead and nxt is not None:
                 continue           # a lead-in waits for the task it introduces
-            spec = b.get("space") if kind == "question" else None
-            if kind == "question" and isinstance(spec, dict) and spec.get("kind") == "none" \
-                    and i < len(sections) and sections[i].get("type") in tabular:
-                unit.append(sections[i])
-                i += 1
+            if kind == "table" and nxt == "question":
+                continue           # the data a question reads stays above that question
+            if kind == "question":
+                spec = b.get("space")
+                if isinstance(spec, dict) and spec.get("kind") == "none" and nxt == "table":
+                    unit.append(sections[i])   # the table it is answered in
+                    i += 1
+                while i < len(sections) and sections[i].get("type") in answer:
+                    unit.append(sections[i])   # lines, a starter, a box, an organizer
+                    i += 1
             out.append(unit)
             unit = []
         if unit:
@@ -921,7 +1060,8 @@ class Renderer:
         self.title_block()
         for unit in self.units(self.data.get("sections", [])):
             wrap = self.audience == "student" and any(
-                b.get("type") in ("question", "table", "fill_table", "organizer", "heading", "phase")
+                b.get("type") in ("question", "table", "fill_table", "organizer", "heading",
+                                  "phase", "space")
                 for b in unit)
             if wrap:
                 self.begin_unit()
@@ -950,6 +1090,7 @@ class Renderer:
             self.begin_group()
             par = self.p(space_after=6)
             self.rich(par, blk.get("text", ""))
+            self._read.append(("a direction", blk.get("text", "")))
             self.lang_lines(blk, space_after=6)
             self.end_group()
         elif kind == "labeled":
@@ -957,6 +1098,7 @@ class Renderer:
             par = self.p(space_after=6)
             self.run(par, blk.get("label", "") + "  ", bold=True)
             self.rich(par, blk.get("text", ""))
+            self._read.append((blk.get("label") or "a direction", blk.get("text", "")))
             self.lang_lines(blk, space_after=6)
             self.end_group()
         elif kind in ("list", "steps"):
@@ -991,14 +1133,78 @@ class Renderer:
 ACCENT_HEX = "3E6DA8"
 
 
+LEAD_INS = ("wordbank", "note", "callout", "text", "paragraph", "labeled", "stem", "table",
+            "list", "steps")
+ANSWERS = ("space", "fill_table", "organizer", "stem")
+
+
+def reduce_packet(data):
+    """The reduced packet, from the same lesson: the questions marked "core": false come
+    out with their lead-ins and answer space, every question keeps only its first part,
+    the type is large, and every section's first written answer has the key words in a
+    word bank above it.
+    Question numbers stay as they are, so both packets match the slides."""
+    d = copy.deepcopy(data)
+    meta = d.setdefault("meta", {})
+    meta["large_print"] = True
+    vocab = [str(v) for v in (meta.get("vocab") or [])][:8]
+    secs = d.get("sections", [])
+    keep = [True] * len(secs)
+    for i, b in enumerate(secs):
+        if b.get("type") != "question" or b.get("core", True) is not False:
+            continue
+        keep[i] = False
+        j = i + 1
+        while j < len(secs) and secs[j].get("type") in ANSWERS:
+            keep[j] = False
+            j += 1
+        j = i - 1
+        while j >= 0 and secs[j].get("type") in LEAD_INS:
+            keep[j] = False
+            j -= 1
+    out = []
+    banked = False          # one word bank per section, above its first written answer
+    for b, k in zip(secs, keep):
+        if not k:
+            continue
+        b = dict(b)
+        kind = b.get("type")
+        if kind in ("heading", "phase", "day", "page_break"):
+            banked = False
+        elif kind == "wordbank":
+            banked = True
+        elif kind == "question":
+            if b.get("parts"):
+                b["parts"] = b["parts"][:1]
+            spec = b.get("space") or {}
+            written = b.get("stems") or (isinstance(spec, dict) and spec.get("kind", "lines") ==
+                                         "lines" and int(spec.get("count", 3)) >= 2)
+            if vocab and written and not banked:
+                out.append({"type": "wordbank", "items": vocab})
+                banked = True
+        out.append(b)
+    # a section whose every task came out loses its heading too
+    d["sections"] = [b for i, b in enumerate(out)
+                     if b.get("type") not in ("heading", "phase")
+                     or (i + 1 < len(out) and out[i + 1].get("type") not in ("heading", "phase",
+                                                                               "day", "page_break"))]
+    return d
+
+
 def main():
-    if len(sys.argv) != 3:
-        print(__doc__)
-        sys.exit(1)
-    with open(sys.argv[1]) as fh:
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("packet")
+    ap.add_argument("out")
+    ap.add_argument("--reduced", action="store_true",
+                    help="core questions only, first parts only, large print, word banks")
+    args = ap.parse_args()
+    with open(args.packet) as fh:
         data = json.load(fh)
-    Renderer(data, sys.argv[2]).render()
-    print(f"wrote {sys.argv[2]}")
+    if args.reduced:
+        data = reduce_packet(data)
+    Renderer(data, args.out).render()
+    print(f"wrote {args.out}")
 
 
 if __name__ == "__main__":

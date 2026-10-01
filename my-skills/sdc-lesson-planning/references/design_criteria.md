@@ -44,6 +44,13 @@ The renderer draws this way; don't ask it for shading.
 - One task per numbered item. A prompt says what to do in one sentence; context, if any, is one
   sentence before it.
 - Capitals only for short labels (section names, "I CAN", "WORD BANK"), never for sentences.
+- Sentences of twenty words or fewer, and everyday words around the key words. The renderer
+  reports the reading level against the profile's (grade 5 by default), every long sentence, and
+  every long word that isn't a key word; fix the sentence, not the score.
+- **Key words look the same everywhere**: bold on a yellow highlight in the prompt, the starter,
+  the word bank and the table, so the word a student is learning is the one their eye finds. It is
+  the one fill on the page, on a word rather than on structure, and it survives the grey copier as
+  a pale band behind bold type.
 
 **Writing space sized to the answer.** Writing lines are 30 points apart, wide enough for a student
 whose plan covers fine-motor needs. A sentence starter is printed on the first writing line itself,
@@ -64,7 +71,12 @@ do, and use the same one for the same kind of thinking all year, so its shape be
 | Record class data | `fill_table` |
 | Choose | `choices` on the question (circle one) |
 
-An organizer, its question, and its heading stay on one page; the renderer keeps them together.
+**A prompt and its answer space are one piece, always.** The question, its starters, its lines,
+and the table or organizer it is answered in print together, and so does the table it reads from.
+No page break ever lands between a prompt and the place a student answers it: a student who has
+to turn the page to find where to write has lost the question by the time they get there.
+`check_packet.py` tags every task and errors on any that breaks across a page or is too tall to
+stay whole in Google Docs; a task that tall is split into two tasks.
 
 **Headings are one line.** Section name, its gloss in the room's language, the minutes flush right.
 *Protects:* about a third of a page across a packet.
@@ -100,6 +112,12 @@ runs on phases that chime, so the teacher can listen instead of watch the clock.
 
 **Read aloud on demand.** A reads the slide: headline, each language line in its own voice, the
 direction. For a student who can't yet read the question off the wall, the wall reads it to them.
+
+**Key words look the same on the wall and the page.** The packet's key words are marked on every
+slide in the same bold-on-yellow, so recognition carries across from screen to paper.
+
+**Every guess counts.** A game round or a sort puts every student's thinking in play at once and
+gets students out of their seats to the board; partners agree first, so it is talk, not a quiz.
 
 ## Cost
 

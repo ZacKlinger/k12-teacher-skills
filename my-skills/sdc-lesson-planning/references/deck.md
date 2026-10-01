@@ -204,6 +204,8 @@ Roughly one slide per two to three minutes: a 60-minute period lands around 14-2
 | Four corners | `.corners` | The four claims with where in the room each one lives |
 | Talk slide | `.roles` + `.frames` + `data-phases` | A talk move, run by the slide: the question, each partner's job, the "Say it" stem, and a phased timer. See "Talk slides" below |
 | Vote, talk, revote | `.vote` | Hands counted before and after partners talk; the shift between the two bars is what the talk did |
+| Game round | `.game` | A fair-guess question with lettered answers: partners agree on the timer, teams lock in, V reveals and scores. See "Games" below |
+| Sort it | `.sort` | Cards students come up and drag into bins; C checks every card and shows the reason. See "Games" below |
 | Pair picker | `.picker` | Calls a pair by number, never by name, after they've rehearsed. P picks |
 | What we heard | `.heard` | A board you type students' ideas into during a share-out, credited to pairs |
 | Build steps | `data-step` on any element | Holds an element back until → , so the prediction comes before the answer |
@@ -232,9 +234,9 @@ conversion on the slide.
 
 ## Talk slides
 
-Student talk is the non-negotiable in every lesson, and the deck is what runs it, so a talk slide
-does more than post a question. It carries six things, and the checker errors on a deck with no
-talk slide at all:
+Student talk is the non-negotiable in every lesson, at least two moves a period, and the deck is
+what runs it, so a talk slide does more than post a question. It carries six things. The checker
+errors on a deck with no talk slide and warns on a deck with only one:
 
 1. **The question** as the headline, with its language line under it.
 2. **The thing to talk about** — a photograph, chart, or diagram, in the `.talk` layout: the visual
@@ -262,11 +264,69 @@ How each move in the talk catalog lands on screen:
 | Vote, talk, revote | `.vote`: count round 1, run a turn-and-talk, count round 2 |
 | Four corners, defend | `.corners`, then `Talk\|120; Defend\|180` and the picker per corner |
 | Stations in pairs | One slide per rotation with its own phases, or one `Station\|480` phase each |
+| Game round, sort it | `.game` or `.sort` with `data-timer` on the slide: partners agree first, then answer |
 
 Keep the slide still while students talk, and keep the visual on it: the screen is never blanked.
 Clicking a photograph opens it at full size with the slide's question under it, for close looking
 before or during the talk. **A** reads the headline and its language lines aloud in their own
 voices, for the student who can't yet read the question off the wall.
+
+## Games
+
+HTML can do what paper can't: let every guess in the room count, and let a student walk up and
+move the idea with their hands. Two game slides do that, and both are talk first: partners agree
+on the slide's timer before any team answers, so a game round counts as one of the lesson's talk
+moves. One scoreboard follows every game slide in the deck, keeps its score through a reload on
+that computer, and takes **+** and **−** for anything scored by hand.
+
+**Game round** — a fair-guess question. Every option should be a fair guess, something a student
+could reason toward without already knowing the answer; a round where only the student who
+memorized it can play is a quiz.
+
+```html
+<section class="slide" data-day="Wed 10/1" data-title="Game round" data-timer="60" data-mins="4 min">
+  <header class="head"><div class="eyebrow">Game · agree with your partner, then lock in</div></header>
+  <h2>Where should the pump sit?</h2>
+  <p class="es">¿Dónde debe ir la bomba?</p>
+  <div class="body">
+    <div class="game" data-options="Inside the reservoir|Next to the reservoir|Up on the frame"
+         data-answer="1" data-points="100" data-teams="Team 1|Team 2|Team 3"
+         data-why="A pump has to sit in the water it moves. Out of the water it runs dry and burns out."></div>
+  </div>
+</section>
+```
+
+Teams hold up a letter; you click each team's letter to lock it in. **V** reveals: the right card
+turns green, the reason appears, and every team that locked it scores. V again hides it and takes
+the points back, for a round you want to rerun. `data-answer` counts from 1. `data-teams` on the
+first game sets the teams for the whole deck.
+
+**Sort it** — cards into bins. Students come to the board and drag a card into its bin, or tap a
+card and then a bin (or another card already in that bin) on a touch screen or from the laptop.
+**C** checks: right cards go green, wrong ones go red, the count appears, and so does the reason.
+Start over puts every card back, shuffled.
+
+```html
+<div class="sort" data-bins="Needs electricity|No electricity"
+     data-items="Pump=1|Grow light=1|Reservoir=2|Net pot=2|Timer=1|Tubing=2"
+     data-why="Anything that moves water or makes light runs on electricity. The rest just holds things."></div>
+```
+
+Each card reads `Card=bin`, with bins counted from 1; three to eight cards, two or three bins.
+Add `data-teams` to a sort to put the scoreboard on it too.
+
+Both need a real `data-why`: the reveal explains in a sentence a student could repeat to a
+partner, and never just marks an answer right. The checker reports an error for a game without one, for an answer
+or a bin number out of range, and warns on a game slide with no timer.
+
+## Key words
+
+`build_deck.py --vocab "reservoir,pump,gallon"` takes the packet's `meta.vocab` and the deck marks
+every one of those words wherever it appears on a slide, bold on the same yellow the packet uses,
+so the word a student is learning looks the same on the wall and on the page. Language lines,
+credits and eyebrows are left plain. Put `data-no-kw` on an element to leave it plain too. The
+checker warns about a key word that never appears on any slide: every key word gets its word slide
+and shows up where it is used.
 
 ## Timers
 
@@ -355,6 +415,7 @@ one — they are judgement calls, not noise. The checker cannot see whether a ph
 - Timer seconds match the packet's minutes, and the phases sum to the period.
 - Every interactive chart works: starts empty, each click does what it should, the caption lands
   at the end, and the numbers match the packet answer key.
+- Every game round's answer and every sort card's bin agree with the packet's answer key.
 - New words appear as `.vocab` slides at the moment they're first used, and the packet repeats the
   same wording.
 - The deck is a single HTML file with no sidecar folder. Photographs and the video are

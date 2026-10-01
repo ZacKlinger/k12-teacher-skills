@@ -2,7 +2,8 @@
 
 Keep this as `project-profile.md` in the course's working folder (or in the course's claude.ai
 project knowledge). The lesson-planning skill reads it first so it doesn't have to ask about any of
-it again. Describe students by need, never by name.
+it again. Describe students by need, never by name. Beside it the skill keeps `class-notes.md` on
+its own: what works with this class, the words they own, the pairings that work.
 
 ## Class
 
@@ -55,6 +56,31 @@ there before the lesson is offered, not added after.
 - [ ] Movement or sensory break built into the agenda
 - [ ] Preferential seating or fixed partners named in the plan (by role, not by name)
 - [ ] Other:
+
+## Universal Design (UDL)
+
+Design for the whole room, not supports for one student (those are the accommodations above).
+Tick what this class needs most. Every lesson builds in at least one ticked item from each of the
+three groups, and the plan's Differentiation line names which, so no lesson lands with only two
+strategies in it.
+
+Engagement: why it matters to them
+- [ ] A hook from our own project or room in the do-now or the opening
+- [ ] A real choice on at least one task: two contexts, or two ways to show it
+- [ ] A game round or a vote that puts every student's guess in play
+- [ ] A self-check or reflection line on the packet
+
+Representation: how the idea reaches them
+- [ ] Every key word highlighted on the page, pictured on a slide, said aloud, with its language line
+- [ ] Every number with a physical referent shown as a photo or a chart
+- [ ] A worked example on the slide before anyone works alone
+- [ ] The same idea in two forms: a picture and a sentence, or a table and a chart
+
+Action and expression: how they show it
+- [ ] An organizer matched to the thinking (compare, sequence, argue, own a word)
+- [ ] Choice of response: circle, point, say, or draw where the task allows
+- [ ] Say it to a partner before writing it or reporting it
+- [ ] Draw or build it before writing it
 
 ## Where the files live
 

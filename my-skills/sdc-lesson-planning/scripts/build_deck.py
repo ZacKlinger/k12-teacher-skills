@@ -3,7 +3,8 @@
 
 Usage:
     python3 build_deck.py slides.html "Science 1.7 - Pump build - deck.html" \
-        --title "Science 1.7 · Pump build" --minutes 65 --languages es
+        --title "Science 1.7 · Pump build" --minutes 65 --languages es \
+        --vocab "reservoir,pump,gallon"
 
 `slides.html` holds only the <section class="slide"> elements, in order. Everything
 else -- the stylesheet, navigation, timers, the talk kit, the chart kit, the photo
@@ -35,6 +36,8 @@ def main():
     ap.add_argument("--title", required=True, help="browser tab title, e.g. 'Science 1.7 · Pump build'")
     ap.add_argument("--minutes", type=int, default=60)
     ap.add_argument("--languages", default="es")
+    ap.add_argument("--vocab", default="",
+                    help="the packet's key words (meta.vocab), comma-separated; marked on every slide")
     args = ap.parse_args()
 
     template = open(TEMPLATE, encoding="utf-8").read()
@@ -50,6 +53,10 @@ def main():
     deck = template[:a] + "\n\n" + slides + "\n" + template[b:]
     deck = re.sub(r"<title>.*?</title>", "<title>" + args.title.replace("<", "&lt;") + "</title>",
                   deck, count=1, flags=re.S)
+    words = [w.strip() for w in args.vocab.split(",") if w.strip()]
+    if words:
+        attr = "|".join(w.replace("&", "&amp;").replace('"', "&quot;") for w in words)
+        deck = deck.replace("<body>", f'<body data-vocab="{attr}">', 1)
     # the builder's notes in the template's head comment are for the builder, not the deck
     deck = re.sub(r"<!--\s*DECK TEMPLATE.*?-->\n?", "", deck, count=1, flags=re.S)
     with open(args.out, "w", encoding="utf-8") as fh:
@@ -59,7 +66,7 @@ def main():
 
     check = os.path.join(HERE, "check_deck.py")
     r = subprocess.run([sys.executable, check, args.out, "--minutes", str(args.minutes),
-                        "--languages", args.languages])
+                        "--languages", args.languages] + (["--vocab", args.vocab] if words else []))
     return r.returncode
 
 

@@ -148,7 +148,8 @@ def check_structure(html: str, sl: list, minutes: int, rep: Report) -> None:
         is_dark = "dark" in a.split(">")[0]
         # charts and the talk kit draw themselves when the deck opens, so an
         # empty-looking div with one of these classes is content, not a hole
-        has_media = bool(re.search(r'<img|<iframe|<svg|dv-|class="(?:vote|picker|heard)\b', body_html))
+        has_media = bool(re.search(r'<img|<iframe|<svg|dv-|class="(?:vote|picker|heard|game|sort)\b',
+                                   body_html))
         if not inner and not has_media and not is_dark:
             rep.error(
                 f"Slide {i} ({title}): the body is empty. A headline alone is not a "
@@ -358,7 +359,71 @@ def check_language_access(html: str, sl: list, rep: Report, langs=("es",)) -> No
                 prev = body_text
 
 
-def check_talk(sl: list, rep: Report) -> None:
+def check_games(sl: list, rep: Report) -> int:
+    """A fair-guess round (.game) and a sort (.sort) are configured in data-
+    attributes, and a typo there is a game that breaks in front of the class. Each
+    one with a timer on its slide is run as talk (partners agree first), so it
+    counts toward the lesson's talk moves. Returns how many do."""
+    as_talk = 0
+    for i, (a, body) in enumerate(sl, 1):
+        title = attr(a, "data-title") or f"slide {i}"
+        for m in re.finditer(r'<div class="(game|sort)\b[^"]*"([^>]*)>', body):
+            kind, blob = m.group(1), m.group(2)
+            why = (attr(blob, "data-why") or "").strip()
+            if kind == "game":
+                opts = [o for o in (attr(blob, "data-options") or "").split("|") if o.strip()]
+                ans = attr(blob, "data-answer") or ""
+                if len(opts) < 2:
+                    rep.error(f"Slide {i} ({title}): a game round needs at least two "
+                              'data-options, "A|B|C".')
+                if not ans.isdigit() or not 1 <= int(ans) <= max(1, len(opts)):
+                    rep.error(f"Slide {i} ({title}): data-answer={ans!r} isn't one of the "
+                              f"{len(opts)} options. It counts from 1.")
+            else:
+                bins = [b for b in (attr(blob, "data-bins") or "").split("|") if b.strip()]
+                items = [x for x in (attr(blob, "data-items") or "").split("|") if x.strip()]
+                if len(bins) < 2 or len(items) < 3:
+                    rep.error(f"Slide {i} ({title}): a sort needs two or more data-bins and "
+                              'three or more data-items, "Card=1|Card=2".')
+                for x in items:
+                    k = x.rsplit("=", 1)
+                    if len(k) != 2 or not k[1].strip().isdigit() or \
+                            not 1 <= int(k[1]) <= max(1, len(bins)):
+                        rep.error(f"Slide {i} ({title}): sort card {x.strip()!r} should read "
+                                  f"'Card=bin', with the bin a number from 1 to {len(bins)}.")
+            if len(why.split()) < 6:
+                rep.error(f"Slide {i} ({title}): the {kind} has no real data-why. The reveal "
+                          "explains the answer in a sentence a student could repeat; it never "
+                          "just marks it right.")
+            if attr(a, "data-timer"):
+                as_talk += 1
+            else:
+                rep.warn(f"Slide {i} ({title}): a {kind} with no data-timer. Give partners "
+                         "a timed minute to agree before anyone answers; that is what makes "
+                         "it talk and not a quiz.")
+    if as_talk:
+        rep.note(f"{as_talk} game slide(s) run as talk.")
+    return as_talk
+
+
+def check_vocab(html: str, words: list, rep: Report) -> None:
+    """The packet's key words are marked on the slides too, by the template, from the
+    body's data-vocab. A key word that never appears on a slide isn't being taught
+    on the wall."""
+    if not words:
+        return
+    text = text_of(re.sub(r'<p class="es[^"]*"[^>]*>.*?</p>', " ", html, flags=re.S)).lower()
+    missing = [w for w in words
+               if not re.search(r"(?<![\w-])" + r"\s+".join(map(re.escape, w.lower().split()))
+                                + r"(?:s|es|ed|ing)?(?![\w-])", text)]
+    if missing:
+        rep.warn("Key word(s) never on a slide: " + ", ".join(missing)
+                 + ". Each one gets a word slide and appears where it is used.")
+    else:
+        rep.note(f"{len(words)} key word(s), each on a slide and marked.")
+
+
+def check_talk(sl: list, rep: Report, games: int = 0) -> None:
     """Student talk is the non-negotiable, and the deck is what runs it.
 
     A talk slide carries data-phases (think, A talks, B talks, share), and its
@@ -399,10 +464,13 @@ def check_talk(sl: list, rep: Report) -> None:
                          f"isn't one of {sorted(names)}. It will never light up.")
     if talk == 0:
         rep.error(
-            "No talk slide. Every lesson runs at least one student-to-student talk move on "
-            'screen: a slide with data-phases="Think|30; A talks|60; B talks|60; Share|60", '
-            'the roles, and a "Say it" stem. See "Talk slides" in references/deck.md.'
+            "No talk slide. Every lesson runs at least two student-to-student talk moves on "
+            'screen, one of them a talk slide: data-phases="Think|30; A talks|60; B talks|60; '
+            'Share|60", the roles, and a "Say it" stem. See "Talk slides" in references/deck.md.'
         )
+    elif talk + games == 1:
+        rep.warn("One talk move on screen. Every lesson runs at least two; give the second its "
+                 "talk slide, or run a game round as talk.")
     else:
         rep.note(f"{talk} talk slide(s) with phased timers.")
 
@@ -546,6 +614,8 @@ def main() -> int:
                     help="length of the class period (default 60)")
     ap.add_argument("--languages", default="es",
                     help="home languages in the room, comma-separated codes (default es)")
+    ap.add_argument("--vocab", default="",
+                    help="the packet's key words, comma-separated; each should be on a slide")
     args = ap.parse_args()
 
     try:
@@ -571,7 +641,9 @@ def main() -> int:
     check_photos(html, sl, args.minutes, rep)
     check_template_wiring(raw, html, rep)
     check_teaching(raw, html, sl, rep)
-    check_talk(sl, rep)
+    games = check_games(sl, rep)
+    check_talk(sl, rep, games)
+    check_vocab(html, [w.strip() for w in args.vocab.split(",") if w.strip()], rep)
     langs = [c.strip() for c in args.languages.split(",") if c.strip()] or ["es"]
     check_language_access(html, sl, rep, langs)
 
