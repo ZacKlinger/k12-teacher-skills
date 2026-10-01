@@ -3,6 +3,7 @@
 
 Usage:
     python3 check_packet.py packet.docx [--max-pages 2] [--sheet pages.png]
+    python3 check_packet.py multi-day-packet.docx --days 2 [--sheet pages.png]
     python3 check_packet.py exported-from-google-docs.pdf
 
 The packet is printed from Google Docs ("Add to Drive"), and Docs lays the same file out
@@ -20,15 +21,24 @@ can be looked at once instead of page by page.
 
 Needs LibreOffice (soffice), poppler (pdftoppm), and Pillow. If any is missing it says
 so and exits 0: the check is worth having, not worth blocking a lesson on.
+
+With --days N (a multi-day packet, only built when one is asked for) it finds where each
+day starts and checks each day on its own: every day starts on the front of a fresh sheet,
+so a day can be handed out, collected, or reprinted from the Google Doc by itself, and each
+day aims for two pages and never passes four. Days are found by the heading that follows
+each page break, so it needs pdftotext (poppler) and the .docx, not a PDF.
 """
 
 import argparse
 import glob
+import html
 import os
+import re
 import shutil
 import subprocess
 import sys
 import tempfile
+import zipfile
 
 # The renderer's margins are 0.7 in, and the footer sits just above the bottom edge of
 # the body, so the measurement stops short of it.
@@ -54,12 +64,37 @@ def ink_bottom(img, top_px, bottom_px):
     return 0.0
 
 
+def day_markers(docx_path):
+    """The first words after every page break: the heading that opens each later day."""
+    xml = zipfile.ZipFile(docx_path).read("word/document.xml").decode("utf-8")
+    marks = []
+    for chunk in re.split(r'<w:br\b[^>]*w:type="page"[^>]*/>', xml)[1:]:
+        words = " ".join(re.findall(r"<w:t(?:\s[^>]*)?>([^<]*)</w:t>", chunk[:40000]))
+        marks.append(" ".join(html.unescape(words).split())[:24])
+    return marks
+
+
+def day_starts(pdf, marks):
+    """0-based page index where each day starts, found by its opening heading; None for a
+    day whose heading can't be found in the text."""
+    out = subprocess.run(["pdftotext", "-layout", pdf, "-"], capture_output=True, timeout=60)
+    pages = [" ".join(t.split()) for t in out.stdout.decode("utf-8", "replace").split("\f")]
+    starts, after = [0], 0
+    for m in marks:
+        hit = next((i for i in range(after + 1, len(pages)) if m and m in pages[i]), None)
+        starts.append(hit)
+        after = hit if hit is not None else after
+    return starts
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("docx")
-    ap.add_argument("--max-pages", type=int, default=2,
+    ap.add_argument("--max-pages", type=int, default=None,
                     help="page budget: 2 (one sheet, both sides) for a 60-minute lesson")
+    ap.add_argument("--days", type=int, default=1,
+                    help="a multi-day packet: each day is checked as its own sheet")
     ap.add_argument("--sheet", help="write all pages side by side into this PNG")
     args = ap.parse_args()
 
@@ -92,6 +127,39 @@ def main():
 
     errors, warns = [], []
     fills = []
+    day_last = set()       # the last page of every day but the final one ends early on purpose
+    if args.days > 1:
+        if from_docs or not shutil.which("pdftotext"):
+            warns.append("Per-day checks need the .docx and pdftotext; look at where each day "
+                         "starts in the page image by hand. Every day starts on an odd page.")
+        else:
+            marks = day_markers(args.docx)
+            if len(marks) != args.days - 1:
+                errors.append(f"--days {args.days}, but the packet has {len(marks) + 1} part(s) "
+                              "between page breaks. Put one page_break before every day after "
+                              "the first, and nowhere else.")
+            else:
+                starts = day_starts(pdfs[0], marks)
+                if None in starts:
+                    warns.append("Could not find where every day starts; check the page image: "
+                                 "every day starts on an odd page.")
+                else:
+                    ends = starts[1:] + [n]
+                    spans = []
+                    for d, (a, b) in enumerate(zip(starts, ends), 1):
+                        spans.append(f"day {d} p{a + 1}-{b}")
+                        if b - 1 < n - 1:
+                            day_last.add(b - 1)
+                        if a % 2 == 1:
+                            errors.append(
+                                f"Day {d} starts on page {a + 1}, the back of a sheet, because day "
+                                f"{d - 1} runs {a - starts[d - 2]} pages. Bring day {d - 1} to two "
+                                "pages so every day starts on a fresh sheet.")
+                        if b - a > 4:
+                            errors.append(f"Day {d} is {b - a} pages; a day never passes four.")
+                        elif b - a > 2:
+                            warns.append(f"Day {d} is {b - a} pages; a day aims for two.")
+                    print("  ok    " + ", ".join(spans))
     for img in pages:
         top = int(MARGIN_IN * DPI)
         bottom = img.size[1] - int(FOOTER_IN * DPI)
@@ -105,7 +173,12 @@ def main():
               + ", ".join(f"p{i + 1} {d:.0%}" for i, d in enumerate(docs)))
         over = [i for i, d in enumerate(docs) if d > 1.0]
         for i in over:
-            if i == n - 1:
+            if i in day_last:
+                errors.append(
+                    f"Page {i + 1} ends a day and is about {docs[i]:.0%} full in Google Docs: its "
+                    "last task will spill onto the next page there and push the next day onto "
+                    "the back of a sheet. Free a line or two on it.")
+            elif i == n - 1:
                 n += 1
                 errors.append(
                     f"The last page is {fills[i]:.0%} full here, about {docs[i]:.0%} in Google Docs: "
@@ -116,15 +189,16 @@ def main():
                     f"Page {i + 1} is {fills[i]:.0%} full here, about {docs[i]:.0%} in Google Docs: "
                     "its last task will likely move to the next page there. Leave a line or two "
                     "of headroom.")
-    if n > args.max_pages:
+    budget = args.max_pages or (4 * args.days if args.days > 1 else 2)
+    if n > budget:
         spare = sum(1 - f for f in fills[:-1]) + (1 - fills[-1])
         errors.append(
-            f"{n} pages against a budget of {args.max_pages}. The pages hold about "
+            f"{n} pages against a budget of {budget}. The pages hold about "
             f"{spare:.1f} pages of unused paper between them; recover that first (below), "
             "then cut: a section with no student task, a table that repeats another's rows, "
             "a second writing line nobody will fill.")
     for i, f in enumerate(fills[:-1]):
-        if f < 0.75:
+        if f < 0.75 and i not in day_last:
             warns.append(
                 f"Page {i + 1} ends at {f:.0%}: the next block was too tall to fit and moved "
                 "whole. Move a short block (a note, a word bank, a one-line question) after "

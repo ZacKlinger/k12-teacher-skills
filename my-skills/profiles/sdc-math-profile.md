@@ -1,8 +1,8 @@
 # Project profile: SDC Math
 
 Draft built on 2026-09-26 from the packets in Drive (Lesson Plans folder). Lines marked
-**confirm** are inferences; fix them once, then paste this file into the SDC Math project's
-knowledge in claude.ai.
+**confirm** are inferences; fix them once, then save this file as `project-profile.md` in the SDC
+Math working folder in Cowork (or paste it into the SDC Math project's knowledge in claude.ai).
 
 ## Class
 
@@ -53,6 +53,10 @@ From the calendar (period 6). Math doesn't meet Monday or Wednesday.
 
 - Drive folder: `Lesson Plans` (or a `Lesson Plans/SDC Math` subfolder)
 - File names: `Math 1.6 - <short title> - packet.docx`, `... - deck.html`
+- Into Drive: Add to Drive from the chat, with Drive's *Convert uploads* setting on, so the packet
+  becomes a Google Doc named by its code; print from that Doc
+- The deck: opened with Open in Chrome; a copy in Drive is for keeping (Drive shows an HTML file's
+  code, so download it to present from Drive)
 
 ## Current unit
 

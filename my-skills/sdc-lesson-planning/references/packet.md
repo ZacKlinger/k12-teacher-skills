@@ -192,6 +192,7 @@ Blocks:
 | `stem` | `text` | A standalone sentence frame |
 | `space` | `kind`, `count`/`height_in`/`label` | Write space not attached to a question |
 | `page_break` | — | Force a new page |
+| `day` | `code`, `day`, `period`, `title`, `es?`, `objective?`, `standard?` | Opens one day of a multi-day packet (`references/formats.md`); every day after the first starts a new page with its own name line |
 
 `heading`, `text`, `labeled`, `note`, `list` / `steps` and `wordbank` each take an optional `es`
 as well — one short Spanish line, rendered under the block. See "The Spanish line" above.

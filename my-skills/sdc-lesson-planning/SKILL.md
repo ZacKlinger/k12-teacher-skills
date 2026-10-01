@@ -1,19 +1,23 @@
 ---
 name: "sdc-lesson-planning"
-description: "Plans a class session for Zac's SDC (special day class) grades 9-10 science and math, then delivers a student packet as an editable Word document and an HTML slide deck with real photographs, timers, interactive charts, and embedded videos, with the lesson plan written straight into the chat. Load this skill BEFORE asking any clarifying question about the lesson. Use it whenever Zac is planning what to teach: explicit asks (\"plan tomorrow's lesson\", \"Science 1.7\", \"Day 4 of the hydroponics unit\") and implicit ones (\"I'm teaching surface area Thursday\", \"need something for period 3 tomorrow\"). Also use it for just a packet, just slides, or just an agenda, and for a viewing guide for a film or video, or a review game such as a Jeopardy board. It builds one session at a time. Do NOT use it for grading, rubrics, IEP paperwork, parent emails, or standards lookups; answer those directly."
+description: "Plans a class session for Zac's SDC (special day class) grades 9-10 science and math, then delivers a student packet built to print from Google Docs and an HTML slide deck with real photographs, timers, interactive charts, and embedded videos, with the lesson plan written straight into the chat. Load this skill BEFORE asking any clarifying question about the lesson. Use it whenever Zac is planning what to teach: explicit asks (\"plan tomorrow's lesson\", \"Science 1.7\", \"Day 4 of the hydroponics unit\") and implicit ones (\"I'm teaching surface area Thursday\", \"need something for period 3 tomorrow\"). Also use it for just a packet, just slides, or just an agenda, a viewing guide, a review game such as a Jeopardy board, or a multi-day lesson when he asks for more than one day. One session at a time unless asked. Do NOT use it for grading, rubrics, IEP paperwork, parent emails, or standards lookups; answer those directly."
 license: MIT
 ---
 
 # SDC lesson planning (grades 9-10, science and math)
 
-Builds one class session at a time for a self-contained special day class. Zac is the teacher —
-"you" in these instructions, never a third party. Two files, plus the plan in chat:
+Builds one class session at a time for a self-contained special day class, and more than one only
+when Zac asks for more than one day. Zac is the teacher — "you" in these instructions, never a
+third party. Two files, plus the plan in chat:
 
 | Deliverable | Format | Who holds it |
 |---|---|---|
 | Lesson plan | **Chat message, never a file** | Zac, read on screen |
-| Student packet | Word document (uploads clean to Google Drive) | Students |
-| Slide deck | Single HTML file: photographs, timers, charts, videos | Projected; students use it to navigate the packet |
+| Student packet | Word document that Zac adds to Google Drive, where it becomes the Google Doc he prints | Students, on paper |
+| Slide deck | Single HTML file opened in Chrome: photographs, timers, charts, videos | Projected; students use it to navigate the packet |
+
+Both files travel through Google Drive, and the Google Doc is the page students actually get; see
+"Google Drive" below for what that asks of every build.
 
 The packet and the deck are the same lesson seen twice. Every slide that asks students to write
 names the packet page it belongs to; every packet task appears on a slide; and every question and
@@ -45,8 +49,9 @@ and only ask for what's still missing.
    "how long is the session", so don't ask it when the schedule has it.
 3. **The previous lesson.** Work out the code before this one (Science 1.7 follows Science 1.6)
    and find it: in the working folder or the conversation first; then, when Google Drive is
-   connected, search Drive for the code in the title (`title contains 'Science 1.6'`, falling back
-   to the unit name) and read the packet. It tells you what students already did, what vocabulary
+   connected, search Drive for the code: `title contains 'Science 1.6'`, then
+   `fullText contains 'Science 1.6'` (which finds a day inside a multi-day packet), then the unit
+   name; read the packet. It tells you what students already did, what vocabulary
    is live, and what the do-now can reach back to. One search and one read, not a survey of the
    folder. Mention in a line which lesson you built from, so a wrong match is caught early.
 4. **Ask.** Whatever steps 1-3 didn't answer goes into the one clarifying round in Step 1.
@@ -191,7 +196,8 @@ It reports the page count against the budget and how full each page is, estimate
 because Zac prints from the Google Doc that "Add to Drive" makes, and Docs sets the same file about a
 twentieth taller than Word. It writes every page into one image. Look at that image once, then fix what it reports in `packet.json` in the order
 `references/design_criteria.md` gives (take off, merge, fill the gap, then cut) and re-render. Two
-pages for a 60-minute lesson; a block aims for two and never passes four.
+pages for a 60-minute lesson; a block aims for two and never passes four. A multi-day packet adds
+`--days <n>` and is checked a day at a time, each day its own sheet.
 
 **Lesson plan — in chat, never a file.** Zac reads the plan on screen while he builds the day;
 printing it makes a document nobody opens twice. Write it in the message that delivers the files,
@@ -262,8 +268,9 @@ Fix every error and re-run until it exits clean; then read the warnings and make
 each one rather than ignoring them. What the checker cannot judge, you still have to: whether each
 photograph is the *right* photograph for its claim, whether the slides look right at projection
 size, and whether the arithmetic holds. So also list `$OUTPUT_DIR` and confirm both files exist and
-are non-trivial in size; look at the packet's page image from `check_packet.py`; open the deck and
-click through it. Work every calculation
+are non-trivial in size; look at the packet's page image from `check_packet.py`; run
+`scripts/find_photos.py probe` on the deck so every photograph and the video are known to load;
+open the deck and click through it. Work every calculation
 in the lesson — the answer key, the worked example, and the numbers on the slides all have to
 agree.
 
@@ -311,8 +318,44 @@ the packet's `meta.code` so it leads the header and footer, and in the deck's da
 arrives already named needs no renaming in Drive, and the next lesson can find it by its code. Use a
 plain hyphen in file names, never a dash or a slash.
 
-For viewing guides and review games, read `references/formats.md`. The skill builds one session at a
-time; a request for several days is several sessions, each with its own packet and deck.
+**One session at a time is the default.** Build more than one day only when Zac asks for more than
+one ("Day 1 and 2", "this week", "Monday through Wednesday"); then use the multi-day shape in
+`references/formats.md`: one packet with a section per day, every day on its own sheet under its
+own code, and one deck per day. Viewing guides and review games are in the same file.
+
+## Google Drive
+
+Everything Zac keeps lives in Google Drive, so every file is built for the trip there and for what
+students meet at the other end.
+
+**The path.** The packet arrives as a lesson-coded `.docx`. Zac adds it to Drive, it becomes a
+Google Doc with the same name, and he prints from that Doc; the Doc is the student's page, not the
+Word file. The deck is one HTML file he opens with **Open in Chrome**. A copy kept in Drive is for
+keeping: Drive previews an HTML file as its code, so presenting from Drive means downloading the
+file and opening it in Chrome.
+
+**The packet survives Docs because the renderer builds for Docs.** Docs ignores Word's
+keep-together settings and splits tables between rows, but never splits a single row, so every task
+prints as one row and moves whole or not at all. Docs sets text about a twentieth taller, so
+`check_packet.py` budgets for Docs, not Word. Verdana, black text, hairline rules, and no fills all
+come through the conversion and the copier unchanged. So never hand-edit the `.docx` or reach for
+what Docs drops or moves: text boxes, floating images, columns, shapes, a second page size. Every
+change goes back through `packet.json`.
+
+**Real text, for the student on a screen too.** Every question, direction and language line is
+text, never a picture of text, so a student who opens the Doc on a device can have it read aloud,
+zoom it, or search it, and the lesson code in the header and footer is what Step 0 searches for
+next time.
+
+**The deck works from anywhere it lands.** Template, timers, charts and talk kit are inside the
+file; photographs and the video are linked by URL. The same file works opened from the working
+folder, from a Drive download, or from a USB stick on the classroom computer. Never point a slide
+at a local file or a folder path: it works on Claude's computer and shows a broken image on the
+projector.
+
+**What the skill does in Drive itself.** It reads: the previous lesson, by its code (Step 0). It
+doesn't upload the packet; the lesson-coded file name already makes adding it one step with
+nothing to rename.
 
 ## Photographs
 
@@ -325,13 +368,18 @@ test before you search**, because a search for the topic returns pictures of the
 them argue for anything; and **the load probe is not the quality gate** — bytes arriving says
 nothing about whether the subject is in frame.
 
+Two rules that hold on every build. **Photographs never depend on Zac**: never ask him for one and
+never wait on an upload. **No browser tab, ever, for photographs**: `scripts/find_photos.py`
+searches Commons from the sandbox, lays every slot's candidates out as one numbered image, load-tests
+the pick, and previews its crop, so a deck's photographs cost one search and one look per slot.
+
 ## Step 4 — Test: hand it over
 
 The deck is a prototype until it has been in front of students, however clean it checks. So the
 handover is set up for the test that hasn't happened yet, not presented as a finished thing.
 
-Present both files, then write the lesson plan into the chat as described in Step 3. In the same
-message:
+Present both files by their lesson-coded names, packet first, so each is one step into Drive. Then
+write the lesson plan into the chat as described in Step 3. In the same message:
 
 - **What to watch for.** Name the one moment the lesson is most likely to fail and the observable
   that would tell him it did — the point of view from Step 2 says where that is. *"If they can't
@@ -339,7 +387,8 @@ message:
   question 1."* This is the difference between handing over a lesson and handing over a test.
 - Say what the talk moves need (partner assignments, corner signs, cards) if they need anything,
   and offer to make the printable if so.
-- If the photographs could not be load-tested this session, say so in one line.
+- If the photographs could not be load-tested this session, say so in one line, and name the
+  fix: network access to `commons.wikimedia.org` and `upload.wikimedia.org` for Claude's sandbox.
 - **Ask for reaction in the I like / I wish / What if form** — "tell me an *I like*, an *I wish*,
   and a *what if*." It reads as an invitation rather than a request for approval, and "I wish"
   gets an honest complaint out of a busy person faster than "any changes?" does. Run it on your own
@@ -370,8 +419,10 @@ captions, credits, aimed crops, the fallback script, leftover placeholder text, 
 bodies. Run it and get it clean; the closing checklists in `references/deck.md` and
 `references/photographs.md` cover the judgement calls it can't make.
 
-Click the video once before you hand it over — the checker can tell you the id is well-formed and
-the poster is there, but only a click tells you the player actually appears.
+Probe the video before you hand it over. The checker can tell you the id is well-formed and the
+poster is there; `find_photos.py probe` asks YouTube whether the video will play inside the deck
+and prints its title, so an owner who turned embedding off is caught at your desk, not at the
+projector.
 
 The two questions worth asking yourself once the checker is quiet, because nothing automated will
 ask them for you: *does every photograph argue for the claim on its slide*, and *would a student

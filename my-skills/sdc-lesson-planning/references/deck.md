@@ -349,7 +349,8 @@ one — they are judgement calls, not noise. The checker cannot see whether a ph
 - Every question and every direction has its Spanish line, and it says the same thing as the
   Spanish on that question in the packet.
 - The video is a facade with a real 11-character `data-yt`, a poster with real alt text, and the
-  plain link under it. Click it once and confirm the player actually appears.
+  plain link under it. `scripts/find_photos.py probe` on the deck confirms it plays embedded
+  and prints its title; check the title is the video you chose.
 - Dark surfaces are `--caviar`, not `--ink`.
 - Timer seconds match the packet's minutes, and the phases sum to the period.
 - Every interactive chart works: starts empty, each click does what it should, the caption lands

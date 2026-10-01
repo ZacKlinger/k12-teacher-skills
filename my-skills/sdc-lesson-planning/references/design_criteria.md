@@ -106,5 +106,5 @@ direction. For a student who can't yet read the question off the wall, the wall 
 The deck and packet are built from their content alone. The model writes the slides
 (`build_deck.py` supplies the template around them) and the packet's JSON (`render_packet.py`
 draws it), so no build reads or rewrites the 60 KB template. Pages and slides are checked as one
-image each (`check_packet.py --sheet`; one screenshot per photo slot on a contact sheet), not one
-screenshot at a time.
+image each (`check_packet.py --sheet`; `find_photos.py` lays every candidate for a photo slot out
+as one numbered sheet), not one screenshot at a time, and never in a browser tab.

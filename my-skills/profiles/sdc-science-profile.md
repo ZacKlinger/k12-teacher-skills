@@ -1,8 +1,9 @@
 # Project profile: SDC Science
 
 Draft built on 2026-09-26 from the packets in Drive (Lesson Plans folder) and the course syllabus.
-Lines marked **confirm** are inferences; fix them once, then paste this file into the SDC Science
-project's knowledge in claude.ai.
+Lines marked **confirm** are inferences; fix them once, then save this file as `project-profile.md`
+in the SDC Science working folder in Cowork (or paste it into the SDC Science project's knowledge in
+claude.ai).
 
 ## Class
 
@@ -57,6 +58,10 @@ sensory breaks, and behavior supports") and from what every packet so far alread
 - Drive folder: `Lesson Plans` (Science 1.6 and the tubing worksheet landed in My Drive's root;
   move them in, or make a `Lesson Plans/SDC Science` subfolder)
 - File names: `Science 1.7 - <short title> - packet.docx`, `... - deck.html`
+- Into Drive: Add to Drive from the chat, with Drive's *Convert uploads* setting on, so the packet
+  becomes a Google Doc named by its code; print from that Doc
+- The deck: opened with Open in Chrome; a copy in Drive is for keeping (Drive shows an HTML file's
+  code, so download it to present from Drive)
 
 ## Current unit
 

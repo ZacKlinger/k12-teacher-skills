@@ -212,6 +212,7 @@ class Renderer:
             self.S["line_gap"] = round(self.S["line_gap"] * 1.2)
         # the home languages in the room; each carries one short line under the English
         self.langs = [str(c) for c in (meta.get("languages") or ["es"])]
+        self.days_seen = 0      # `day` blocks so far; every one after the first starts a page
         self.doc = Document()
         self._setup()
         # every paragraph the renderer emits is registered here so a task group can be
@@ -417,16 +418,7 @@ class Renderer:
         self.run(par, meta.get("title", ""), size=self.S["h1"], bold=True)
 
         if self.audience == "student" and meta.get("name_line", True):
-            t = self._table(rows=1, cols=2)
-            t.autofit = True
-            for cell, label in zip(t.rows[0].cells, ("Name:", "Date:")):
-                cell.text = ""
-                par = cell.paragraphs[0]
-                self.run(par, label, size=self.S["small"], color=MUTED)
-                par.paragraph_format.space_after = Pt(2)
-                _cell_borders(cell, RULE, 6, sides=("bottom",))
-            _no_split(t)
-            self.gap(4)
+            self.name_line()
 
         obj = self.data.get("objective")
         if obj:
@@ -437,6 +429,54 @@ class Renderer:
         agenda = self.data.get("agenda")
         if agenda and (self.audience == "teacher" or meta.get("show_agenda")):
             self.agenda(agenda)
+
+    def name_line(self):
+        t = self._table(rows=1, cols=2)
+        t.autofit = True
+        for cell, label in zip(t.rows[0].cells, ("Name:", "Date:")):
+            cell.text = ""
+            par = cell.paragraphs[0]
+            self.run(par, label, size=self.S["small"], color=MUTED)
+            par.paragraph_format.space_after = Pt(2)
+            _cell_borders(cell, RULE, 6, sides=("bottom",))
+        _no_split(t)
+        self.gap(4)
+
+    def day(self, blk):
+        """Opens one day of a multi-day packet. Every day after the first starts on a fresh
+        page with its own name line, so a day can be handed out, collected, or reprinted from
+        the Google Doc on its own; each day carries its own "I can"."""
+        later = self.days_seen > 0
+        self.days_seen += 1
+        if later:
+            self.page_break()
+        eyebrow = "  ·  ".join(str(b) for b in (blk.get("code"), blk.get("day"), blk.get("period"))
+                               if b)
+        if eyebrow:
+            par = self.p(space_before=0 if later else 6, space_after=2, keep=True)
+            self.run(par, eyebrow.upper(), size=self.S["small"], color=MUTED, bold=True)
+        if blk.get("title"):
+            par = self.p(space_after=4, keep=True)
+            self.run(par, blk["title"], size=self.S["h2"] + 1.5, bold=True)
+            line = blk.get(self.langs[0]) if len(self.langs) == 1 else None
+            if line:
+                gloss = self.run(par, "  ·  " + str(line), size=self.S["es"])
+                gloss.font.color.rgb = ES_INK
+        meta = self.data.get("meta", {})
+        if later and self.audience == "student" and meta.get("name_line", True):
+            self.name_line()
+        if blk.get("objective"):
+            self._banner("Objective", blk["objective"], blk.get("standard"))
+
+    def page_break(self):
+        # The break's own paragraph mark lands at the top of the new page, so it is made
+        # 1 pt tall instead of a blank line.
+        par = self._par()
+        par.add_run().add_break(WD_BREAK.PAGE)
+        pf = par.paragraph_format
+        pf.line_spacing_rule = WD_LINE_SPACING.EXACTLY
+        pf.line_spacing = Pt(1)
+        pf.space_before = pf.space_after = Pt(0)
 
     def _banner(self, label, text, sub=None):
         t = self._table(rows=1, cols=1)
@@ -939,7 +979,9 @@ class Renderer:
         elif kind == "space":
             self.space(blk)
         elif kind == "page_break":
-            self._par().add_run().add_break(WD_BREAK.PAGE)
+            self.page_break()
+        elif kind == "day":
+            self.day(blk)
         elif kind == "spacer":
             self.p(space_after=int(blk.get("points", 12)))
         else:

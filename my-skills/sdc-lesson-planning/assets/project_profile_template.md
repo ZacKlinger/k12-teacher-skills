@@ -1,8 +1,8 @@
 # Project profile
 
-Keep this in the course's claude.ai project knowledge (or as `project-profile.md` in the folder where
-lessons live). The lesson-planning skill reads it first so it doesn't have to ask about any of it
-again. Describe students by need, never by name.
+Keep this as `project-profile.md` in the course's working folder (or in the course's claude.ai
+project knowledge). The lesson-planning skill reads it first so it doesn't have to ask about any of
+it again. Describe students by need, never by name.
 
 ## Class
 
@@ -61,6 +61,10 @@ there before the lesson is offered, not added after.
 - Drive folder for this course's packets: (folder name, e.g. `Lesson Plans/SDC Science`)
 - File names: `<lesson code> - <short title> - packet.docx` and `... - deck.html`, so an upload to
   Drive needs no renaming and the next lesson can find this one by its code.
+- Into Drive: Add to Drive from the chat, with Drive's *Convert uploads* setting on, so the packet
+  becomes a Google Doc named by its code; print from that Doc
+- The deck: opened with Open in Chrome; a copy in Drive is for keeping (Drive shows an HTML file's
+  code, so download it to present from Drive)
 
 ## Current unit
 
@@ -72,8 +76,9 @@ there before the lesson is offered, not added after.
 
 ## Day map
 
-The skill ends each lesson with a ready-made row for this table. Paste it in, and add how it went
-after you teach it; the next lesson starts from that line.
+The skill adds a row for every lesson it builds (in a working folder it writes the row here itself;
+elsewhere it hands the row over to paste). Add how it went after you teach it; the next lesson
+starts from that line.
 
 | Code | Date | Focus | How it went |
 |---|---|---|---|
