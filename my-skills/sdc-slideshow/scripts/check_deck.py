@@ -16,10 +16,13 @@ Exit code 0 = clean (warnings allowed), 1 = at least one error.
 from __future__ import annotations
 
 import argparse
-import json
+import os
 import re
 import sys
 from collections import Counter
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from read_packet import load_packet  # noqa: E402  (packet.json, or the packet .docx itself)
 
 # --------------------------------------------------------------------------
 # Placeholder strings that ship in assets/deck_template.html. If any survive
@@ -658,7 +661,8 @@ def main() -> int:
                     help="home languages in the room, comma-separated codes (default es)")
     ap.add_argument("--vocab", default="",
                     help="the packet's key words, comma-separated; each should be on a slide")
-    ap.add_argument("--packet", help="the lesson's packet.json; the deck is checked against it")
+    ap.add_argument("--packet", help="the lesson's packet.json, or the packet .docx itself; the deck "
+                                     "is checked against it")
     args = ap.parse_args()
 
     try:
@@ -687,7 +691,7 @@ def main() -> int:
     packet = None
     if args.packet:
         try:
-            packet = json.load(open(args.packet, encoding="utf-8"))
+            packet = load_packet(args.packet, args.languages)
         except (OSError, ValueError) as e:
             rep.warn(f"Could not read {args.packet}: {e}")
         if packet:

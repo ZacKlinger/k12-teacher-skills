@@ -1,6 +1,6 @@
 ---
 name: "sdc-lesson-planning"
-description: "Plans a class session for Zac's SDC (special day class) grades 9-10 science and math, then delivers a student packet built to print from Google Docs and, through the sdc-slideshow skill, an HTML slide deck with real photographs, timers, interactive charts, games, and embedded videos, with the lesson plan written straight into the chat. Load this skill BEFORE asking any clarifying question about the lesson. Use it whenever Zac is planning what to teach: explicit asks (\"plan tomorrow's lesson\", \"Science 1.7\", \"Day 4 of the hydroponics unit\") and implicit ones (\"I'm teaching surface area Thursday\", \"need something for period 3 tomorrow\"). Also use it for just a packet, just slides, or just an agenda, a viewing guide, a review game such as a Jeopardy board, or a multi-day lesson when he asks for more than one day. One session at a time unless asked. Do NOT use it for grading, rubrics, IEP paperwork, parent emails, or standards lookups; answer those directly."
+description: "Plans a class session for Zac's SDC (special day class) grades 9-10 science and math, then delivers a student packet built to print from Google Docs, with the lesson plan written straight into the chat. The HTML slide deck is built from that packet by the sdc-slideshow skill: in the same turn when Zac asks for slides, offered otherwise. Load this skill BEFORE asking any clarifying question about the lesson. Use it whenever Zac is planning what to teach: explicit asks (\"plan tomorrow's lesson\", \"Science 1.7\", \"Day 4 of the hydroponics unit\") and implicit ones (\"I'm teaching surface area Thursday\", \"need something for period 3 tomorrow\"). Also use it for just a packet, just slides, or just an agenda, a viewing guide, a review game such as a Jeopardy board, or a multi-day lesson when he asks for more than one day. One session at a time unless asked. Do NOT use it for grading, rubrics, IEP paperwork, parent emails, or standards lookups; answer those directly."
 license: MIT
 ---
 
@@ -8,13 +8,14 @@ license: MIT
 
 Builds one class session at a time for a self-contained special day class, and more than one only
 when Zac asks for more than one day. Zac is the teacher — "you" in these instructions, never a
-third party. Two files, plus the plan in chat:
+third party. The plan in chat and the packet every time; the deck when he asks for it, offered
+otherwise:
 
 | Deliverable | Format | Who holds it |
 |---|---|---|
 | Lesson plan | **Chat message, never a file** | Zac, read on screen |
 | Student packet | Word document that Zac adds to Google Drive, where it becomes the Google Doc he prints | Students, on paper |
-| Slide deck | Single HTML file opened in Chrome, built by the `sdc-slideshow` skill from this packet | Projected; students use it to navigate the packet |
+| Slide deck | Single HTML file opened in Chrome, built by the `sdc-slideshow` skill from this packet, in this conversation or a later one | Projected; students use it to navigate the packet |
 
 Both files travel through Google Drive, and the Google Doc is the page students actually get; see
 "Google Drive" below for what that asks of every build.
@@ -238,19 +239,22 @@ in this order, tight enough to skim:
 Prose and short lists, no headers-within-headers. If it runs past what fits on a screen or two,
 it's too long: cut the parts a teacher already knows how to do.
 
-**Slide deck: hand it to `sdc-slideshow`.** Once the packet renders clean, load the
-`sdc-slideshow` skill (it is installed beside this one) and follow it to build the deck, handing it
-`packet.json` and the plan you are about to deliver. The code, the minutes, the languages and the
-key words ride in the packet's `meta`; the talk moves, the photographs you promised by subject and
-the verified video come from the talk-through in Step 2. The deck is the packet seen on the wall,
-so it is built from the packet's words and checked against them, never reworded. Photographs are
-its job too: never ask Zac for one. If `sdc-slideshow` isn't available, say so in one line and
-deliver the packet and the plan.
+**Slide deck: built when asked, offered otherwise.** The deck is its own skill, `sdc-slideshow`, so
+it can be built now or in any later conversation from the packet alone. Build it in this turn when
+the request asks for slides or a deck, or when the class notes' standing requests say every lesson
+gets one: once the packet renders clean, load `sdc-slideshow` (it is installed beside this one) and
+follow it, handing it `packet.json` and the plan you are about to deliver. The code, the minutes,
+the languages and the key words ride in the packet's `meta`; the talk moves, the photographs you
+promised by subject and the verified video come from the talk-through in Step 2. The deck is the
+packet seen on the wall, so it is built from the packet's words and checked against them, never
+reworded. Photographs are its job too: never ask Zac for one. Otherwise deliver the packet and the
+plan, and make the deck the first of the next moves in Step 4. If `sdc-slideshow` isn't installed,
+say so in one line and deliver the packet and the plan.
 
-Then check the whole lesson the way it will be taught: list `$OUTPUT_DIR` and confirm both files
-exist and are non-trivial in size; look at the packet's page image from `check_packet.py`; read the
-slideshow skill's report. Work every calculation in the lesson — the answer key, the worked
-example, the numbers on the slides, the game answers — they all have to agree.
+Then check the whole lesson the way it will be taught: list `$OUTPUT_DIR` and confirm every file
+exists and is non-trivial in size; look at the packet's page image from `check_packet.py`; read the
+slideshow skill's report when there is a deck. Work every calculation in the lesson — the answer
+key, the worked example, the numbers on the slides, the game answers — they all have to agree.
 
 ---
 
@@ -376,7 +380,7 @@ nothing to rename.
 The deck is a prototype until it has been in front of students, however clean it checks. So the
 handover is set up for the test that hasn't happened yet, not presented as a finished thing.
 
-Present both files by their lesson-coded names, packet first, so each is one step into Drive. Then
+Present the files by their lesson-coded names, packet first, so each is one step into Drive. Then
 write the lesson plan into the chat as described in Step 3. In the same message:
 
 - **What to watch for.** Name the one moment the lesson is most likely to fail and the observable
@@ -385,7 +389,8 @@ write the lesson plan into the chat as described in Step 3. In the same message:
   question 1."* This is the difference between handing over a lesson and handing over a test.
 - Say what the talk moves need (partner assignments, corner signs, cards) if they need anything,
   and offer to make the printable if so.
-- Pass on anything the slideshow skill reported that he should know, in a line each: photographs
+- When there is a deck, pass on anything the slideshow skill reported that he should know, in a
+  line each: photographs
   it couldn't load-test (and the setting that fixes it), a video that won't play embedded.
 - **Ask for reaction in the I like / I wish / What if form** — "tell me an *I like*, an *I wish*,
   and a *what if*." It reads as an invitation rather than a request for approval, and "I wish"
@@ -394,7 +399,10 @@ write the lesson plan into the chat as described in Step 3. In the same message:
 - Offer 3 specific next moves drawn from this lesson — not "let me know if you want changes." For
   example: *"Want me to (1) build the Day 5 lab that follows this, (2) cut the packet to five
   questions for a shortened period, or (3) add a second-tier version of question 4 for the students
-  who finish early?"*
+  who finish early?"* When no deck was built this turn, the deck is the first of the three, and
+  the offer says it works later too: *"(1) build the slide deck from this packet: now, or in any
+  later chat, from the packet file or its Google Doc downloaded as Word, with this plan pasted
+  beside it."*
 
 - **Keep the Day map current yourself.** In Cowork, append this lesson's row to the profile's Day
   map in the working folder (`| Science 1.7 | Tue 9/29 | Pump build: criteria and constraints | |`,

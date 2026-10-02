@@ -132,6 +132,10 @@ and on the slide is the English one and a student has to be able to match them.
 The renderer prints a note on any student packet question that has no Spanish line. Read those
 notes; they are the only thing that checks this.
 
+Each line is marked in the Word file with its language, so read-aloud on a student's device
+speaks it in a Spanish voice rather than an English one, and the slideshow skill, reading the
+packet back in a later conversation, knows which line belongs to which language.
+
 ## Page breaks
 
 **A prompt is never apart from its answer space.** The renderer prints each task as one piece:
