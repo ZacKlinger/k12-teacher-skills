@@ -1,4 +1,4 @@
-# Evals for `sdc-lesson-planning`
+# Evals for `k12lessonplan`
 
 A rubric for scoring what this skill makes, built from Anthropic and Learning Commons'
 lesson-plan rubric (`evals/k12-lesson-plan-creation/rubrics/`) and changed where a special day
@@ -29,7 +29,7 @@ meets.
 2. **Run the scripts.** They are the judge for anything that can be measured:
 
    ```bash
-   python3 my-skills/evals/sdc-lesson-planning/run_checks.py path/to/lesson-folder
+   python3 my-skills/evals/k12lessonplan/run_checks.py path/to/lesson-folder
    ```
 
    This writes `checks.txt` with the render report (key words, reading level, language lines),

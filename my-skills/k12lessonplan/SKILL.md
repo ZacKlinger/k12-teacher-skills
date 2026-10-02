@@ -1,10 +1,10 @@
 ---
-name: "sdc-lesson-planning"
-description: "Plans a class session for Zac's SDC (special day class) grades 9-10 science and math, then delivers a student packet built to print from Google Docs, with the lesson plan written straight into the chat. The HTML slide deck is built from that packet by the sdc-slideshow skill: in the same turn when Zac asks for slides, offered otherwise. Load this skill BEFORE asking any clarifying question about the lesson. Use it whenever Zac is planning what to teach: explicit asks (\"plan tomorrow's lesson\", \"Science 1.7\", \"Day 4 of the hydroponics unit\") and implicit ones (\"I'm teaching surface area Thursday\", \"need something for period 3 tomorrow\"). Also use it for just a packet, just slides, or just an agenda, a viewing guide, a review game such as a Jeopardy board, or a multi-day lesson when he asks for more than one day. One session at a time unless asked. Do NOT use it for grading, rubrics, IEP paperwork, parent emails, or standards lookups; answer those directly."
+name: "k12lessonplan"
+description: "Plans a class session for Zac's SDC (special day class) grades 9-10 science and math, then delivers a student packet built to print from Google Docs, with the lesson plan written straight into the chat. The HTML slide deck is built from that packet by the k12presentation skill: in the same turn when Zac asks for slides, offered otherwise. Load this skill BEFORE asking any clarifying question about the lesson. Use it whenever Zac is planning what to teach: explicit asks (\"plan tomorrow's lesson\", \"Science 1.7\", \"Day 4 of the hydroponics unit\") and implicit ones (\"I'm teaching surface area Thursday\", \"need something for period 3 tomorrow\"). Also use it for just a packet, just slides, or just an agenda, a viewing guide, a review game such as a Jeopardy board, or a multi-day lesson when he asks for more than one day. One session at a time unless asked. Do NOT use it for grading, rubrics, IEP paperwork, parent emails, or standards lookups; answer those directly."
 license: MIT
 ---
 
-# SDC lesson planning (grades 9-10, science and math)
+# k12lessonplan (SDC grades 9-10, science and math)
 
 Builds one class session at a time for a self-contained special day class, and more than one only
 when Zac asks for more than one day. Zac is the teacher — "you" in these instructions, never a
@@ -15,7 +15,7 @@ otherwise:
 |---|---|---|
 | Lesson plan | **Chat message, never a file** | Zac, read on screen |
 | Student packet | Word document that Zac adds to Google Drive, where it becomes the Google Doc he prints | Students, on paper |
-| Slide deck | Single HTML file opened in Chrome, built by the `sdc-slideshow` skill from this packet, in this conversation or a later one | Projected; students use it to navigate the packet |
+| Slide deck | Single HTML file opened in Chrome, built by the `k12presentation` skill from this packet, in this conversation or a later one | Projected; students use it to navigate the packet |
 
 Both files travel through Google Drive, and the Google Doc is the page students actually get; see
 "Google Drive" below for what that asks of every build.
@@ -164,7 +164,7 @@ Read the build references before writing anything:
   readability, key words, organizers, whole tasks. Everything below serves it.
 - `references/packet.md` — the student packet rules and the `packet.json` schema.
 
-The deck has its own skill, `sdc-slideshow`, with its own references (the slide spec, the chart
+The deck has its own skill, `k12presentation`, with its own references (the slide spec, the chart
 kit, the photographs method, games); it reads them when you hand the deck over below.
 
 Order of work: settle the plan and the packet content first, then build the deck from that same
@@ -239,16 +239,16 @@ in this order, tight enough to skim:
 Prose and short lists, no headers-within-headers. If it runs past what fits on a screen or two,
 it's too long: cut the parts a teacher already knows how to do.
 
-**Slide deck: built when asked, offered otherwise.** The deck is its own skill, `sdc-slideshow`, so
+**Slide deck: built when asked, offered otherwise.** The deck is its own skill, `k12presentation`, so
 it can be built now or in any later conversation from the packet alone. Build it in this turn when
 the request asks for slides or a deck, or when the class notes' standing requests say every lesson
-gets one: once the packet renders clean, load `sdc-slideshow` (it is installed beside this one) and
+gets one: once the packet renders clean, load `k12presentation` (it is installed beside this one) and
 follow it, handing it `packet.json` and the plan you are about to deliver. The code, the minutes,
 the languages and the key words ride in the packet's `meta`; the talk moves, the photographs you
 promised by subject and the verified video come from the talk-through in Step 2. The deck is the
 packet seen on the wall, so it is built from the packet's words and checked against them, never
 reworded. Photographs are its job too: never ask Zac for one. Otherwise deliver the packet and the
-plan, and make the deck the first of the next moves in Step 4. If `sdc-slideshow` isn't installed,
+plan, and make the deck the first of the next moves in Step 4. If `k12presentation` isn't installed,
 say so in one line and deliver the packet and the plan.
 
 Then check the whole lesson the way it will be taught: list `$OUTPUT_DIR` and confirm every file

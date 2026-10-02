@@ -9,7 +9,7 @@ with an answer key) and changes only what the shape needs.
 |---|---|---|
 | Multi-day lesson | "Day 1 and 2 of field trip prep", "one packet for the whole week", "plan Monday through Wednesday" | One packet with a section per day; one deck per day |
 | Viewing guide | "a viewing guide for Top Gun", "worksheet for this tubing video" | Packet only, unless slides are asked for |
-| Review game | "make a Jeopardy for this", "a game to review the six parts" | One HTML game board, built by the `sdc-slideshow` skill |
+| Review game | "make a Jeopardy for this", "a game to review the six parts" | One HTML game board, built by the `k12presentation` skill |
 
 When the request doesn't name a shape, it's a lesson. When it names one of these, skip the parts of
 Steps 2-3 that don't apply (a viewing guide has no movement or chart requirement) and say in one
@@ -98,5 +98,5 @@ the packet does too, and every day still stands on its own:
 ## Review game
 
 A Jeopardy-style board on the projector is a slide shape, so the slideshow skill builds it: load
-`sdc-slideshow` and ask it for "a review game board", handing it the packet. In the plan, say the
+`k12presentation` and ask it for "a review game board", handing it the packet. In the plan, say the
 game runs as talk: partners agree on a guess before a team answers.

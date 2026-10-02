@@ -23,7 +23,7 @@ import statistics
 import sys
 from collections import Counter
 
-DEFAULT_MATCH = r"sdc-lesson-planning|\b(science|math)\s+\d+\.\d+\b|student packet|slide deck"
+DEFAULT_MATCH = r"k12lessonplan|sdc-lesson-planning|\b(science|math)\s+\d+\.\d+\b|student packet|slide deck"
 
 # What a follow-up turn is asking to change. A turn can land in more than one bucket.
 THEMES = {

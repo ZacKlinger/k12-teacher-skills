@@ -7,7 +7,7 @@ Usage:
 
 The deck is the packet seen on the wall, so it builds from the packet. In the conversation
 that planned the lesson that is packet.json. Any other time it is the packet itself: the
-Word file sdc-lesson-planning made, or the same packet downloaded from its Google Doc as a
+Word file k12lessonplan made, or the same packet downloaded from its Google Doc as a
 .docx, with whatever Zac changed there. This reads that file and returns the shape
 packet.json has: the lesson code and title, the timed sections, every numbered question in
 the page's own words with its language lines, the key words, and the languages.
@@ -203,7 +203,7 @@ def main():
         print(f"    {q['number']:>3}. {q['prompt'][:80]}"
               + (f"   (no {', '.join(missing)} line)" if missing else ""))
     if not qs:
-        print("  No numbered questions found. If this packet was not made by sdc-lesson-planning, "
+        print("  No numbered questions found. If this packet was not made by k12lessonplan, "
               "build from its text with --vocab and --languages instead of --packet.")
     if args.out:
         meta.pop("_tagged", None)

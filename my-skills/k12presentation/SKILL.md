@@ -1,10 +1,10 @@
 ---
-name: "sdc-slideshow"
-description: "Builds the interactive HTML slide deck for Zac's SDC (special day class) grades 9-10 science and math: real photographs found on Wikimedia without a browser, phased talk timers, interactive charts, game rounds and sorting games, key words marked, a language line on every question, all in one file he opens in Chrome. sdc-lesson-planning calls it when Zac asks for slides with a lesson; use it directly whenever Zac wants slides from something he already has, above all a student packet sdc-lesson-planning made (the .docx, or its Google Doc downloaded as Word): \"make slides for this packet\", \"turn this lesson plan into a deck\", \"slides for the viewing guide\", \"add a game slide\", \"a Jeopardy review for unit 1\", a Google Doc or PDF of a lesson. Do NOT use it to plan a lesson from scratch or to make the printed packet; that is sdc-lesson-planning."
+name: "k12presentation"
+description: "Builds the interactive HTML slide deck for Zac's SDC (special day class) grades 9-10 science and math: real photographs found on Wikimedia without a browser, phased talk timers, interactive charts, game rounds and sorting games, key words marked, a language line on every question, all in one file he opens in Chrome. k12lessonplan calls it when Zac asks for slides with a lesson; use it directly whenever Zac wants slides from something he already has, above all a student packet k12lessonplan made (the .docx, or its Google Doc downloaded as Word): \"make slides for this packet\", \"turn this lesson plan into a deck\", \"slides for the viewing guide\", \"add a game slide\", \"a Jeopardy review for unit 1\", a Google Doc or PDF of a lesson. Do NOT use it to plan a lesson from scratch or to make the printed packet; that is k12lessonplan."
 license: MIT
 ---
 
-# SDC slideshow (grades 9-10, science and math)
+# k12presentation (SDC grades 9-10, science and math)
 
 Builds the deck Zac teaches from: one HTML file, opened with **Open in Chrome** and projected, that
 runs the lesson. It carries real photographs, timers, talk slides whose turns chime, interactive
@@ -21,13 +21,13 @@ questions in the same words, the packet page named on every slide that asks stud
 
 Take the first of these that applies, and build from it alone:
 
-1. **sdc-lesson-planning, in this conversation**, whether it called this skill at its build step or
+1. **k12lessonplan, in this conversation**, whether it called this skill at its build step or
    Zac took up its offer of a deck afterwards. Build from what it left: `packet.json`
    (every task's exact wording, the language lines, the key words in `meta.vocab`, the lesson code,
    the minutes, the languages) and the plan it wrote into the chat (the agenda, the talk moves, the
    photographs it promised by subject, the video). Every slide comes from those. Don't re-plan,
    don't reword a question, don't add a task the packet doesn't have.
-2. **A packet sdc-lesson-planning made, in a later conversation**: the packet `.docx`, or its
+2. **A packet k12lessonplan made, in a later conversation**: the packet `.docx`, or its
    Google Doc downloaded as Word (File › Download › Microsoft Word), usually with the plan pasted
    beside it. Read it first:
 
@@ -184,6 +184,6 @@ HTML file as its code, so presenting from Drive means downloading the file and o
 Chrome. Everything a slide needs is inside the file or linked by URL, so it works from the working
 folder, a Drive download, or a USB stick; never point a slide at a local file.
 
-When sdc-lesson-planning called this skill, hand back to it quietly: it delivers the files and the
+When k12lessonplan called this skill, hand back to it quietly: it delivers the files and the
 plan together. Keep the machinery invisible either way. Say "slide deck", never "template" or
 "checker".

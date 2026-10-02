@@ -22,9 +22,9 @@ import sys
 import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SCRIPTS = os.path.join(HERE, "..", "..", "sdc-lesson-planning", "scripts")
+SCRIPTS = os.path.join(HERE, "..", "..", "k12lessonplan", "scripts")
 # the deck's checker lives with the slideshow skill once the deck is its own skill
-DECK_SCRIPTS = next((d for d in (os.path.join(HERE, "..", "..", "sdc-slideshow", "scripts"), SCRIPTS)
+DECK_SCRIPTS = next((d for d in (os.path.join(HERE, "..", "..", "k12presentation", "scripts"), SCRIPTS)
                      if os.path.exists(os.path.join(d, "check_deck.py"))), SCRIPTS)
 
 
