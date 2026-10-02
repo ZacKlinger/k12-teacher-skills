@@ -134,8 +134,16 @@ notes; they are the only thing that checks this.
 
 ## Page breaks
 
-The renderer binds each question to its hint, stems, and answer space, so a break can't split
-them. What it can't decide for you is where a *section* should start fresh. Insert
+**A prompt is never apart from its answer space.** The renderer prints each task as one piece:
+the heading and lead-ins above it (a direction, a note, a word bank, the table it reads from), the
+question, its language line, hint and starters, and everything it is answered in after it (lines,
+a starter block, a box, a `fill_table`, an organizer). Google Docs never splits that piece unless
+it is taller than a page, and `check_packet.py` tags every task and errors on any that breaks
+across a page here or would be too tall to stay whole in Docs. A task that tall becomes two tasks;
+it is never left to break. So put the answer blocks straight after their question, in order, and
+the table a question reads from straight above it.
+
+What the renderer can't decide for you is where a *section* should start fresh. Insert
 `{"type": "page_break"}` when a new phase begins and the previous one ended near the bottom, or
 when students will be working on one page while looking at a slide about another. Keep a table and
 the question that feeds it on the same page — put the break before the pair, never between them.
@@ -145,9 +153,8 @@ whole rather than splitting, which can leave the bottom of a page open. That tra
 you can usually fill it: put the phase's short directions, its word bank, or a reference table
 *after* the break instead of before it, so the short blocks land in the gap.
 
-Render the packet before delivering, convert it to PDF, and look at the pages: no page should end
-with a heading alone, no answer space should open a page without its question above it, and the
-packet should not run a page longer than the caps above.
+Render the packet before delivering and run `check_packet.py`: it proves every task printed whole
+and the packet fits its pages. Then look at the page image once for what it can't judge.
 
 ## Tiering on one page
 
@@ -159,6 +166,50 @@ Everyone gets the same packet. Push and support inside the task:
 - A `wordbank` block sits directly above the question that needs it.
 - A `note` block carries a reminder in the student's language ("Acres are a way to measure land.
   One acre is about one football field minus the end zones.").
+- `"core": false` on a question marks it as one the reduced packet leaves out (below).
+
+## Key words
+
+`meta.vocab` lists the lesson's key words, the ones on the deck's word slides, usually three to
+six. Each one prints bold on a yellow highlight **the first time it appears in each section** of
+the student packet, and plain after that, so a student meets it marked at the start of every
+section and the student scanning for it finds it. Once per section, not every time: a page where
+every third word is yellow marks nothing, and highlights on neighbouring lines run into each other
+until a word can't be read. It matches ordinary endings, so `pump` marks *pumps* and *pumped*.
+Word banks list the words in plain bold (the bank is already the list), and language lines are
+left plain. The renderer lists how often each word is used and names any key word the page never
+uses.
+
+The highlight is the one fill on the page, and it is on a word, not on structure: on the grey
+copier it comes out as a pale band behind bold type, which still reads. If copies come out muddy,
+`meta.vocab_style: "bold"` marks the words bold and underlined instead.
+
+## Reading level
+
+The renderer reads the student's English back to you on every render: a grade estimate against
+`meta.reading_level` (from the profile; default grade 5), every sentence over 20 words, and the long
+words that aren't key words. Key words count as easy, because they are being taught. Act on the
+sentences and the words, not the number: split the long sentence, swap *approximately* for
+*about*, and if a long word is really being taught, it belongs in `meta.vocab`.
+
+## The reduced packet
+
+When Zac asks for it ("the reduced version", "the modified packet", "a version for the students
+on modified assignments"), render the same `packet.json` again with `--reduced`:
+
+```bash
+python3 scripts/render_packet.py packet.json "$OUTPUT_DIR/<code> - <short title> - packet (reduced).docx" --reduced
+```
+
+It leaves out every question marked `"core": false` with its lead-ins and answer space, keeps
+only part (a) of every question, prints large, and gathers every word bank into **one, on the
+front page** under the "I can": the key words first, then whatever else the full packet banked,
+with its language line. None anywhere else; a bank beside every question is a bank a student stops
+reading. A multi-day packet gets one at the top of each day, since each day is its own handout.
+Question numbers stay the same as the full packet's, so both
+match the slides and the class can work from either. Nothing on the page says "reduced". Mark
+`core` when you write the packet, so this is one command later; check it with
+`check_packet.py ... --max-pages 4`, since large print may need the extra sheet.
 
 ## `packet.json` schema
 
@@ -166,7 +217,8 @@ Everyone gets the same packet. Push and support inside the task:
 {
   "audience": "student" | "teacher",
   "meta":   {"code", "title", "course", "day", "period", "name_line": true,
-             "languages": ["es"], "large_print": false},
+             "languages": ["es"], "large_print": false,
+             "vocab": ["reservoir", "pump"], "vocab_style": "highlight", "reading_level": 5},
   "objective": "I can …",
   "standard":  "CODE — ten-word gist",
   "agenda":  [["Do Now", 5], ["Model", 12], …],      // prints on the lesson plan only
@@ -180,7 +232,7 @@ Blocks:
 |---|---|---|
 | `heading` | `text`, `minutes?` | A phase title on the student page |
 | `phase` | `name`, `minutes` | Same thing on the lesson plan |
-| `question` | `number`, `prompt`, `es?`, `hint?`, `example?`, `stems[]?`, `parts[]?`, `choices[]?`, `space`, `minutes?` | Any task a student does |
+| `question` | `number`, `prompt`, `es?`, `hint?`, `example?`, `stems[]?`, `parts[]?`, `choices[]?`, `space`, `minutes?`, `core?` | Any task a student does |
 | `text` | `text` | A sentence of directions or context |
 | `labeled` | `label`, `text` | A short lead-in plus its line |
 | `list` / `steps` | `label?`, `items[]`, `ordered?` | Directions, procedures, materials |
@@ -192,6 +244,7 @@ Blocks:
 | `stem` | `text` | A standalone sentence frame |
 | `space` | `kind`, `count`/`height_in`/`label` | Write space not attached to a question |
 | `page_break` | — | Force a new page |
+| `day` | `code`, `day`, `period`, `title`, `es?`, `objective?`, `standard?`, `vocab[]?` | Opens one day of a multi-day packet (`references/formats.md`); every day after the first starts a new page with its own name line |
 
 `heading`, `text`, `labeled`, `note`, `list` / `steps` and `wordbank` each take an optional `es`
 as well — one short Spanish line, rendered under the block. See "The Spanish line" above.

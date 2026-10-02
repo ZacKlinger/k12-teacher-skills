@@ -4,7 +4,7 @@ Write only the slides, the `<section class="slide">` elements, into `slides.html
 `scripts/build_deck.py`, which puts them inside `assets/deck_template.html` and runs the checker.
 The chrome (navigation, countdown, day tag, packet chip, progress bar, jump menu, photo zoom)
 already works. Don't open the template's stylesheet or scripts, don't rewrite them, and don't
-position anything by hand. `references/design_criteria.md` sets the type sizes and contrast the
+position anything by hand. `references/slide_criteria.md` sets the type sizes and contrast the
 template is built to.
 
 The deck does two jobs at once. It's what Zac teaches from, and it's what a student looks up at
@@ -87,9 +87,8 @@ isn't finished. The payload is one of:
 
 ### The test every slide has to pass
 
-`references/design_method.md` carries the method behind the whole skill; two of its mindsets do
-their work here, on each slide, and they are the fastest way to tell a finished slide from an
-unfinished one.
+Two mindsets from the design method behind these lessons do their work here, on each slide, and
+they are the fastest way to tell a finished slide from an unfinished one.
 
 **Show, don't tell.** The strongest version of any slide is the one where the evidence is on screen
 and the sentence is unnecessary. Before writing a sentence, ask what could be shown instead — the
@@ -204,6 +203,8 @@ Roughly one slide per two to three minutes: a 60-minute period lands around 14-2
 | Four corners | `.corners` | The four claims with where in the room each one lives |
 | Talk slide | `.roles` + `.frames` + `data-phases` | A talk move, run by the slide: the question, each partner's job, the "Say it" stem, and a phased timer. See "Talk slides" below |
 | Vote, talk, revote | `.vote` | Hands counted before and after partners talk; the shift between the two bars is what the talk did |
+| Game round | `.game` | A fair-guess question with lettered answers: partners agree on the timer and show a letter, V reveals and explains. See "Games" below |
+| Sort it | `.sort` | Cards students come up and drag into bins; C checks every card and shows the reason. See "Games" below |
 | Pair picker | `.picker` | Calls a pair by number, never by name, after they've rehearsed. P picks |
 | What we heard | `.heard` | A board you type students' ideas into during a share-out, credited to pairs |
 | Build steps | `data-step` on any element | Holds an element back until → , so the prediction comes before the answer |
@@ -232,9 +233,9 @@ conversion on the slide.
 
 ## Talk slides
 
-Student talk is the non-negotiable in every lesson, and the deck is what runs it, so a talk slide
-does more than post a question. It carries six things, and the checker errors on a deck with no
-talk slide at all:
+Student talk is the non-negotiable in every lesson, at least two moves a period, and the deck is
+what runs it, so a talk slide does more than post a question. It carries six things. The checker
+errors on a deck with no talk slide and warns on a deck with only one:
 
 1. **The question** as the headline, with its language line under it.
 2. **The thing to talk about** — a photograph, chart, or diagram, in the `.talk` layout: the visual
@@ -251,7 +252,7 @@ talk slide at all:
 6. **Who reports** — the `.picker` on the share slide, after rehearsal. Pairs are numbered, never
    named; the file never holds a student's name.
 
-How each move in the talk catalog lands on screen:
+How each talk move (the lesson skill's talk catalog, or whatever the plan names) lands on screen:
 
 | Move | The slide carries |
 |---|---|
@@ -262,11 +263,103 @@ How each move in the talk catalog lands on screen:
 | Vote, talk, revote | `.vote`: count round 1, run a turn-and-talk, count round 2 |
 | Four corners, defend | `.corners`, then `Talk\|120; Defend\|180` and the picker per corner |
 | Stations in pairs | One slide per rotation with its own phases, or one `Station\|480` phase each |
+| Game round, sort it | `.game` or `.sort` with `data-timer` on the slide: partners agree first, then answer |
 
 Keep the slide still while students talk, and keep the visual on it: the screen is never blanked.
 Clicking a photograph opens it at full size with the slide's question under it, for close looking
 before or during the talk. **A** reads the headline and its language lines aloud in their own
 voices, for the student who can't yet read the question off the wall.
+
+## Games
+
+HTML can do what paper can't: let every guess in the room count, and let a student walk up and
+move the idea with their hands. Two game slides do that, and both are talk first: partners agree
+on the slide's timer before anyone answers, so a game round counts as one of the lesson's talk
+moves.
+
+**No teams and no points unless Zac asks for them.** The game is the guess, the talk and the
+reveal; points are an extra he turns on for a class that wants them. When he asks for teams, build
+with `--teams 3` (or names, `--teams "Pumps,Roots,Lights"`, two to six). Then one scoreboard sits
+in the footer of **every** slide, not only the game slides, and keeps the period's running total
+across every game in it: it survives a reload, starts fresh on a new day or after two hours with
+no points, and **New period** (click twice) clears it between back-to-back classes. **+** and
+**−** score anything by hand, a sort or a good answer in the share-out. Never put `data-teams` on
+a slide; the checker errors on it.
+
+**Game round** — a fair-guess question. Every option should be a fair guess, something a student
+could reason toward without already knowing the answer; a round where only the student who
+memorized it can play is a quiz.
+
+```html
+<section class="slide" data-day="Wed 10/1" data-title="Game round" data-timer="60" data-mins="4 min">
+  <header class="head"><div class="eyebrow">Game · agree with your partner, then show your letter</div></header>
+  <h2>Where should the pump sit?</h2>
+  <p class="es">¿Dónde debe ir la bomba?</p>
+  <div class="body">
+    <div class="game" data-options="Inside the reservoir|Next to the reservoir|Up on the frame"
+         data-answer="1" data-points="100"
+         data-why="A pump has to sit in the water it moves. Out of the water it runs dry and burns out."></div>
+  </div>
+</section>
+```
+
+Pairs hold up a letter. **V** reveals: the right card turns green and the reason appears. V again
+hides it, for a round you want to rerun. `data-answer` counts from 1. In a deck built with teams,
+each team's row of letters appears under the options and you click the letter a team holds up to
+lock it in (the eyebrow then says "then lock in"); the reveal gives `data-points` to every team
+that locked the right one, and hiding it takes them back.
+
+**Sort it** — cards into bins. Students come to the board and drag a card into its bin, or tap a
+card and then a bin (or another card already in that bin) on a touch screen or from the laptop.
+**C** checks: right cards go green, wrong ones go red, the count appears, and so does the reason.
+Start over puts every card back, shuffled.
+
+```html
+<div class="sort" data-bins="Needs electricity|No electricity"
+     data-items="Pump=1|Grow light=1|Reservoir=2|Net pot=2|Timer=1|Tubing=2"
+     data-why="Anything that moves water or makes light runs on electricity. The rest just holds things."></div>
+```
+
+Each card reads `Card=bin`, with bins counted from 1; three to eight cards, two or three bins.
+With teams on, score a sort by hand with the footer's **+**.
+
+Both need a real `data-why`: the reveal explains in a sentence a student could repeat to a
+partner, and never just marks an answer right. The checker reports an error for a game without one, for an answer
+or a bin number out of range, and warns on a game slide with no timer.
+
+### A whole review game
+
+A Jeopardy-style board on the projector, built from `assets/review_game_template.html`. Copy the
+template and fill the `GAME` object at the bottom — title, categories, clues. The board, scoring,
+keyboard controls, and dark and light themes are already wired; change nothing else.
+
+- **Categories** are the lesson's parts or the unit's ideas (the six parts of the system, the four
+  forces). Two to six of them.
+- **Values are rungs, not random.** 100 is a fact a student can guess from everyday life, 200 applies
+  it to our build, 300 asks why. Every question should be a *fair guess*: nobody needs to already
+  know the answer, which is what keeps the whole room in it.
+- **Each clue carries** `q` (the question), a line for each language in `GAME.languages` under its
+  code (`es`, `zh` …, the same abbreviated line as the packet), and `a`, the reveal: one or two
+  sentences of explanation a student could repeat to a partner, not a bare answer.
+- **Run it as talk.** Partners get think time and agree on a guess before a team answers. Say so in
+  the plan or the handover; it turns a game into a talk move.
+- Name it by the lesson code, `Science 1.6 - Readiness game.html`. In claude.ai, also show it as an
+  artifact so it opens straight from the chat.
+
+Before handing it over: every category has one clue per value, every clue has its language lines,
+and every reveal explains rather than only answers.
+
+## Key words
+
+`build_deck.py --packet packet.json` (or `--vocab "reservoir,pump,gallon"`) takes the packet's
+`meta.vocab` and the deck marks each of those words **once per slide**, where it first appears,
+bold with a yellow highlighter stroke, so the word a student is learning looks like the packet's.
+Once is the signal; a word marked every time it appears is noise, and a slide full of yellow
+hides the one word that's new. The stroke stays inside its own line, so marks on two lines of a
+headline never paint over each other, and on a dark slide the word turns yellow instead. Language
+lines, credits, eyebrows and the word cell of a word slide are left plain. Put `data-no-kw` on an
+element to leave it plain too. The checker warns about a key word that never appears on any
+slide: every key word gets its word slide and shows up where it is used.
 
 ## Timers
 
@@ -333,7 +426,7 @@ Run the checker first — it catches the things that have actually gone wrong be
 template placeholder text left in, base64 bloat, un-aimed crops):
 
 ```bash
-python3 scripts/check_deck.py "$OUTPUT_DIR/<topic>_deck.html" --minutes <60 or 90>
+python3 scripts/check_deck.py "$OUTPUT_DIR/<code> - <short title> - deck.html" --minutes <period> --packet packet.json
 ```
 
 `--minutes` must be the real period length: the slide bounds (14-20 / 20-28) and the photograph
@@ -349,11 +442,13 @@ one — they are judgement calls, not noise. The checker cannot see whether a ph
 - Every question and every direction has its Spanish line, and it says the same thing as the
   Spanish on that question in the packet.
 - The video is a facade with a real 11-character `data-yt`, a poster with real alt text, and the
-  plain link under it. Click it once and confirm the player actually appears.
+  plain link under it. `scripts/find_photos.py probe` on the deck confirms it plays embedded
+  and prints its title; check the title is the video you chose.
 - Dark surfaces are `--caviar`, not `--ink`.
 - Timer seconds match the packet's minutes, and the phases sum to the period.
 - Every interactive chart works: starts empty, each click does what it should, the caption lands
   at the end, and the numbers match the packet answer key.
+- Every game round's answer and every sort card's bin agree with the packet's answer key.
 - New words appear as `.vocab` slides at the moment they're first used, and the packet repeats the
   same wording.
 - The deck is a single HTML file with no sidecar folder. Photographs and the video are

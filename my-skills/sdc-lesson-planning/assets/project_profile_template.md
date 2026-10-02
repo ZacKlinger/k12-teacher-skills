@@ -1,8 +1,10 @@
 # Project profile
 
-Keep this in the course's claude.ai project knowledge (or as `project-profile.md` in the folder where
-lessons live). The lesson-planning skill reads it first so it doesn't have to ask about any of it
-again. Describe students by need, never by name.
+Keep this as `project-profile.md` in the course's working folder (or in the course's claude.ai
+project knowledge). The lesson-planning skill reads it first so it doesn't have to ask about any of
+it again. Describe students by need, never by name. Beside it the skill keeps the class notes on
+its own, in a file named exactly what the project is called (`SDC Science.md`): what works with
+this class, the words they own, the pairings that work.
 
 ## Class
 
@@ -56,11 +58,40 @@ there before the lesson is offered, not added after.
 - [ ] Preferential seating or fixed partners named in the plan (by role, not by name)
 - [ ] Other:
 
+## Universal Design (UDL)
+
+Design for the whole room, not supports for one student (those are the accommodations above).
+Tick what this class needs most. Every lesson builds in at least one ticked item from each of the
+three groups, and the plan's Differentiation line names which, so no lesson lands with only two
+strategies in it.
+
+Engagement: why it matters to them
+- [ ] A hook from our own project or room in the do-now or the opening
+- [ ] A real choice on at least one task: two contexts, or two ways to show it
+- [ ] A game round or a vote that puts every student's guess in play
+- [ ] A self-check or reflection line on the packet
+
+Representation: how the idea reaches them
+- [ ] Every key word highlighted where each section first uses it, pictured on a slide, said aloud, with its language line
+- [ ] Every number with a physical referent shown as a photo or a chart
+- [ ] A worked example on the slide before anyone works alone
+- [ ] The same idea in two forms: a picture and a sentence, or a table and a chart
+
+Action and expression: how they show it
+- [ ] An organizer matched to the thinking (compare, sequence, argue, own a word)
+- [ ] Choice of response: circle, point, say, or draw where the task allows
+- [ ] Say it to a partner before writing it or reporting it
+- [ ] Draw or build it before writing it
+
 ## Where the files live
 
 - Drive folder for this course's packets: (folder name, e.g. `Lesson Plans/SDC Science`)
 - File names: `<lesson code> - <short title> - packet.docx` and `... - deck.html`, so an upload to
   Drive needs no renaming and the next lesson can find this one by its code.
+- Into Drive: Add to Drive from the chat, with Drive's *Convert uploads* setting on, so the packet
+  becomes a Google Doc named by its code; print from that Doc
+- The deck: opened with Open in Chrome; a copy in Drive is for keeping (Drive shows an HTML file's
+  code, so download it to present from Drive)
 
 ## Current unit
 
@@ -72,8 +103,9 @@ there before the lesson is offered, not added after.
 
 ## Day map
 
-The skill ends each lesson with a ready-made row for this table. Paste it in, and add how it went
-after you teach it; the next lesson starts from that line.
+The skill adds a row for every lesson it builds (in a working folder it writes the row here itself;
+elsewhere it hands the row over to paste). Add how it went after you teach it; the next lesson
+starts from that line.
 
 | Code | Date | Focus | How it went |
 |---|---|---|---|

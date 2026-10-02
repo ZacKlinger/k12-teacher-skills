@@ -1,10 +1,10 @@
-# What a good page and a good slide are made of
+# What a good page is made of
 
-These are the output criteria for every packet and deck. They come from one room: students who read
-two to six years below grade level, several with attention, processing, or fine-motor supports,
-some reading English as a new language, and a copier that prints in grey. Each criterion says what
-it protects. The two checkers enforce what can be measured; the rest is judgment, and this is what
-the judgment is for.
+These are the output criteria for every packet. They come from one room: students who read two to
+six years below grade level, several with attention, processing, or fine-motor supports, some
+reading English as a new language, and a copier that prints in grey. Each criterion says what it
+protects. `check_packet.py` and the render report measure what can be measured; the rest is
+judgment, and this is what the judgment is for.
 
 ## The worksheet
 
@@ -44,6 +44,14 @@ The renderer draws this way; don't ask it for shading.
 - One task per numbered item. A prompt says what to do in one sentence; context, if any, is one
   sentence before it.
 - Capitals only for short labels (section names, "I CAN", "WORD BANK"), never for sentences.
+- Sentences of twenty words or fewer, and everyday words around the key words. The renderer
+  reports the reading level against the profile's (grade 5 by default), every long sentence, and
+  every long word that isn't a key word; fix the sentence, not the score.
+- **Key words are marked once, where a section first uses them**: bold on a yellow highlight, so
+  the word a student is learning is the one their eye finds. Once per section and never in a word
+  bank: a page full of yellow marks nothing, and highlights on neighbouring lines run together. It
+  is the one fill on the page, on a word rather than on structure, and it survives the grey copier
+  as a pale band behind bold type.
 
 **Writing space sized to the answer.** Writing lines are 30 points apart, wide enough for a student
 whose plan covers fine-motor needs. A sentence starter is printed on the first writing line itself,
@@ -64,47 +72,24 @@ do, and use the same one for the same kind of thinking all year, so its shape be
 | Record class data | `fill_table` |
 | Choose | `choices` on the question (circle one) |
 
-An organizer, its question, and its heading stay on one page; the renderer keeps them together.
+**A prompt and its answer space are one piece, always.** The question, its starters, its lines,
+and the table or organizer it is answered in print together, and so does the table it reads from.
+No page break ever lands between a prompt and the place a student answers it: a student who has
+to turn the page to find where to write has lost the question by the time they get there.
+`check_packet.py` tags every task and errors on any that breaks across a page or is too tall to
+stay whole in Google Docs; a task that tall is split into two tasks.
 
 **Headings are one line.** Section name, its gloss in the room's language, the minutes flush right.
 *Protects:* about a third of a page across a packet.
 
-## The slide
-
-**Something to look at, always.** Every content slide carries a photograph, a chart, or a diagram,
-and so does every talk slide: students talk best about a thing in front of them. The talk layout
-puts the visual on the left at the size of a wall and the turns on the right. The screen is never
-blanked. Click any photograph and it opens at full size with the slide's question under it, for
-close looking.
-
-**Readable from the back row.** Headlines are the largest text; everything a student reads (card
-text, directions, sentence starters, the language line) is at least about 1.6% of the screen width,
-roughly 20 pixels on a 1280-wide projector, and in ink, not grey. Grey is for chrome only:
-the eyebrow, the credit, the slide counter. Projectors wash contrast out; the template's colours are
-chosen to survive it.
-
-**One idea per slide, and nothing summarized under it.** A slide says one thing, in a headline that
-is a claim. The only line under the body is a direction students physically follow.
-
-**The same words on the wall and the page.** The question on a slide is the packet's wording, the
-sentence starter is the packet's, the packet page is named on the slide. A student looking up should
-recognize the task without re-reading it.
-
-**Predictable routines.** The same move looks the same every day: a talk slide always has the
-turns on the right and the starter at the bottom, the timer always sits top right, the packet page
-always sits in the eyebrow. Predictability is an accommodation: it frees working memory for the
-content.
-
-**Time you can see, talk you can hear.** Anything with a fixed length has a timer; every talk move
-runs on phases that chime, so the teacher can listen instead of watch the clock.
-
-**Read aloud on demand.** A reads the slide: headline, each language line in its own voice, the
-direction. For a student who can't yet read the question off the wall, the wall reads it to them.
-
 ## Cost
 
-The deck and packet are built from their content alone. The model writes the slides
-(`build_deck.py` supplies the template around them) and the packet's JSON (`render_packet.py`
-draws it), so no build reads or rewrites the 60 KB template. Pages and slides are checked as one
-image each (`check_packet.py --sheet`; one screenshot per photo slot on a contact sheet), not one
-screenshot at a time.
+The packet is built from its content alone: the model writes the packet's JSON and
+`render_packet.py` draws it, and the pages are checked as one image (`check_packet.py --sheet`), not
+page by page.
+
+## The slide
+
+The slide's criteria live with the slideshow skill (`sdc-slideshow`, `references/slide_criteria.md`).
+Two of them depend on the packet: the question on a slide is the packet's wording, and the key
+words are marked on the slides the same way they are on the page.

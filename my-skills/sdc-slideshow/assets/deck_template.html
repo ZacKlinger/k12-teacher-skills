@@ -468,6 +468,89 @@
   .photo img,.pgrid img,.vc.shot img,.talk-visual img{cursor:zoom-in}
   @media print{ .js-steps [data-step]{opacity:1 !important;visibility:visible !important} }
 
+
+  /* ===== KEY WORDS ========================================================
+     The lesson's key words (body data-vocab="reservoir|pump") are marked once
+     per slide, where each first appears, as a highlighter stroke across the
+     lower half of the word. The stroke stays inside its own line: a full
+     yellow box is taller than a tight headline's line and paints over the
+     line above it. On a dark surface the word turns yellow instead, since
+     light text on a yellow stroke can't be read. */
+  mark.kw{color:inherit;font-weight:700;padding:0 .06em;
+    background:linear-gradient(#FFE45C,#FFE45C) 0 80%/100% .62em no-repeat;
+    -webkit-box-decoration-break:clone;box-decoration-break:clone}
+  .slide.dark mark.kw{background:none;color:#FFE45C}
+
+  /* ===== GAMES ============================================================
+     A fair-guess round (.game) and a sort (.sort), both run as talk: partners
+     agree on the slide's timer before anyone answers. No teams and no points
+     unless the deck is built with teams (body data-teams); then one
+     scoreboard sits in the footer of every slide and keeps the period's
+     running total. */
+  .scoreboard{display:flex;gap:1.1em;align-items:center;flex-wrap:nowrap;text-transform:none;
+    letter-spacing:0;font-size:clamp(12px,1.2vw,18px)}
+  .scoreboard .team{display:flex;align-items:baseline;gap:.4em;padding:.2em .45em;
+    border-bottom:2px solid transparent;transition:border-color .3s,background .3s}
+  .scoreboard .team .tn{letter-spacing:.08em;text-transform:uppercase;font-weight:700;
+    color:var(--ink-2);font-size:.78em}
+  .scoreboard .team b{font-family:var(--serif);font-weight:400;font-size:1.55em;line-height:1;
+    min-width:2.2ch;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+  .scoreboard button{font:inherit;font-size:.72em;width:1.6em;height:1.6em;align-self:center;
+    border-radius:50%;border:1px solid var(--rule);background:transparent;color:var(--muted);
+    cursor:pointer;line-height:1;opacity:.7}
+  .scoreboard button:hover{opacity:1;color:var(--accent-deep)}
+  .scoreboard .sreset{width:auto;border-radius:0;padding:0 .7em;letter-spacing:.08em;
+    text-transform:uppercase;font-size:.62em}
+  .scoreboard .team.up{border-bottom-color:var(--mint-deep);background:#E3F3EB}
+  body.on-dark .scoreboard .team .tn{color:#C9CDD3}
+  body.on-dark .scoreboard .team b{color:#F7F8FA}
+  body.on-dark .scoreboard button{border-color:var(--caviar-line);color:#9AA1A9}
+  body.on-dark .scoreboard .team.up{background:var(--caviar-soft)}
+
+  .game{width:100%}
+  .game .opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(11em,1fr));gap:1.1vw}
+  .game .opt{background:var(--paper);border-top:3px solid var(--rule);padding:2.2vh 1.1em;
+    display:flex;gap:.7em;align-items:baseline;transition:opacity .35s,background .35s,border-color .35s}
+  .game .opt .L{font-family:var(--serif);font-size:clamp(30px,3.6vw,56px);line-height:1;
+    color:var(--accent-deep);min-width:1ch}
+  .game .opt .t{font-family:var(--serif);font-size:clamp(19px,2.1vw,32px);line-height:1.22;color:var(--ink)}
+  .game.revealed .opt{opacity:.32}
+  .game.revealed .opt.right{opacity:1;background:#E3F3EB;border-top-color:var(--mint-deep)}
+  .game.revealed .opt.right .L{color:var(--mint-deep)}
+  .game .lock{display:flex;flex-wrap:wrap;gap:.5em 1.6em;margin-top:2vh;font-size:clamp(12px,1.2vw,17px)}
+  .game .lock .lt{display:flex;align-items:center;gap:.35em}
+  .game .lock .lt span{letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;
+    font-size:.8em;margin-right:.2em}
+  .game .lock button,.game .gctl button,.sort .sctl button{font:inherit;cursor:pointer;
+    border:1px solid var(--rule);background:var(--bg);color:var(--ink-2)}
+  .game .lock button{width:2.1em;height:2.1em;font-weight:700}
+  .game .lock button.on{background:var(--accent-deep);border-color:var(--accent-deep);color:#fff}
+  .game.revealed .lock button.on.hit{background:var(--mint-deep);border-color:var(--mint-deep)}
+  .game .gctl,.sort .sctl{display:flex;gap:.6em;align-items:center;margin-top:2vh;flex-wrap:wrap}
+  .game .gctl button,.sort .sctl button{font-size:clamp(11px,1.05vw,15px);letter-spacing:.1em;
+    text-transform:uppercase;padding:.55em 1.1em}
+  .game .why,.sort .why{display:none;font-family:var(--serif);font-size:clamp(18px,1.9vw,28px);
+    line-height:1.3;color:var(--ink);border-left:3px solid var(--mint-deep);padding:.2em 0 .2em .8em}
+  .game.revealed .why,.sort.checked .why{display:block}
+
+  .sort{width:100%;user-select:none;-webkit-user-select:none}
+  .sort .tray{display:flex;flex-wrap:wrap;gap:.6em;min-height:3.4em;padding:1vh .4em;
+    background:var(--paper);margin-bottom:1.6vh}
+  .sort .bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(12em,1fr));gap:1.1vw}
+  .sort .bin{border:2px dashed var(--rule);min-height:20vh;padding:1vh .6em;display:flex;
+    flex-direction:column;gap:.5em;transition:border-color .2s,background .2s}
+  .sort .bin.over{border-color:var(--accent-deep);background:var(--accent-soft)}
+  .sort .bin .bn{letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink-2);
+    font-size:clamp(12px,1.2vw,17px)}
+  .sort .card{font-family:var(--serif);font-size:clamp(18px,1.9vw,28px);line-height:1.15;
+    background:var(--bg);border:1px solid var(--rule);border-top:3px solid var(--accent);
+    padding:.45em .8em;cursor:grab;touch-action:none;transition:border-color .25s,background .25s}
+  .sort .card.sel{border-top-color:var(--accent-deep);background:var(--accent-soft)}
+  .sort .card.drag{cursor:grabbing;position:relative;z-index:30;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+  .sort.checked .card.ok{border-top-color:var(--mint-deep);background:#E3F3EB}
+  .sort.checked .card.no{border-top-color:var(--peach-deep);background:#FBE7E2}
+  .sort .tally{font-size:clamp(13px,1.3vw,19px);color:var(--ink-2)}
+  @media print{ .game .opt{opacity:1 !important} .sort .why,.game .why{display:block} }
 </style>
 
 <!-- ===== CHART KIT =======================================================
@@ -818,6 +901,38 @@
     </div>
   </section>
 
+  <!-- ============ GAME: FAIR GUESS =========================================
+       Partners agree on the timer and hold up their letter, then V reveals.
+       data-answer counts from 1. The reveal explains, it doesn't just mark.
+       Only in a deck built with teams (body data-teams) does each team lock
+       in a letter; a team that locked the right one scores data-points on
+       its own, and the footer's + and - fix anything by hand. -->
+  <section class="slide" data-day="Day 1" data-title="Game round" data-timer="60" data-mins="4 min">
+    <header class="head"><div class="eyebrow">Game · agree with your partner, then show your letter</div></header>
+    <h2>Where should the pump sit?</h2>
+    <p class="es">¿Dónde debe ir la bomba?</p>
+    <div class="body">
+      <div class="game" data-options="Inside the reservoir|Next to the reservoir|Up on the frame"
+           data-answer="1" data-points="100"
+           data-why="A pump has to sit in the water it moves. Out of the water it runs dry and burns out."></div>
+    </div>
+  </section>
+
+  <!-- ============ GAME: SORT IT ============================================
+       Students come up and drag each card into a bin (or tap a card, then a
+       bin). C checks: right cards go green, the rest go red, and the reason
+       appears. data-items reads "card=bin number"; bins count from 1. -->
+  <section class="slide" data-day="Day 1" data-title="Sort it" data-timer="120" data-mins="5 min">
+    <header class="head"><div class="eyebrow">Game · come up and sort it</div></header>
+    <h2>Which parts need electricity?</h2>
+    <p class="es">¿Qué partes necesitan electricidad?</p>
+    <div class="body">
+      <div class="sort" data-bins="Needs electricity|No electricity"
+           data-items="Pump=1|Grow light=1|Reservoir=2|Net pot=2|Timer=1|Tubing=2"
+           data-why="Anything that moves water or makes light runs on electricity. The rest just holds things."></div>
+    </div>
+  </section>
+
   <!-- ============ CHECKPOINT — the one sparse slide type ================== -->
   <section class="slide dark" data-day="Day 1" data-title="Checkpoint" data-timer="120" data-mins="2 min">
     <header class="head"><div class="eyebrow">Stop and think · nothing written down</div></header>
@@ -984,6 +1099,7 @@
     s.classList.add('on');
     counter.textContent = (idx + 1) + ' / ' + slides.length;
     dayTag.textContent = s.getAttribute('data-day') || '';
+    document.body.classList.toggle('on-dark', s.classList.contains('dark'));
     progress.style.width = ((idx + 1) / slides.length * 100) + '%';
     loadTimer(s);
   }
@@ -1447,6 +1563,246 @@
     try { ta.value = localStorage.getItem(key) || ''; } catch (err) {}
     ta.addEventListener('input', function(){ try { localStorage.setItem(key, ta.value); } catch (err) {} });
     h.appendChild(ta);
+  });
+})();
+</script>
+
+<!-- Key words and games. Key words come from body data-vocab and are marked once
+     per slide, where each first appears, never in a language line. Teams come from
+     body data-teams, only when the deck was built with them; their scores live in
+     this computer's storage, keyed by the deck's title. -->
+<script>
+(function(){
+  function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls;
+    if (text != null) e.textContent = text; return e; }
+  function list(v){ return (v || '').split('|').map(function(x){ return x.trim(); }).filter(Boolean); }
+  function slideOf(node){ return node.closest('.slide'); }
+  function current(sel){ var s = document.querySelector('.slide.on'); return s && s.querySelector(sel); }
+
+  // ---------- key words: each one marked once per slide, where it first appears
+  var words = list(document.body.getAttribute('data-vocab'));
+  if (words.length) {
+    var alts = words.sort(function(a, b){ return b.length - a.length; }).map(function(w){
+      return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+'); }).join('|');
+    var re = new RegExp('(^|[^\\w-])((' + alts + ')(?:s|es|ed|ing)?)(?![\\w-])', 'gi');
+    var skip = 'script,style,svg,textarea,button,input,mark,.es,.cred,.eyebrow,.vfacade,.zoom,' +
+               '.vc.word,[data-no-kw]';
+    Array.prototype.forEach.call(document.querySelectorAll('.slide'), function(slide){
+      var seen = {}, walker = document.createTreeWalker(slide, NodeFilter.SHOW_TEXT, null), nodes = [], n;
+      while ((n = walker.nextNode())) {
+        if (n.nodeValue.trim() && !(n.parentElement && n.parentElement.closest(skip))) nodes.push(n);
+      }
+      nodes.forEach(function(node){
+        var text = node.nodeValue, frag = null, last = 0, m;
+        re.lastIndex = 0;
+        while ((m = re.exec(text))) {
+          var key = m[3].toLowerCase().replace(/\s+/g, ' ');
+          if (seen[key]) continue;
+          seen[key] = true;
+          frag = frag || document.createDocumentFragment();
+          var start = m.index + m[1].length;
+          frag.appendChild(document.createTextNode(text.slice(last, start)));
+          frag.appendChild(el('mark', 'kw', m[2]));
+          last = start + m[2].length;
+        }
+        if (!frag) return;
+        frag.appendChild(document.createTextNode(text.slice(last)));
+        node.parentNode.replaceChild(frag, node);
+      });
+    });
+  }
+
+  // ---------- teams: only in a deck built with them (body data-teams). Then one
+  // scoreboard sits in the footer of every slide and keeps the period's running
+  // total: it survives a reload, starts fresh on a new day or after two hours with
+  // no points, and "New period" clears it by hand between back-to-back classes.
+  var teams = list(document.body.getAttribute('data-teams')).slice(0, 6);
+  var scores = teams.map(function(){ return 0; });
+  var store = 'teams:' + (document.title || location.pathname);
+  var QUIET = 2 * 60 * 60 * 1000;
+  function today(){ var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+  if (teams.length) {
+    try { var saved = JSON.parse(localStorage.getItem(store) || 'null');
+      if (saved && saved.teams && saved.teams.join('|') === teams.join('|') && saved.day === today()
+          && Date.now() - (saved.at || 0) < QUIET) scores = saved.scores; } catch (e) {}
+  }
+  function save(){ try { localStorage.setItem(store, JSON.stringify(
+    {teams: teams, scores: scores, day: today(), at: Date.now()})); } catch (e) {} }
+  var board = [];
+  function paint(flash){
+    board.forEach(function(t, i){
+      t.n.textContent = scores[i];
+      if (flash && flash.indexOf(i) >= 0) { t.box.classList.add('up');
+        setTimeout(function(){ t.box.classList.remove('up'); }, 1400); }
+    });
+  }
+  function award(i, pts){ scores[i] = Math.max(0, scores[i] + pts); save(); paint(pts > 0 ? [i] : []); }
+  function step(){ var g = current('.game, .sort'); return parseInt(g && g.getAttribute('data-points'), 10) || 100; }
+  if (teams.length) {
+    var bar = el('div', 'scoreboard');
+    bar.setAttribute('aria-label', 'Team scores for this period');
+    teams.forEach(function(name, i){
+      var box = el('div', 'team'), num = el('b', '', '0');
+      var minus = el('button', '', '−'), plus = el('button', '', '+');
+      minus.type = plus.type = 'button';
+      minus.setAttribute('aria-label', 'Take points from ' + name);
+      plus.setAttribute('aria-label', 'Give points to ' + name);
+      minus.addEventListener('click', function(e){ e.stopPropagation(); award(i, -step()); });
+      plus.addEventListener('click', function(e){ e.stopPropagation(); award(i, step()); });
+      box.appendChild(el('span', 'tn', name)); box.appendChild(num); box.appendChild(minus); box.appendChild(plus);
+      bar.appendChild(box); board.push({box: box, n: num});
+    });
+    var reset = el('button', 'sreset', 'New period'), armed = false;
+    reset.type = 'button';
+    reset.addEventListener('click', function(e){
+      e.stopPropagation();
+      if (!armed) { armed = true; reset.textContent = 'Click again: all to 0';
+        setTimeout(function(){ armed = false; reset.textContent = 'New period'; }, 2500); return; }
+      scores = teams.map(function(){ return 0; }); save(); paint(); armed = false; reset.textContent = 'New period';
+    });
+    bar.appendChild(reset);
+    var foot = document.querySelector('.footer'), hintEl = foot && foot.querySelector('.hint');
+    if (hintEl) foot.replaceChild(bar, hintEl); else if (foot) foot.insertBefore(bar, foot.lastElementChild);
+    paint();   // the period's scores, kept from before a reload
+  }
+
+  // ---------- fair guess: data-options, data-answer (from 1), data-why, data-points
+  var LETTERS = 'ABCDEF';
+  Array.prototype.forEach.call(document.querySelectorAll('.game'), function(g){
+    var opts = list(g.getAttribute('data-options')).slice(0, 6);
+    var answer = (parseInt(g.getAttribute('data-answer'), 10) || 1) - 1;
+    var pts = parseInt(g.getAttribute('data-points'), 10) || 100;
+    var locked = teams.map(function(){ return -1; }), awarded = [], lockBtns = [];
+    var grid = el('div', 'opts');
+    opts.forEach(function(o, i){
+      var c = el('div', 'opt' + (i === answer ? ' right' : ''));
+      c.appendChild(el('span', 'L', LETTERS[i])); c.appendChild(el('span', 't', o));
+      grid.appendChild(c);
+    });
+    g.appendChild(grid);
+    if (teams.length) {
+      var lock = el('div', 'lock');
+      teams.forEach(function(name, t){
+        var row = el('div', 'lt'); row.appendChild(el('span', '', name));
+        lockBtns[t] = opts.map(function(_, i){
+          var b = el('button', '', LETTERS[i]); b.type = 'button';
+          b.setAttribute('aria-label', name + ' locks in ' + LETTERS[i]);
+          b.addEventListener('click', function(e){
+            e.stopPropagation();
+            if (g.classList.contains('revealed')) return;
+            locked[t] = locked[t] === i ? -1 : i;
+            lockBtns[t].forEach(function(x, k){ x.classList.toggle('on', k === locked[t]); });
+          });
+          row.appendChild(b); return b;
+        });
+        lock.appendChild(row);
+      });
+      g.appendChild(lock);
+    }
+    var ctl = el('div', 'gctl'), btn = el('button', '', 'Reveal (V)');
+    btn.type = 'button';
+    ctl.appendChild(btn);
+    g.appendChild(ctl);
+    g.appendChild(el('div', 'why', g.getAttribute('data-why') || ''));
+    function reveal(){
+      var open = !g.classList.contains('revealed');
+      g.classList.toggle('revealed', open);
+      btn.textContent = open ? 'Hide answer (V)' : 'Reveal (V)';
+      if (!teams.length) return;
+      if (open) {
+        awarded = [];
+        locked.forEach(function(k, t){ if (k === answer) { awarded.push(t); scores[t] += pts;
+          lockBtns[t][k].classList.add('hit'); } });
+        if (awarded.length) { save(); paint(awarded); }
+      } else {
+        awarded.forEach(function(t){ scores[t] = Math.max(0, scores[t] - pts); });
+        lockBtns.forEach(function(r){ r.forEach(function(b){ b.classList.remove('hit'); }); });
+        if (awarded.length) { save(); paint(); }
+        awarded = [];
+      }
+    }
+    btn.addEventListener('click', function(e){ e.stopPropagation(); reveal(); });
+    g.reveal = reveal;
+  });
+
+  // ---------- sort: data-bins, data-items "card=bin" (bins from 1), data-why
+  Array.prototype.forEach.call(document.querySelectorAll('.sort'), function(srt){
+    var bins = list(srt.getAttribute('data-bins'));
+    var items = list(srt.getAttribute('data-items')).map(function(x){
+      var k = x.lastIndexOf('='); return {label: x.slice(0, k).trim(), bin: parseInt(x.slice(k + 1), 10) - 1}; });
+    var tray = el('div', 'tray'), binWrap = el('div', 'bins'), zones = [], selected = null;
+    // shuffle so the order on the screen gives nothing away
+    var order = items.map(function(_, i){ return i; });
+    for (var i = order.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1));
+      var t = order[i]; order[i] = order[j]; order[j] = t; }
+    bins.forEach(function(name, b){
+      var z = el('div', 'bin'); z.appendChild(el('div', 'bn', name)); z.binIndex = b;
+      z.addEventListener('click', function(){ if (selected) { place(selected, z); select(null); } });
+      binWrap.appendChild(z); zones.push(z);
+    });
+    var cards = order.map(function(i){
+      var c = el('div', 'card', items[i].label); c.item = items[i]; tray.appendChild(c); return c; });
+    tray.addEventListener('click', function(e){ if (selected && e.target === tray) { place(selected, tray); select(null); } });
+    function select(c){ cards.forEach(function(x){ x.classList.toggle('sel', x === c); }); selected = c; }
+    function place(c, where){ where.appendChild(c); srt.classList.remove('checked'); tally.textContent = ''; }
+    cards.forEach(function(c){
+      var sx, sy, moved = false, dragging = false;
+      c.addEventListener('pointerdown', function(e){
+        sx = e.clientX; sy = e.clientY; moved = false; dragging = true;
+        c.setPointerCapture(e.pointerId); c.classList.add('drag');
+      });
+      c.addEventListener('pointermove', function(e){
+        if (!dragging) return;
+        var dx = e.clientX - sx, dy = e.clientY - sy;
+        if (Math.abs(dx) + Math.abs(dy) > 6) moved = true;
+        c.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+        zones.forEach(function(z){ var r = z.getBoundingClientRect();
+          z.classList.toggle('over', e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom); });
+      });
+      c.addEventListener('pointerup', function(e){
+        if (!dragging) return;
+        dragging = false; c.classList.remove('drag'); c.style.transform = '';
+        zones.forEach(function(z){ z.classList.remove('over'); });
+        if (!moved) {
+          // a card already chosen goes where the next tap lands, even onto a card
+          if (selected && selected !== c) { place(selected, c.parentNode); select(null); }
+          else select(selected === c ? null : c);
+          return;
+        }
+        var target = null;
+        zones.concat([tray]).forEach(function(z){ var r = z.getBoundingClientRect();
+          if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) target = z; });
+        if (target) place(c, target);
+        select(null);
+      });
+      c.addEventListener('click', function(e){ e.stopPropagation(); });
+    });
+    var ctl = el('div', 'sctl'), check = el('button', '', 'Check (C)'), again = el('button', '', 'Start over');
+    check.type = again.type = 'button';
+    var tally = el('span', 'tally');
+    ctl.appendChild(check); ctl.appendChild(again); ctl.appendChild(tally);
+    var why = el('div', 'why', srt.getAttribute('data-why') || '');
+    function run(){
+      var right = 0;
+      cards.forEach(function(c){
+        var z = c.parentNode, ok = z.binIndex === c.item.bin;
+        c.classList.toggle('ok', ok); c.classList.toggle('no', !ok); if (ok) right++; });
+      srt.classList.add('checked');
+      tally.textContent = right + ' of ' + cards.length + ' in the right place';
+    }
+    check.addEventListener('click', function(e){ e.stopPropagation(); run(); });
+    again.addEventListener('click', function(e){ e.stopPropagation();
+      cards.forEach(function(c){ tray.appendChild(c); c.classList.remove('ok', 'no'); });
+      srt.classList.remove('checked'); tally.textContent = ''; select(null); });
+    srt.appendChild(tray); srt.appendChild(binWrap); srt.appendChild(ctl); srt.appendChild(why);
+    srt.check = run;
+  });
+
+  document.addEventListener('keydown', function(e){
+    var t = e.target.tagName;
+    if (t === 'INPUT' || t === 'TEXTAREA' || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === 'v' || e.key === 'V') { var g = current('.game'); if (g && g.reveal) g.reveal(); }
+    if (e.key === 'c' || e.key === 'C') { var s = current('.sort'); if (s && s.check) s.check(); }
   });
 })();
 </script>

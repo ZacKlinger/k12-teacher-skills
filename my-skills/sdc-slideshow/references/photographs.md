@@ -38,9 +38,9 @@ The frame test is the whole trick. Written first, it is a specification. Written
 a nice-looking picture, it becomes a justification for the picture you already like — which is how
 a wide, pretty, generic greenhouse shot ends up on a slide about roots.
 
-This is the *focus* half of the flare-and-focus move in `references/design_method.md`: §4 tells you
-to pull 8-12 candidates precisely so that §6 has something to reject, and the frame test is the
-criterion that makes rejecting possible. Converging on the first plausible photo is the single most
+This is the *focus* half of flare and focus (generate wide, then judge hard): §4 pulls 8-12
+candidates precisely so that §6 has something to reject, and the frame test is the criterion that
+makes rejecting possible. Converging on the first plausible photo is the single most
 common way a deck ends up with pictures near the topic instead of pictures arguing for the lesson.
 
 Then search using the *frame test's* nouns, not the topic's: `lettuce roots net pot bare` beats
@@ -81,14 +81,22 @@ one, and only search when none does.
 1. **The unit photo library, kept by the skill.** A semester unit comes back to the same subjects
    every week (the frame, roots, a pump, a channel). Every photo that passes §6 goes into
    `photo-library.md` in the working folder, which the skill writes and reads itself: claim, file
-   name, `--focus`, credit, alt text, one row each. The next lesson reads the table before it
-   searches. Zero screenshots for a subject already found, and the class sees the same pump on
-   Friday that it saw on Monday, which is a feature: recognition is cheap for a reader.
-   **Never ask Zac for photographs.** Sourcing them is the skill's job, every time.
-2. **Wikimedia Commons**, searched once per slot and judged on a contact sheet (§4). Free to use
-   with a credit line, doesn't block hotlinking, and holds real photography for nearly every
-   science and applied-math topic. Federal public-domain collections are the next stop: NASA
-   (`images-assets.nasa.gov`), USDA, NOAA, USGS, NIH.
+   name, `--focus`, credit, alt text, one row each (`find_photos.py pick --library` writes the row).
+   The next lesson reads the table before it searches. Zero searching for a subject already found,
+   and the class sees the same pump on Friday that it saw on Monday, which is a feature:
+   recognition is cheap for a reader.
+2. **Wikimedia Commons**, searched by `scripts/find_photos.py` (§4). Free to use with a credit
+   line, doesn't block hotlinking, and holds real photography for nearly every science and
+   applied-math topic, including most of what NASA, USDA, NOAA, USGS and NIH have released into
+   the public domain, so one search reaches those collections too.
+
+**Photographs never depend on Zac.** Never ask him for one, never wait on an upload, and never
+build a slot around a picture of the class: sourcing them is the skill's job, every time. A deck
+that needs a photograph from him is a deck that isn't ready on the morning he opens it.
+
+**Never open a browser tab to find, judge, or test a photograph.** Not Claude in Chrome, not a
+built-in browser. The script does all three from the sandbox, and it costs one image per slot
+instead of a screenshot per candidate.
 
 **Never** pull an image from a Google Images result page, a stock site, a news article, a blog, a
 Pinterest pin, or a district website. Those URLs are licensed, unstable, or hotlink-blocked, and
@@ -97,65 +105,61 @@ Pexels) are beautiful and wrong for this: they show the idea of hydroponics, not
 proves the claim.
 
 **Link photographs by URL.** An earlier build inlined all ten and produced a 1.9 MB file that was
-slow to open in front of a class.
+slow to open in front of a class. A linked photograph also survives the trip through Drive: the
+deck is one file that looks the same on any computer with a connection.
 
 ---
 
-## 4. Finding candidates: one search, one contact sheet
+## 4. Finding candidates: one command, one image per slot
 
-### Chrome connected (preferred)
+Write every slot's brief first (§1), then search them all at once with the frame test's nouns:
 
-For each slot, run one script from any open page. It queries Commons, drops scans and small files,
-and lays the candidates out as a numbered grid, so **one screenshot judges all of them** (and every
-tile that shows a photo has also passed the load probe):
-
-```js
-const q = 'lettuce roots net pot bare filetype:bitmap';   // the frame test's nouns
-const api = 'https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*'
-  + '&generator=search&gsrnamespace=6&gsrlimit=16&prop=imageinfo&iiprop=size|extmetadata'
-  + '&gsrsearch=' + encodeURIComponent(q);
-const pages = Object.values((await fetch(api).then(r => r.json())).query.pages)
-  .filter(p => /\.(jpe?g|png|webp)$/i.test(p.title) && p.imageinfo[0].width >= 1000)
-  .slice(0, 12);
-document.body.innerHTML = '<div id="cs" style="display:grid;grid-template-columns:repeat(4,1fr);'
-  + 'gap:6px;background:#222;padding:6px"></div>';
-pages.forEach((p, i) => {
-  const f = p.title.replace('File:', ''), m = p.imageinfo[0].extmetadata;
-  const src = 'https://commons.wikimedia.org/wiki/Special:FilePath/' + encodeURIComponent(f) + '?width=400';
-  cs.insertAdjacentHTML('beforeend', '<figure style="margin:0;background:#fff">'
-    + '<img src="' + src + '" style="width:100%;height:170px;object-fit:cover">'
-    + '<figcaption style="font:13px sans-serif;padding:3px 5px">#' + (i + 1) + ' · '
-    + (m.LicenseShortName ? m.LicenseShortName.value : '?') + ' · ' + p.imageinfo[0].width
-    + 'px</figcaption></figure>');
-});
-pages.map((p, i) => '#' + (i + 1) + ' ' + p.title.replace('File:', '')).join('\n');
+```bash
+python3 scripts/find_photos.py search --out photo-candidates \
+  --slot roots "lettuce roots net pot bare" \
+  --slot pump  "submersible water pump bucket" \
+  --slot scale "shipping container farm interior"
 ```
 
-Wait two seconds, take **one** screenshot, and judge the grid against the frame test (§6). The
-script returns the numbered file names, so the pick goes straight into §5. If nothing passes,
-change the search nouns and run it again; that is still two screenshots, not twenty.
+For each slot it runs one Commons query, drops scans, PDFs, files under 1000px and panoramas, and
+writes `photo-candidates/<slot>.png`: up to twelve candidates, numbered, each shown **whole**, never
+cropped, so you see where the subject sits in the frame. A faint grid at 25, 50 and 75 percent lets
+you read `--focus` straight off the tile. The list it prints carries each file's size, license,
+author, and its own description, which often settles what a thumbnail can't.
 
-Keep `filetype:bitmap` in the query: Commons indexes scanned books and PDFs in the same namespace,
-and without it a real search for `classroom projector screen students` came back with seven PDFs
-and one photograph. Return file names only, never the API's `thumburl`: the tool blocks output
-containing query strings and you lose the whole result.
+Look at each sheet once and judge it against the frame test (§6). Then take the winner:
 
-**A crop still needs its own look.** The contact sheet shows candidates center-cropped; a photo in
-`.pgrid`, `.vc.shot`, `.photo.fill` or `.talk-visual` is cropped again by the slide. Check those
-slides once at projection size (§6, last paragraph), not every candidate.
+```bash
+python3 scripts/find_photos.py pick photo-candidates roots 3 --focus "30% 25%" --pattern pgrid \
+  --library photo-library.md --claim "Lettuce roots can grow with no soil." \
+  --alt "White lettuce roots hang from a black net pot into clear water."
+```
 
-### Chrome not connected
+`--pattern` is the slide pattern the photo goes into (`photo`, `fill`, `pgrid`, `talk`, `vocab`,
+`pinned`; §9). `pick` prints the `src`, the `--focus`, and the credit line to paste, load-tests that
+exact URL, and, for a pattern that crops, writes `photo-candidates/<slot>-pick.png`: the whole photo
+with the focus marked, beside the crop the slide will make on the narrowest and the widest screen
+it meets. Look at it once. If the subject loses its head in either crop, move `--focus` and pick
+again; if no focus saves it, take the next candidate.
 
-Use `WebSearch` with `allowed_domains: ["commons.wikimedia.org"]` and the frame test's nouns. The
-results come back as real `File:` page URLs; the file name is everything after `File:`,
-percent-decoded.
+If a whole sheet fails the frame test, change the nouns and search that one slot again; the new
+search replaces only that slot's candidates. That is two images, not twenty screenshots.
 
-You cannot render the image on this path, so you cannot run §6 as written. Lean harder on what you
-*can* read: the file name and the file description page usually say whether a shot is a close-up or
-a wide establishing view, and Commons categories (`Category:Hydroponics`) are curated better than
-search results. Prefer file names that describe a single subject over ones that describe a place.
-Then say once in the handover that the photographs are unverified, and note that the deck degrades
-a blocked photo to a labeled card rather than a broken icon.
+### When the sandbox can't reach Commons
+
+The script says so and exits 2. It needs network access to `commons.wikimedia.org` and
+`upload.wikimedia.org`, which is a setting on Claude's side (Settings, Capabilities, code
+execution's network access), not something to work around. Mention that setting once in the
+handover so it gets switched on, and build this deck the slower way:
+
+Search the web restricted to `commons.wikimedia.org` with the frame test's nouns. The results come
+back as real `File:` page URLs; the file name is everything after `File:`, percent-decoded. Read
+the file page of the three or four likeliest: the description, the size, and the categories
+usually say whether a shot is a close-up or a wide establishing view, and files in
+`Category:Quality images` are reliably single-subject and sharp. Prefer file names that describe a
+single subject over ones that describe a place. You can't see these photographs, so say once in the
+handover that they are unverified, and note that the deck degrades a blocked photo to a labeled
+card rather than a broken icon. Still no browser tab, and still nothing asked of Zac.
 
 ---
 
@@ -207,23 +211,20 @@ alone — which is the argument for looking at every candidate. If the whole lis
 not the frame test's; re-read the brief and search again. Only after two honest attempts should you
 loosen the claim, and say so in the handover if you do.
 
-Then confirm they load:
+Then confirm they load. `pick` already load-tested each photograph's exact URL; once the deck is
+built, test them all together, along with the video:
 
-```js
-const test = u => new Promise(res => {
-  const i = new Image();
-  const t = setTimeout(() => res('timeout'), 12000);
-  i.onload  = () => { clearTimeout(t); res('ok ' + i.naturalWidth + 'x' + i.naturalHeight); };
-  i.onerror = () => { clearTimeout(t); res('FAIL'); };
-  i.src = u;
-});
+```bash
+python3 scripts/find_photos.py probe "<code> - <short title> - deck.html"
 ```
 
 Anything that isn't `ok` gets replaced with another candidate — not shipped and not explained away.
+For the video, `probe` asks YouTube whether it will play inside the deck and prints its title, so a
+video whose owner turned embedding off is caught here instead of in front of the class.
 
-Last, open the finished deck and **look at the photo slides as slides**, at the size they'll be
-projected. A photo that was fine as a thumbnail can be badly cropped inside `.pgrid`; that is what
-`--focus` is for, and you can only see it here.
+The crop preview from `pick` is the look at the photo as a slide. A photo that was fine as a
+thumbnail can be badly cropped inside `.pgrid`; that is what `--focus` is for, and the preview is
+where you see it.
 
 ---
 
@@ -234,7 +235,8 @@ crop at 50% 50%. A subject that isn't dead centre gets cut — this is the style
 misframing, not the photo being bad.
 
 Set `--focus` on the `<figure>` (or the cropping element) as `x% y%`, naming the point that must
-survive the crop:
+survive the crop. Read it off the contact sheet's grid: a subject centred a third of the way across
+and a quarter of the way down is `30% 25%`.
 
 ```html
 <figure style="--focus:30% 25%">   <!-- subject sits upper-left -->

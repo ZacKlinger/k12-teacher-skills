@@ -41,18 +41,20 @@ Discuss 12 · Media + debrief 10 · Work block 2 15 · Closing 10.
 **Science** follows its own order, with the investigation ahead of the explanation. The blocks are
 in "Science days" below.
 
-The **Discuss** block is at least 10 minutes and it belongs to the students: most of its minutes
-are students talking to each other, not answering you one at a time. See "Student talk".
+The **Discuss** block belongs to the students: most of its minutes are students talking to each
+other about the hardest case, not answering you one at a time. It has no minimum length; what it
+must have is a named talk move. See "Student talk".
 
 Nobody in this room sits productively for 90 minutes. On a block day, at least one of the talk
 moves should get students out of their seats (the catalog marks which ones do).
 
 ## Non-negotiables in every lesson
 
-**Student talk.** Every lesson has student-to-student talk, named and planned. A 60-minute period
-has the Discuss block plus at least one short talk move inside another block; a 90-minute block has
-two talk moments of five minutes or more. Pick each move from the catalog below and name it in both
-the plan and the deck. The talk carries content: every move has a question worth talking about, a
+**Student talk.** Every lesson has **at least two** moments of student-to-student talk, named and
+planned, whatever the period's length: one in the main work or Discuss block, and one anywhere else
+(the do-now debrief, after the video, rehearsing the closing). A block day usually earns three.
+What counts is the move, not the minutes: two minutes of built talk beats a long block of drifting.
+Pick each move from the catalog below and name it in both the plan and the deck. The talk carries content: every move has a question worth talking about, a
 sentence stem for the first speaker, and a job for the listener. In this room talk has to be
 built, not hoped for:
 

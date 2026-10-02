@@ -1,19 +1,23 @@
 ---
 name: "sdc-lesson-planning"
-description: "Plans a class session for Zac's SDC (special day class) grades 9-10 science and math, then delivers a student packet as an editable Word document and an HTML slide deck with real photographs, timers, interactive charts, and embedded videos, with the lesson plan written straight into the chat. Load this skill BEFORE asking any clarifying question about the lesson. Use it whenever Zac is planning what to teach: explicit asks (\"plan tomorrow's lesson\", \"Science 1.7\", \"Day 4 of the hydroponics unit\") and implicit ones (\"I'm teaching surface area Thursday\", \"need something for period 3 tomorrow\"). Also use it for just a packet, just slides, or just an agenda, and for a viewing guide for a film or video, or a review game such as a Jeopardy board. It builds one session at a time. Do NOT use it for grading, rubrics, IEP paperwork, parent emails, or standards lookups; answer those directly."
+description: "Plans a class session for Zac's SDC (special day class) grades 9-10 science and math, then delivers a student packet built to print from Google Docs and, through the sdc-slideshow skill, an HTML slide deck with real photographs, timers, interactive charts, games, and embedded videos, with the lesson plan written straight into the chat. Load this skill BEFORE asking any clarifying question about the lesson. Use it whenever Zac is planning what to teach: explicit asks (\"plan tomorrow's lesson\", \"Science 1.7\", \"Day 4 of the hydroponics unit\") and implicit ones (\"I'm teaching surface area Thursday\", \"need something for period 3 tomorrow\"). Also use it for just a packet, just slides, or just an agenda, a viewing guide, a review game such as a Jeopardy board, or a multi-day lesson when he asks for more than one day. One session at a time unless asked. Do NOT use it for grading, rubrics, IEP paperwork, parent emails, or standards lookups; answer those directly."
 license: MIT
 ---
 
 # SDC lesson planning (grades 9-10, science and math)
 
-Builds one class session at a time for a self-contained special day class. Zac is the teacher —
-"you" in these instructions, never a third party. Two files, plus the plan in chat:
+Builds one class session at a time for a self-contained special day class, and more than one only
+when Zac asks for more than one day. Zac is the teacher — "you" in these instructions, never a
+third party. Two files, plus the plan in chat:
 
 | Deliverable | Format | Who holds it |
 |---|---|---|
 | Lesson plan | **Chat message, never a file** | Zac, read on screen |
-| Student packet | Word document (uploads clean to Google Drive) | Students |
-| Slide deck | Single HTML file: photographs, timers, charts, videos | Projected; students use it to navigate the packet |
+| Student packet | Word document that Zac adds to Google Drive, where it becomes the Google Doc he prints | Students, on paper |
+| Slide deck | Single HTML file opened in Chrome, built by the `sdc-slideshow` skill from this packet | Projected; students use it to navigate the packet |
+
+Both files travel through Google Drive, and the Google Doc is the page students actually get; see
+"Google Drive" below for what that asks of every build.
 
 The packet and the deck are the same lesson seen twice. Every slide that asks students to write
 names the packet page it belongs to; every packet task appears on a slide; and every question and
@@ -37,16 +41,19 @@ and only ask for what's still missing.
 1. **Project profile.** In Cowork, look in the working folder for `project-profile.md`,
    `PROJECT.md`, `course-profile.md`, or anything under a `lesson-planning/` or `unit/` folder; in a
    project, it may be in the project knowledge instead. It holds the course, the lesson-code
-   format, the weekly schedule, the home languages, the accommodations checklist, the unit arc, and
-   equipment on hand.
+   format, the weekly schedule, the home languages, the accommodations and UDL checklists, the unit
+   arc, and equipment on hand. Read the class notes beside it too, the file named exactly what the
+   project is called (`SDC Science.md`; see "Class notes"): what works with this class, the words
+   they own, the pairings that work.
 2. **The session length, from the schedule.** Turn the request's date ("tomorrow", "Thursday",
    "the 30th") into a weekday using today's date, and read that day's minutes and notes off the
    profile's schedule. A day listed under "days that break the pattern" wins. This is the answer to
    "how long is the session", so don't ask it when the schedule has it.
 3. **The previous lesson.** Work out the code before this one (Science 1.7 follows Science 1.6)
    and find it: in the working folder or the conversation first; then, when Google Drive is
-   connected, search Drive for the code in the title (`title contains 'Science 1.6'`, falling back
-   to the unit name) and read the packet. It tells you what students already did, what vocabulary
+   connected, search Drive for the code: `title contains 'Science 1.6'`, then
+   `fullText contains 'Science 1.6'` (which finds a day inside a multi-day packet), then the unit
+   name; read the packet. It tells you what students already did, what vocabulary
    is live, and what the do-now can reach back to. One search and one read, not a survey of the
    folder. Mention in a line which lesson you built from, so a wrong match is caught early.
 4. **Ask.** Whatever steps 1-3 didn't answer goes into the one clarifying round in Step 1.
@@ -152,18 +159,12 @@ inventing an ID — a dead embed in front of a class is a bad minute.
 
 Read the build references before writing anything:
 
-- `references/design_criteria.md` — what a good page and a good slide are made of: the page
-  budget, ink, readability, organizers, and the back-row type sizes. Everything below serves it.
+- `references/design_criteria.md` — what a good page is made of: the page budget, ink,
+  readability, key words, organizers, whole tasks. Everything below serves it.
 - `references/packet.md` — the student packet rules and the `packet.json` schema.
-- `references/deck.md` — the slide deck spec and the component catalog.
-- `references/dataviz.md` — the chart kit and how to use it. Not optional: every deck carries at
-  least one interactive chart, and two to four whenever the lesson touches a number, which is
-  nearly always in science and always in math. Reading is the barrier in this room; a chart a
-  student can interpret carries more of the lesson than any paragraph, and each one is predicted
-  before it's revealed.
-- `references/photographs.md` — the deck carries real photographs and they are not optional. This
-  reference is where the claim-first selection method lives, and it is the difference between
-  photographs that argue for the lesson and photographs that merely sit near it.
+
+The deck has its own skill, `sdc-slideshow`, with its own references (the slide spec, the chart
+kit, the photographs method, games); it reads them when you hand the deck over below.
 
 Order of work: settle the plan and the packet content first, then build the deck from that same
 content so the two cannot drift. Slide text is drawn from the packet's actual wording — a student
@@ -177,9 +178,15 @@ python3 scripts/render_packet.py packet.json "$OUTPUT_DIR/<code> - <short title>
 ```
 
 Never write layout code by hand, and never edit the rendered document — every change goes back
-into `packet.json` and re-renders instantly. The renderer handles keep-together grouping so a page
-break can't land between a question and its answer space. The packet stays text and line art:
-photographs live on the screen, where they are in color and the size of a wall.
+into `packet.json` and re-renders instantly. The renderer prints every task whole, prompt and
+answer space together, so no page break ever separates them. List the lesson's key words in
+`meta.vocab` and each one prints highlighted the first time a section uses it; mark the questions the reduced
+packet can drop with `"core": false`. The packet stays text and line art: photographs live on the
+screen, where they are in color and the size of a wall.
+
+The render prints how the page reads: a grade estimate against the profile's reading level, the
+sentences over twenty words, and the long words that aren't key words. Fix each sentence and word
+it names before you check pages (`references/packet.md`, "Reading level").
 
 Then check it the way the copier will meet it:
 
@@ -191,7 +198,8 @@ It reports the page count against the budget and how full each page is, estimate
 because Zac prints from the Google Doc that "Add to Drive" makes, and Docs sets the same file about a
 twentieth taller than Word. It writes every page into one image. Look at that image once, then fix what it reports in `packet.json` in the order
 `references/design_criteria.md` gives (take off, merge, fill the gap, then cut) and re-render. Two
-pages for a 60-minute lesson; a block aims for two and never passes four.
+pages for a 60-minute lesson; a block aims for two and never passes four. A multi-day packet adds
+`--days <n>` and is checked a day at a time, each day its own sheet.
 
 **Lesson plan — in chat, never a file.** Zac reads the plan on screen while he builds the day;
 printing it makes a document nobody opens twice. Write it in the message that delivers the files,
@@ -212,6 +220,8 @@ in this order, tight enough to skim:
    naming what each photograph is there to do.
 6. **Differentiation** — by need: the support and where it lands. One line on language access:
    which questions and directions carry Spanish, so he knows what is on the page he is handing out.
+   One line on UDL: the move this lesson makes for engagement, for representation, and for action
+   and expression, one each (see "Universal Design").
 7. **Predicted errors** — at least three, each with three parts: the specific wrong answer a
    student in this room would give (in math, the wrong expression or equation beside the right
    one), *why* a student lands there, and your move. "Writes 6 + s² instead of 6s², because they
@@ -228,44 +238,19 @@ in this order, tight enough to skim:
 Prose and short lists, no headers-within-headers. If it runs past what fits on a screen or two,
 it's too long: cut the parts a teacher already knows how to do.
 
-**Slide deck (HTML).** Write only the slides, the `<section class="slide">` elements in order, to
-`slides.html`, using the components in `references/deck.md`. Don't open or copy
-`assets/deck_template.html`: `build_deck.py` puts the slides inside it, and the template already
-carries the navigation, the per-slide countdown timers, the day tag, the photo styles and zoom, the
-blocked-image fallback, the click-to-play video, the interactive chart kit, and the talk kit (phased
-talk timers, vote-talk-revote, a pair picker, build steps, read-aloud). Every talk move in the plan
-gets a talk slide built the way `references/deck.md` "Talk slides" describes, with the thing
-students talk about on it.
+**Slide deck: hand it to `sdc-slideshow`.** Once the packet renders clean, load the
+`sdc-slideshow` skill (it is installed beside this one) and follow it to build the deck, handing it
+`packet.json` and the plan you are about to deliver. The code, the minutes, the languages and the
+key words ride in the packet's `meta`; the talk moves, the photographs you promised by subject and
+the verified video come from the talk-through in Step 2. The deck is the packet seen on the wall,
+so it is built from the packet's words and checked against them, never reworded. Photographs are
+its job too: never ask Zac for one. If `sdc-slideshow` isn't available, say so in one line and
+deliver the packet and the plan.
 
-```bash
-python3 scripts/build_deck.py slides.html "$OUTPUT_DIR/<code> - <short title> - deck.html" \
-  --title "<code> · <short title>" --minutes <period length> --languages es
-```
-
-It writes the deck and runs the checker in one step. Zac opens the deck with **Open in Chrome**, as a
-local file, not in the chat's preview, so everything in it has to work from a file in Chrome, which
-the template does.
-
-Every deck carries **at least one interactive chart**, two to four when the lesson has numbers in
-it. In a room where reading is the barrier, the chart is the explanation and the words are its
-caption — a deck with no chart has put the lesson back into prose.
-
-The checker's report is the first check of the work — it is faster and more reliable than reading
-the file, and every rule in it is one that a previous build silently broke. To re-check after a fix,
-re-run `build_deck.py`, or `check_deck.py` on the deck directly.
-
-Pass the period length you settled in Step 1. The slide count and the photograph floor
-both scale off it, so a block-day deck checked at 60 gets told it has too many slides, and a
-checker that is wrong once is a checker that gets ignored after that.
-
-Fix every error and re-run until it exits clean; then read the warnings and make a decision about
-each one rather than ignoring them. What the checker cannot judge, you still have to: whether each
-photograph is the *right* photograph for its claim, whether the slides look right at projection
-size, and whether the arithmetic holds. So also list `$OUTPUT_DIR` and confirm both files exist and
-are non-trivial in size; look at the packet's page image from `check_packet.py`; open the deck and
-click through it. Work every calculation
-in the lesson — the answer key, the worked example, and the numbers on the slides all have to
-agree.
+Then check the whole lesson the way it will be taught: list `$OUTPUT_DIR` and confirm both files
+exist and are non-trivial in size; look at the packet's page image from `check_packet.py`; read the
+slideshow skill's report. Work every calculation in the lesson — the answer key, the worked
+example, the numbers on the slides, the game answers — they all have to agree.
 
 ---
 
@@ -289,10 +274,10 @@ the shortest text on the page, and doubling the words on a page is how a struggl
 reading it. Plain everyday Spanish, `tú`-form imperatives, and the same wording in both files for
 the same question.
 
-`references/packet.md` carries the `"es"` field and the list of blocks that take one;
-`references/deck.md` carries `.es` and where it sits on a slide. `check_deck.py` errors on a deck
-with no Spanish and `render_packet.py` reports any question missing it — both are the only thing
-checking this, so read what they print.
+`references/packet.md` carries the `"es"` field and the list of blocks that take one; the slideshow
+skill puts the packet's own lines on the slides and checks them against the packet.
+`render_packet.py` reports any question missing a line — it is the only thing checking the page, so
+read what it prints.
 
 ## Accommodations
 
@@ -303,6 +288,44 @@ Differentiation line, name each ticked accommodation and where it landed ("large
 packet; word bank: above 3 and 5"). If the profile has no checklist, use the stems and word banks the
 packet rules already call for and ask nothing.
 
+**The reduced packet** is the same lesson for the students on modified assignments: the questions
+marked `"core": false` left out, part (a) only, large print, and one word bank on the front page
+and nowhere else, with the same question numbers so it matches the slides. Build it when Zac asks
+(`render_packet.py ... --reduced`, `references/packet.md`), and when the profile ticks reduced item
+count, offer it as one of the three next moves.
+
+## Universal Design
+
+The profile's UDL checklist is design for the whole room, where the accommodations are supports
+for particular students. Every lesson carries at least one move from each of the three groups,
+engagement, representation, and action and expression, taken from what the profile ticks, and
+the plan's Differentiation line names the three. Two strategies are not enough: a lesson that only
+adds stems and a word bank has given every student the same single way in. With no profile, pick
+one per group yourself; the key words, the talk moves and the organizer already cover most of it.
+
+## Class notes
+
+The class notes are one file beside the profile in the working folder, **named exactly what the
+project is called**: the SDC Science project keeps `SDC Science.md`, the SDC Math project
+`SDC Math.md`. Take the name as Zac wrote it, spaces and capitals included, from the project's own
+name in Cowork (the working folder's name when that is all you can see), so the file is the one
+he recognizes in the folder and in Drive. The skill keeps it, so Zac never has to: start it from
+`assets/class_notes_template.md` the first time there is something to put in it. Read it in
+Step 0. Update it at the end of every lesson and whenever he says how one went:
+
+- A pattern that held twice goes under *What works* or *What doesn't* ("votes at the board settle a
+  fight faster than discussion"); a one-off stays out.
+- A key word students used correctly on their own goes under *Words they own*, with the lesson
+  code, only when he says so or their work shows it; never assume it.
+- Pairings and roles that worked, by role, never by name.
+- Anything he says once that should hold every time goes under *Teacher's standing requests*, and
+  from then on it holds.
+
+Keep it under about sixty lines by merging and trimming, never by deleting his edits. Describe
+students by need or role, never by name. Where there is no folder to write to (a claude.ai project
+without a working folder), skip the file and carry what you learned into the next lesson's point
+of view instead.
+
 ## Lesson codes and file names
 
 Name every session by the teacher's code from the profile, and name files by it:
@@ -311,27 +334,50 @@ the packet's `meta.code` so it leads the header and footer, and in the deck's da
 arrives already named needs no renaming in Drive, and the next lesson can find it by its code. Use a
 plain hyphen in file names, never a dash or a slash.
 
-For viewing guides and review games, read `references/formats.md`. The skill builds one session at a
-time; a request for several days is several sessions, each with its own packet and deck.
+**One session at a time is the default.** Build more than one day only when Zac asks for more than
+one ("Day 1 and 2", "this week", "Monday through Wednesday"); then use the multi-day shape in
+`references/formats.md`: one packet with a section per day, every day on its own sheet under its
+own code, and one deck per day. Viewing guides and review games are in the same file.
 
-## Photographs
+## Google Drive
 
-`references/photographs.md` governs them end to end — where one is required, how to choose it so it
-argues for the slide's claim instead of merely matching the topic, how to aim the crop, how to
-judge what came back, and the four patterns. Read it whenever you build a deck.
+Everything Zac keeps lives in Google Drive, so every file is built for the trip there and for what
+students meet at the other end.
 
-The two things worth carrying in your head before you get there: **write the claim and the frame
-test before you search**, because a search for the topic returns pictures of the topic and none of
-them argue for anything; and **the load probe is not the quality gate** — bytes arriving says
-nothing about whether the subject is in frame.
+**The path.** The packet arrives as a lesson-coded `.docx`. Zac adds it to Drive, it becomes a
+Google Doc with the same name, and he prints from that Doc; the Doc is the student's page, not the
+Word file. The deck is one HTML file he opens with **Open in Chrome**. A copy kept in Drive is for
+keeping: Drive previews an HTML file as its code, so presenting from Drive means downloading the
+file and opening it in Chrome.
+
+**The packet survives Docs because the renderer builds for Docs.** Docs ignores Word's
+keep-together settings and splits tables between rows, but never splits a single row, so every task
+prints as one row and moves whole or not at all. Docs sets text about a twentieth taller, so
+`check_packet.py` budgets for Docs, not Word. Verdana, black text, hairline rules, and no fills all
+come through the conversion and the copier unchanged. So never hand-edit the `.docx` or reach for
+what Docs drops or moves: text boxes, floating images, columns, shapes, a second page size. Every
+change goes back through `packet.json`.
+
+**Real text, for the student on a screen too.** Every question, direction and language line is
+text, never a picture of text, so a student who opens the Doc on a device can have it read aloud,
+zoom it, or search it, and the lesson code in the header and footer is what Step 0 searches for
+next time.
+
+**The deck works from anywhere it lands.** The slideshow skill builds it as one file: timers,
+charts, talk kit and games inside it, photographs and the video linked by URL, so it works opened
+from the working folder, from a Drive download, or from a USB stick on the classroom computer.
+
+**What the skill does in Drive itself.** It reads: the previous lesson, by its code (Step 0). It
+doesn't upload the packet; the lesson-coded file name already makes adding it one step with
+nothing to rename.
 
 ## Step 4 — Test: hand it over
 
 The deck is a prototype until it has been in front of students, however clean it checks. So the
 handover is set up for the test that hasn't happened yet, not presented as a finished thing.
 
-Present both files, then write the lesson plan into the chat as described in Step 3. In the same
-message:
+Present both files by their lesson-coded names, packet first, so each is one step into Drive. Then
+write the lesson plan into the chat as described in Step 3. In the same message:
 
 - **What to watch for.** Name the one moment the lesson is most likely to fail and the observable
   that would tell him it did — the point of view from Step 2 says where that is. *"If they can't
@@ -339,7 +385,8 @@ message:
   question 1."* This is the difference between handing over a lesson and handing over a test.
 - Say what the talk moves need (partner assignments, corner signs, cards) if they need anything,
   and offer to make the printable if so.
-- If the photographs could not be load-tested this session, say so in one line.
+- Pass on anything the slideshow skill reported that he should know, in a line each: photographs
+  it couldn't load-test (and the setting that fixes it), a video that won't play embedded.
 - **Ask for reaction in the I like / I wish / What if form** — "tell me an *I like*, an *I wish*,
   and a *what if*." It reads as an invitation rather than a request for approval, and "I wish"
   gets an honest complaint out of a busy person faster than "any changes?" does. Run it on your own
@@ -353,33 +400,15 @@ message:
   map in the working folder (`| Science 1.7 | Tue 9/29 | Pump build: criteria and constraints | |`,
   the last cell for how it went), and create the profile from `assets/project_profile_template.md`
   if there isn't one. Only where there is no folder to write to, hand the row over to paste.
+- **Update the class notes** (see "Class notes") without mentioning it unless something changed
+  that he should know about.
 
 If he comes back after teaching it, that is the only real test data this lesson will ever produce.
-Fold it into the next lesson's point of view, and give him the finished Day map row with the "how it
-went" cell filled.
+Fold it into the next lesson's point of view, fill the "how it went" cell of the Day map row
+yourself, and update the class notes.
 
 Keep the machinery invisible. Say "student packet" and "slide deck," never "JSON" or "renderer";
 the only file names he sees are the lesson-coded ones he will keep.
-
----
-
-## Before you call the deck done
-
-`scripts/check_deck.py` enforces the mechanical rules — photo count, duplicates, alt text,
-captions, credits, aimed crops, the fallback script, leftover placeholder text, base64 bloat, empty
-bodies. Run it and get it clean; the closing checklists in `references/deck.md` and
-`references/photographs.md` cover the judgement calls it can't make.
-
-Click the video once before you hand it over — the checker can tell you the id is well-formed and
-the poster is there, but only a click tells you the player actually appears.
-
-The two questions worth asking yourself once the checker is quiet, because nothing automated will
-ask them for you: *does every photograph argue for the claim on its slide*, and *would a student
-looking at any single slide for ten seconds, hearing nothing, come away with something.*
-
-A third, which the checker can only half-ask: read the Spanish lines end to end. The checker knows
-they exist and that they are short; it cannot tell you that they say the task, that they use the
-same numbers and terms as the English, or that a slide's line matches the packet's.
 
 ---
 
