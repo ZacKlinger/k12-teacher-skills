@@ -66,7 +66,7 @@ Engagement: why it matters to them
 - [x] A self-check or reflection line on the packet
 
 Representation: how the idea reaches them
-- [x] Every key word highlighted on the page, pictured on a slide, said aloud, with its language line
+- [x] Every key word highlighted where each section first uses it, pictured on a slide, said aloud, with its language line
 - [x] Every number with a physical referent shown as a photo or a chart
 - [x] A worked example on the slide before anyone works alone
 - [ ] The same idea in two forms: a picture and a sentence, or a table and a chart

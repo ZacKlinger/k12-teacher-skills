@@ -171,11 +171,14 @@ Everyone gets the same packet. Push and support inside the task:
 ## Key words
 
 `meta.vocab` lists the lesson's key words, the ones on the deck's word slides, usually three to
-six. Wherever one appears in the English of the student packet (a prompt, a starter, the word
-bank, a table, a hint) it prints bold on a yellow highlight, so a new word looks the same every
-time a student meets it, and the student scanning for it finds it. It matches ordinary endings, so
-`pump` marks *pumps* and *pumped*. Language lines are left plain. The renderer lists how often
-each word was marked and names any key word the page never uses.
+six. Each one prints bold on a yellow highlight **the first time it appears in each section** of
+the student packet, and plain after that, so a student meets it marked at the start of every
+section and the student scanning for it finds it. Once per section, not every time: a page where
+every third word is yellow marks nothing, and highlights on neighbouring lines run into each other
+until a word can't be read. It matches ordinary endings, so `pump` marks *pumps* and *pumped*.
+Word banks list the words in plain bold (the bank is already the list), and language lines are
+left plain. The renderer lists how often each word is used and names any key word the page never
+uses.
 
 The highlight is the one fill on the page, and it is on a word, not on structure: on the grey
 copier it comes out as a pale band behind bold type, which still reads. If copies come out muddy,
@@ -199,8 +202,11 @@ python3 scripts/render_packet.py packet.json "$OUTPUT_DIR/<code> - <short title>
 ```
 
 It leaves out every question marked `"core": false` with its lead-ins and answer space, keeps
-only part (a) of every question, prints large, and puts the key words in a word bank above each
-section's first written answer. Question numbers stay the same as the full packet's, so both
+only part (a) of every question, prints large, and gathers every word bank into **one, on the
+front page** under the "I can": the key words first, then whatever else the full packet banked,
+with its language line. None anywhere else; a bank beside every question is a bank a student stops
+reading. A multi-day packet gets one at the top of each day, since each day is its own handout.
+Question numbers stay the same as the full packet's, so both
 match the slides and the class can work from either. Nothing on the page says "reduced". Mark
 `core` when you write the packet, so this is one command later; check it with
 `check_packet.py ... --max-pages 4`, since large print may need the extra sheet.

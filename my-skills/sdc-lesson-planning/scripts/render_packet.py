@@ -26,18 +26,19 @@ and each block carries one short line per language under a key named by its code
 and footer. `meta.large_print: true` sets the whole packet in larger type for the students
 whose plans call for it.
 
-`meta.vocab` lists the lesson's key words. Every place one appears in the English of a
-student packet it is printed bold on a yellow highlight (`meta.vocab_style: "bold"` drops
-the highlight for a copier that turns it to mud), so a new word looks the same in the
-prompt, the word bank, the table, and the sentence starter. On stderr the renderer reports
+`meta.vocab` lists the lesson's key words. In a student packet each one is printed bold on
+a yellow highlight the first time it appears in each section (`meta.vocab_style: "bold"`
+drops the highlight for a copier that turns it to mud). Once per section, not every time:
+a page where every third word is yellow marks nothing, and highlights on neighbouring lines
+run into each other. Word banks list the words in plain bold. On stderr the renderer reports
 how the student text reads against `meta.reading_level` (default grade 5): the sentences
 that run long and the long words that aren't key vocab.
 
     python3 render_packet.py packet.json out.docx --reduced
 
 builds the reduced packet from the same JSON: questions marked "core": false are left out,
-each question keeps only its first part, the type is large, and every section opens its
-written work with the key words in a word bank.
+each question keeps only its first part, the type is large, and the packet's word banks
+become one, on the front page under the "I can".
 
 Requires python-docx. Install with: pip install python-docx --break-system-packages
 """
@@ -286,6 +287,7 @@ class Renderer:
         self.vocab = []
         self._vocab_re = None
         self._vocab_hits = {}
+        self._vocab_seen = set()    # key words already highlighted in this section
         self.add_vocab(meta.get("vocab") or [])
         self.vocab_style = meta.get("vocab_style", "highlight")
         self.reading_level = float(meta.get("reading_level", 5))
@@ -442,8 +444,9 @@ class Renderer:
             self.es_in_cell(cell, blk.get(code), lang=code)
 
     def rich(self, par, text, size=None, vocab=True):
-        """Renders **bold** spans inside a plain string, and on a student packet marks every
-        key word (meta.vocab) the same way wherever it falls. Everything else is literal."""
+        """Renders **bold** spans inside a plain string, and on a student packet marks each
+        key word (meta.vocab) the first time it falls in a section. Everything else is
+        literal."""
         for i, chunk in enumerate(text.split("**")):
             if not chunk:
                 continue
@@ -451,10 +454,13 @@ class Renderer:
             if vocab and self._vocab_re is not None and self.audience == "student":
                 pieces, last = [], 0
                 for m in self._vocab_re.finditer(chunk):
+                    key = " ".join(m.group(1).lower().split())
+                    self._vocab_hits[key] = self._vocab_hits.get(key, 0) + 1
+                    if key in self._vocab_seen:
+                        continue
+                    self._vocab_seen.add(key)
                     pieces.append((chunk[last:m.start()], False))
                     pieces.append((m.group(0), True))
-                    key = m.group(1).lower()
-                    self._vocab_hits[key] = self._vocab_hits.get(key, 0) + 1
                     last = m.end()
                 pieces.append((chunk[last:], False))
             for piece, key in pieces:
@@ -503,6 +509,7 @@ class Renderer:
         """One line per section: the name, its gloss in the room's language, and the
         minutes flush right. Three lines of heading per section is a page of headings
         across a packet."""
+        self._vocab_seen = set()    # a new section highlights its key words afresh
         par = self.p(space_before=10, space_after=4, keep=True)
         self.run(par, text.upper(), size=self.S["h2"], bold=True)
         lines = blk if blk is not None else {"es": es}
@@ -563,6 +570,7 @@ class Renderer:
         later = self.days_seen > 0
         self.days_seen += 1
         self.add_vocab(blk.get("vocab") or [])
+        self._vocab_seen = set()
         if later:
             self.page_break()
         eyebrow = "  ·  ".join(str(b) for b in (blk.get("code"), blk.get("day"), blk.get("period"))
@@ -832,10 +840,12 @@ class Renderer:
         par.paragraph_format.space_after = Pt(0)
         self.run(par, (blk.get("label") or "Word bank").upper() + "  ",
                  size=self.S["small"], bold=True)
+        # plain bold: the bank is the list of key words, so a highlight on each one says
+        # nothing, and the section's first use of a word still gets its highlight
         for k, item in enumerate(blk.get("items", [])):
             if k:
                 self.run(par, "     ")
-            self.rich(par, str(item))
+            self.run(par, str(item).replace("**", ""), bold=True)
         self.lang_in_cell(cell, blk)
         _no_split(t)
         self.gap(4)
@@ -956,10 +966,11 @@ class Renderer:
                 "Cut it to the task itself.",
                 file=sys.stderr,
             )
-        missing = [w for w in self.vocab if not self._vocab_hits.get(w.lower())]
+        missing = [w for w in self.vocab if not self._vocab_hits.get(" ".join(w.lower().split()))]
         if self.vocab:
-            print(f"  ok    key words marked: " + ", ".join(
-                f"{w} ×{self._vocab_hits.get(w.lower(), 0)}" for w in self.vocab), file=sys.stderr)
+            print(f"  ok    key words used (each highlighted once per section): " + ", ".join(
+                f"{w} ×{self._vocab_hits.get(' '.join(w.lower().split()), 0)}" for w in self.vocab),
+                file=sys.stderr)
         if missing:
             print("  note  key word(s) never used on the page: " + ", ".join(missing)
                   + ". Use each one in a task, or take it off meta.vocab.", file=sys.stderr)
@@ -1141,13 +1152,15 @@ ANSWERS = ("space", "fill_table", "organizer", "stem")
 def reduce_packet(data):
     """The reduced packet, from the same lesson: the questions marked "core": false come
     out with their lead-ins and answer space, every question keeps only its first part,
-    the type is large, and every section's first written answer has the key words in a
-    word bank above it.
+    the type is large, and there is one word bank, on the front page under the "I can":
+    the key words and every word the full packet banked, gathered in one place. A bank
+    beside every question is a bank a student stops reading. In a multi-day packet each
+    day is its own handout, so each day opens with its own.
     Question numbers stay as they are, so both packets match the slides."""
     d = copy.deepcopy(data)
     meta = d.setdefault("meta", {})
     meta["large_print"] = True
-    vocab = [str(v) for v in (meta.get("vocab") or [])][:8]
+    langs = [str(c) for c in (meta.get("languages") or ["es"])]
     secs = d.get("sections", [])
     keep = [True] * len(secs)
     for i, b in enumerate(secs):
@@ -1162,27 +1175,54 @@ def reduce_packet(data):
         while j >= 0 and secs[j].get("type") in LEAD_INS:
             keep[j] = False
             j -= 1
+
+    def bank(words, banks):
+        """One bank from the key words and the full packet's banks, words in order, no
+        repeats; each language line joins the lines those banks carried."""
+        items, seen = [], set()
+        for w in list(words) + [x for bk in banks for x in bk.get("items", [])]:
+            w = str(w).strip()
+            if w and w.lower() not in seen:
+                seen.add(w.lower())
+                items.append(w)
+        if not items:
+            return None
+        blk = {"type": "wordbank", "items": items[:10]}
+        for code in langs:
+            parts = []
+            for bk in banks:
+                for x in str(bk.get(code) or "").split(","):
+                    if x.strip() and x.strip() not in parts:
+                        parts.append(x.strip())
+            if parts:
+                blk[code] = ", ".join(parts)
+        return blk
+
+    # one bank per handout: the whole packet, or each day of a multi-day one (anything
+    # before the first day rides with it)
+    days = [i for i, b in enumerate(secs) if b.get("type") == "day"]
+    starts = days or [0]
+    ends = starts[1:] + [len(secs)]
     out = []
-    banked = False          # one word bank per section, above its first written answer
-    for b, k in zip(secs, keep):
-        if not k:
-            continue
-        b = dict(b)
-        kind = b.get("type")
-        if kind in ("heading", "phase", "day", "page_break"):
-            banked = False
-        elif kind == "wordbank":
-            banked = True
-        elif kind == "question":
-            if b.get("parts"):
+    for n, (start, end) in enumerate(zip(starts, ends)):
+        lo = 0 if n == 0 else start
+        stretch = list(zip(secs[lo:end], keep[lo:end]))
+        words = [str(v) for v in (meta.get("vocab") or [])]
+        if days:
+            words += [str(v) for v in (secs[start].get("vocab") or [])]
+        blk = bank(words, [b for b, _ in stretch if b.get("type") == "wordbank"])
+        for b, k in stretch:
+            if not k or b.get("type") == "wordbank":
+                continue
+            b = dict(b)
+            if b.get("type") == "question" and b.get("parts"):
                 b["parts"] = b["parts"][:1]
-            spec = b.get("space") or {}
-            written = b.get("stems") or (isinstance(spec, dict) and spec.get("kind", "lines") ==
-                                         "lines" and int(spec.get("count", 3)) >= 2)
-            if vocab and written and not banked:
-                out.append({"type": "wordbank", "items": vocab})
-                banked = True
-        out.append(b)
+            if blk is not None and (not days or b.get("type") != "day"):
+                out.append(blk)        # under the "I can", or under the day's own heading
+                blk = None
+            out.append(b)
+        if blk is not None:
+            out.append(blk)
     # a section whose every task came out loses its heading too
     d["sections"] = [b for i, b in enumerate(out)
                      if b.get("type") not in ("heading", "phase")
@@ -1197,7 +1237,7 @@ def main():
     ap.add_argument("packet")
     ap.add_argument("out")
     ap.add_argument("--reduced", action="store_true",
-                    help="core questions only, first parts only, large print, word banks")
+                    help="core questions only, first parts only, large print, one word bank up front")
     args = ap.parse_args()
     with open(args.packet) as fh:
         data = json.load(fh)

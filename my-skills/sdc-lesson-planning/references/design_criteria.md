@@ -47,10 +47,11 @@ The renderer draws this way; don't ask it for shading.
 - Sentences of twenty words or fewer, and everyday words around the key words. The renderer
   reports the reading level against the profile's (grade 5 by default), every long sentence, and
   every long word that isn't a key word; fix the sentence, not the score.
-- **Key words look the same everywhere**: bold on a yellow highlight in the prompt, the starter,
-  the word bank and the table, so the word a student is learning is the one their eye finds. It is
-  the one fill on the page, on a word rather than on structure, and it survives the grey copier as
-  a pale band behind bold type.
+- **Key words are marked once, where a section first uses them**: bold on a yellow highlight, so
+  the word a student is learning is the one their eye finds. Once per section and never in a word
+  bank: a page full of yellow marks nothing, and highlights on neighbouring lines run together. It
+  is the one fill on the page, on a word rather than on structure, and it survives the grey copier
+  as a pale band behind bold type.
 
 **Writing space sized to the answer.** Writing lines are 30 points apart, wide enough for a student
 whose plan covers fine-motor needs. A sentence starter is printed on the first writing line itself,

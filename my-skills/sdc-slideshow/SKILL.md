@@ -67,7 +67,8 @@ python3 scripts/build_deck.py slides.html "$OUTPUT_DIR/<code> - <short title> - 
 
 `--packet` reads the key words and the languages from the packet's `meta` and checks the deck
 against the packet: every question is on a slide in the packet's own words. Without a
-`packet.json`, pass `--vocab "reservoir,pump"` and `--languages es` instead.
+`packet.json`, pass `--vocab "reservoir,pump"` and `--languages es` instead. Add `--teams 3` (or
+team names) only when Zac asks for teams; see "Games" below.
 
 It writes the deck and runs the checker in one step. Zac opens the deck as a local file in Chrome,
 not in the chat's preview, so everything in it works from a file, which the template does.
@@ -80,6 +81,9 @@ answers) counts as one.
 **Use a game where it earns its place**: a game round for a fair-guess question, a sort for anything
 students can classify with their hands (`references/deck.md`, "Games"). HTML can do what paper
 can't: let every guess in the room count, and let a student walk to the board and move the idea.
+
+**Games have no teams and no points unless Zac asks for them.** When he does, `--teams` puts one
+scoreboard in the footer of every slide, carrying the period's running total from game to game.
 
 **Every deck carries at least one interactive chart**, two to four when the lesson has numbers in
 it. In a room where reading is the barrier, the chart is the explanation and the words are its

@@ -9,6 +9,11 @@ Usage:
 holds the deck to the packet: every question on a slide, in the packet's words. Without a
 packet, pass --vocab "reservoir,pump,gallon" and --languages es.
 
+--teams turns on team play, and only when Zac asks for teams: "--teams 3" for Team 1-3,
+or names, "--teams Pumps,Roots,Lights". One scoreboard then sits in the footer of every
+slide with the period's running total, and each game round gets a lock-in row per team.
+Without it the games run as partner talk, with no points.
+
 `slides.html` holds only the <section class="slide"> elements, in order. Everything
 else -- the stylesheet, navigation, timers, the talk kit, the chart kit, the photo
 fallback -- comes from assets/deck_template.html, untouched. So a build never reads or
@@ -44,6 +49,8 @@ def main():
                     help="the packet's key words (meta.vocab), comma-separated; marked on every slide")
     ap.add_argument("--packet", help="the lesson's packet.json: key words, languages, and the "
                                      "questions the deck has to carry")
+    ap.add_argument("--teams", default="",
+                    help="only when Zac asks for teams: a count (3) or names, comma-separated")
     args = ap.parse_args()
 
     template = open(TEMPLATE, encoding="utf-8").read()
@@ -67,9 +74,15 @@ def main():
         if args.languages == "es" and meta.get("languages"):
             args.languages = ",".join(meta["languages"])
     words = [w.strip() for w in args.vocab.split(",") if w.strip()]
-    if words:
-        attr = "|".join(w.replace("&", "&amp;").replace('"', "&quot;") for w in words)
-        deck = deck.replace("<body>", f'<body data-vocab="{attr}">', 1)
+    teams = [t.strip() for t in args.teams.split(",") if t.strip()]
+    if len(teams) == 1 and teams[0].isdigit():
+        teams = [f"Team {i}" for i in range(1, int(teams[0]) + 1)]
+    if len(teams) == 1 or len(teams) > 6:
+        sys.exit(f"--teams needs two to six teams, not {len(teams)}.")
+    body = {"data-vocab": words, "data-teams": teams}
+    attrs = "".join(f' {k}="' + "|".join(v.replace("&", "&amp;").replace('"', "&quot;") for v in vals) + '"'
+                    for k, vals in body.items() if vals)
+    deck = deck.replace("<body>", f"<body{attrs}>", 1)
     # the builder's notes in the template's head comment are for the builder, not the deck
     deck = re.sub(r"<!--\s*DECK TEMPLATE.*?-->\n?", "", deck, count=1, flags=re.S)
     with open(args.out, "w", encoding="utf-8") as fh:

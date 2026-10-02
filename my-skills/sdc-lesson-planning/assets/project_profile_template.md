@@ -2,8 +2,9 @@
 
 Keep this as `project-profile.md` in the course's working folder (or in the course's claude.ai
 project knowledge). The lesson-planning skill reads it first so it doesn't have to ask about any of
-it again. Describe students by need, never by name. Beside it the skill keeps `class-notes.md` on
-its own: what works with this class, the words they own, the pairings that work.
+it again. Describe students by need, never by name. Beside it the skill keeps the class notes on
+its own, in a file named exactly what the project is called (`SDC Science.md`): what works with
+this class, the words they own, the pairings that work.
 
 ## Class
 
@@ -71,7 +72,7 @@ Engagement: why it matters to them
 - [ ] A self-check or reflection line on the packet
 
 Representation: how the idea reaches them
-- [ ] Every key word highlighted on the page, pictured on a slide, said aloud, with its language line
+- [ ] Every key word highlighted where each section first uses it, pictured on a slide, said aloud, with its language line
 - [ ] Every number with a physical referent shown as a photo or a chart
 - [ ] A worked example on the slide before anyone works alone
 - [ ] The same idea in two forms: a picture and a sentence, or a table and a chart

@@ -42,8 +42,9 @@ and only ask for what's still missing.
    `PROJECT.md`, `course-profile.md`, or anything under a `lesson-planning/` or `unit/` folder; in a
    project, it may be in the project knowledge instead. It holds the course, the lesson-code
    format, the weekly schedule, the home languages, the accommodations and UDL checklists, the unit
-   arc, and equipment on hand. Read `class-notes.md` beside it too (see "Class notes"): what works
-   with this class, the words they own, the pairings that work.
+   arc, and equipment on hand. Read the class notes beside it too, the file named exactly what the
+   project is called (`SDC Science.md`; see "Class notes"): what works with this class, the words
+   they own, the pairings that work.
 2. **The session length, from the schedule.** Turn the request's date ("tomorrow", "Thursday",
    "the 30th") into a weekday using today's date, and read that day's minutes and notes off the
    profile's schedule. A day listed under "days that break the pattern" wins. This is the answer to
@@ -179,7 +180,7 @@ python3 scripts/render_packet.py packet.json "$OUTPUT_DIR/<code> - <short title>
 Never write layout code by hand, and never edit the rendered document — every change goes back
 into `packet.json` and re-renders instantly. The renderer prints every task whole, prompt and
 answer space together, so no page break ever separates them. List the lesson's key words in
-`meta.vocab` and they print highlighted wherever they appear; mark the questions the reduced
+`meta.vocab` and each one prints highlighted the first time a section uses it; mark the questions the reduced
 packet can drop with `"core": false`. The packet stays text and line art: photographs live on the
 screen, where they are in color and the size of a wall.
 
@@ -288,8 +289,8 @@ packet; word bank: above 3 and 5"). If the profile has no checklist, use the ste
 packet rules already call for and ask nothing.
 
 **The reduced packet** is the same lesson for the students on modified assignments: the questions
-marked `"core": false` left out, part (a) only, large print, and a word bank opening each section's
-written work, with the same question numbers so it matches the slides. Build it when Zac asks
+marked `"core": false` left out, part (a) only, large print, and one word bank on the front page
+and nowhere else, with the same question numbers so it matches the slides. Build it when Zac asks
 (`render_packet.py ... --reduced`, `references/packet.md`), and when the profile ticks reduced item
 count, offer it as one of the three next moves.
 
@@ -304,10 +305,13 @@ one per group yourself; the key words, the talk moves and the organizer already 
 
 ## Class notes
 
-`class-notes.md` lives beside the profile in the working folder, and the skill keeps it, so Zac
-never has to: start it from `assets/class_notes_template.md` the first time there is something to
-put in it. Read it in Step 0. Update it at the end of every lesson and whenever he says how one
-went:
+The class notes are one file beside the profile in the working folder, **named exactly what the
+project is called**: the SDC Science project keeps `SDC Science.md`, the SDC Math project
+`SDC Math.md`. Take the name as Zac wrote it, spaces and capitals included, from the project's own
+name in Cowork (the working folder's name when that is all you can see), so the file is the one
+he recognizes in the folder and in Drive. The skill keeps it, so Zac never has to: start it from
+`assets/class_notes_template.md` the first time there is something to put in it. Read it in
+Step 0. Update it at the end of every lesson and whenever he says how one went:
 
 - A pattern that held twice goes under *What works* or *What doesn't* ("votes at the board settle a
   fight faster than discussion"); a one-off stays out.

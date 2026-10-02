@@ -470,30 +470,42 @@
 
 
   /* ===== KEY WORDS ========================================================
-     The lesson's key words (body data-vocab="reservoir|pump") are marked the
-     same way the packet marks them: bold on yellow, so the word a student is
-     learning looks the same on the wall and on the page. */
-  mark.kw{background:#FFE45C;color:#1B1F24;font-weight:700;padding:0 .08em;
+     The lesson's key words (body data-vocab="reservoir|pump") are marked once
+     per slide, where each first appears, as a highlighter stroke across the
+     lower half of the word. The stroke stays inside its own line: a full
+     yellow box is taller than a tight headline's line and paints over the
+     line above it. On a dark surface the word turns yellow instead, since
+     light text on a yellow stroke can't be read. */
+  mark.kw{color:inherit;font-weight:700;padding:0 .06em;
+    background:linear-gradient(#FFE45C,#FFE45C) 0 80%/100% .62em no-repeat;
     -webkit-box-decoration-break:clone;box-decoration-break:clone}
+  .slide.dark mark.kw{background:none;color:#FFE45C}
 
   /* ===== GAMES ============================================================
      A fair-guess round (.game) and a sort (.sort), both run as talk: partners
-     agree on the slide's timer before anyone answers. One scoreboard follows
-     every game slide in the deck and keeps its score through a reload. */
-  .scoreboard{display:flex;gap:.6em;flex-wrap:wrap;align-items:stretch;
-    font-size:clamp(12px,1.25vw,18px);margin-bottom:1.6vh}
-  .scoreboard .team{display:flex;align-items:center;gap:.55em;background:var(--paper);
-    border-top:3px solid var(--rule);padding:.35em .75em;transition:border-color .3s,background .3s}
+     agree on the slide's timer before anyone answers. No teams and no points
+     unless the deck is built with teams (body data-teams); then one
+     scoreboard sits in the footer of every slide and keeps the period's
+     running total. */
+  .scoreboard{display:flex;gap:1.1em;align-items:center;flex-wrap:nowrap;text-transform:none;
+    letter-spacing:0;font-size:clamp(12px,1.2vw,18px)}
+  .scoreboard .team{display:flex;align-items:baseline;gap:.4em;padding:.2em .45em;
+    border-bottom:2px solid transparent;transition:border-color .3s,background .3s}
   .scoreboard .team .tn{letter-spacing:.08em;text-transform:uppercase;font-weight:700;
-    color:var(--ink-2);font-size:.82em}
-  .scoreboard .team b{font-family:var(--serif);font-weight:400;font-size:1.6em;line-height:1;
-    min-width:2.4ch;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
-  .scoreboard .team button,.scoreboard .sreset{font:inherit;font-size:.8em;width:1.7em;height:1.7em;
-    border-radius:50%;border:1px solid var(--rule);background:var(--bg);color:var(--muted);
-    cursor:pointer;line-height:1}
-  .scoreboard .sreset{width:auto;border-radius:0;padding:0 .8em;letter-spacing:.08em;
-    text-transform:uppercase;font-size:.68em;margin-left:auto}
-  .scoreboard .team.up{border-top-color:var(--mint-deep);background:#E3F3EB}
+    color:var(--ink-2);font-size:.78em}
+  .scoreboard .team b{font-family:var(--serif);font-weight:400;font-size:1.55em;line-height:1;
+    min-width:2.2ch;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+  .scoreboard button{font:inherit;font-size:.72em;width:1.6em;height:1.6em;align-self:center;
+    border-radius:50%;border:1px solid var(--rule);background:transparent;color:var(--muted);
+    cursor:pointer;line-height:1;opacity:.7}
+  .scoreboard button:hover{opacity:1;color:var(--accent-deep)}
+  .scoreboard .sreset{width:auto;border-radius:0;padding:0 .7em;letter-spacing:.08em;
+    text-transform:uppercase;font-size:.62em}
+  .scoreboard .team.up{border-bottom-color:var(--mint-deep);background:#E3F3EB}
+  body.on-dark .scoreboard .team .tn{color:#C9CDD3}
+  body.on-dark .scoreboard .team b{color:#F7F8FA}
+  body.on-dark .scoreboard button{border-color:var(--caviar-line);color:#9AA1A9}
+  body.on-dark .scoreboard .team.up{background:var(--caviar-soft)}
 
   .game{width:100%}
   .game .opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(11em,1fr));gap:1.1vw}
@@ -890,17 +902,18 @@
   </section>
 
   <!-- ============ GAME: FAIR GUESS =========================================
-       Partners agree on the timer, every team locks in a letter, then V
-       reveals. A team that locked the right letter scores on its own; + and -
-       fix anything by hand. data-answer counts from 1. The reveal explains,
-       it doesn't just mark. -->
+       Partners agree on the timer and hold up their letter, then V reveals.
+       data-answer counts from 1. The reveal explains, it doesn't just mark.
+       Only in a deck built with teams (body data-teams) does each team lock
+       in a letter; a team that locked the right one scores data-points on
+       its own, and the footer's + and - fix anything by hand. -->
   <section class="slide" data-day="Day 1" data-title="Game round" data-timer="60" data-mins="4 min">
-    <header class="head"><div class="eyebrow">Game · agree with your partner, then lock in</div></header>
+    <header class="head"><div class="eyebrow">Game · agree with your partner, then show your letter</div></header>
     <h2>Where should the pump sit?</h2>
     <p class="es">¿Dónde debe ir la bomba?</p>
     <div class="body">
       <div class="game" data-options="Inside the reservoir|Next to the reservoir|Up on the frame"
-           data-answer="1" data-points="100" data-teams="Team 1|Team 2|Team 3"
+           data-answer="1" data-points="100"
            data-why="A pump has to sit in the water it moves. Out of the water it runs dry and burns out."></div>
     </div>
   </section>
@@ -1086,6 +1099,7 @@
     s.classList.add('on');
     counter.textContent = (idx + 1) + ' / ' + slides.length;
     dayTag.textContent = s.getAttribute('data-day') || '';
+    document.body.classList.toggle('on-dark', s.classList.contains('dark'));
     progress.style.width = ((idx + 1) / slides.length * 100) + '%';
     loadTimer(s);
   }
@@ -1553,9 +1567,10 @@
 })();
 </script>
 
-<!-- Key words and games. Key words come from body data-vocab and are marked in
-     every slide's text except the language lines. The games keep one score for
-     the whole deck in this computer's storage, keyed by the deck's title. -->
+<!-- Key words and games. Key words come from body data-vocab and are marked once
+     per slide, where each first appears, never in a language line. Teams come from
+     body data-teams, only when the deck was built with them; their scores live in
+     this computer's storage, keyed by the deck's title. -->
 <script>
 (function(){
   function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls;
@@ -1564,78 +1579,92 @@
   function slideOf(node){ return node.closest('.slide'); }
   function current(sel){ var s = document.querySelector('.slide.on'); return s && s.querySelector(sel); }
 
-  // ---------- key words
+  // ---------- key words: each one marked once per slide, where it first appears
   var words = list(document.body.getAttribute('data-vocab'));
   if (words.length) {
     var alts = words.sort(function(a, b){ return b.length - a.length; }).map(function(w){
       return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+'); }).join('|');
-    var re = new RegExp('(^|[^\\w-])((?:' + alts + ')(?:s|es|ed|ing)?)(?![\\w-])', 'gi');
-    var skip = 'script,style,svg,textarea,button,input,mark,.es,.cred,.eyebrow,.vfacade,.zoom,[data-no-kw]';
-    var walker = document.createTreeWalker(document.getElementById('stage'), NodeFilter.SHOW_TEXT, null);
-    var hits = [], n;
-    while ((n = walker.nextNode())) {
-      if (!n.nodeValue.trim() || (n.parentElement && n.parentElement.closest(skip))) continue;
-      re.lastIndex = 0;
-      if (re.test(n.nodeValue)) hits.push(n);
-    }
-    hits.forEach(function(node){
-      var text = node.nodeValue, frag = document.createDocumentFragment(), last = 0, m;
-      re.lastIndex = 0;
-      while ((m = re.exec(text))) {
-        var start = m.index + m[1].length;
-        frag.appendChild(document.createTextNode(text.slice(last, start)));
-        frag.appendChild(el('mark', 'kw', m[2]));
-        last = start + m[2].length;
+    var re = new RegExp('(^|[^\\w-])((' + alts + ')(?:s|es|ed|ing)?)(?![\\w-])', 'gi');
+    var skip = 'script,style,svg,textarea,button,input,mark,.es,.cred,.eyebrow,.vfacade,.zoom,' +
+               '.vc.word,[data-no-kw]';
+    Array.prototype.forEach.call(document.querySelectorAll('.slide'), function(slide){
+      var seen = {}, walker = document.createTreeWalker(slide, NodeFilter.SHOW_TEXT, null), nodes = [], n;
+      while ((n = walker.nextNode())) {
+        if (n.nodeValue.trim() && !(n.parentElement && n.parentElement.closest(skip))) nodes.push(n);
       }
-      frag.appendChild(document.createTextNode(text.slice(last)));
-      node.parentNode.replaceChild(frag, node);
+      nodes.forEach(function(node){
+        var text = node.nodeValue, frag = null, last = 0, m;
+        re.lastIndex = 0;
+        while ((m = re.exec(text))) {
+          var key = m[3].toLowerCase().replace(/\s+/g, ' ');
+          if (seen[key]) continue;
+          seen[key] = true;
+          frag = frag || document.createDocumentFragment();
+          var start = m.index + m[1].length;
+          frag.appendChild(document.createTextNode(text.slice(last, start)));
+          frag.appendChild(el('mark', 'kw', m[2]));
+          last = start + m[2].length;
+        }
+        if (!frag) return;
+        frag.appendChild(document.createTextNode(text.slice(last)));
+        node.parentNode.replaceChild(frag, node);
+      });
     });
   }
 
-  // ---------- one scoreboard for every game slide in the deck
-  var store = 'games:' + (document.title || location.pathname);
-  var firstGame = document.querySelector('.game[data-teams], .sort[data-teams]');
-  var teams = list(firstGame && firstGame.getAttribute('data-teams'));
-  if (!teams.length) teams = ['Team 1', 'Team 2'];
+  // ---------- teams: only in a deck built with them (body data-teams). Then one
+  // scoreboard sits in the footer of every slide and keeps the period's running
+  // total: it survives a reload, starts fresh on a new day or after two hours with
+  // no points, and "New period" clears it by hand between back-to-back classes.
+  var teams = list(document.body.getAttribute('data-teams')).slice(0, 6);
   var scores = teams.map(function(){ return 0; });
-  try { var saved = JSON.parse(localStorage.getItem(store) || 'null');
-    if (saved && saved.teams && saved.teams.join('|') === teams.join('|')) scores = saved.scores; } catch (e) {}
-  function save(){ try { localStorage.setItem(store, JSON.stringify({teams: teams, scores: scores})); } catch (e) {} }
-  var boards = [];
+  var store = 'teams:' + (document.title || location.pathname);
+  var QUIET = 2 * 60 * 60 * 1000;
+  function today(){ var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+  if (teams.length) {
+    try { var saved = JSON.parse(localStorage.getItem(store) || 'null');
+      if (saved && saved.teams && saved.teams.join('|') === teams.join('|') && saved.day === today()
+          && Date.now() - (saved.at || 0) < QUIET) scores = saved.scores; } catch (e) {}
+  }
+  function save(){ try { localStorage.setItem(store, JSON.stringify(
+    {teams: teams, scores: scores, day: today(), at: Date.now()})); } catch (e) {} }
+  var board = [];
   function paint(flash){
-    boards.forEach(function(b){ b.forEach(function(t, i){
+    board.forEach(function(t, i){
       t.n.textContent = scores[i];
       if (flash && flash.indexOf(i) >= 0) { t.box.classList.add('up');
         setTimeout(function(){ t.box.classList.remove('up'); }, 1400); }
-    }); });
+    });
   }
   function award(i, pts){ scores[i] = Math.max(0, scores[i] + pts); save(); paint(pts > 0 ? [i] : []); }
-  function scoreboard(){
-    var bar = el('div', 'scoreboard'), refs = [];
+  function step(){ var g = current('.game, .sort'); return parseInt(g && g.getAttribute('data-points'), 10) || 100; }
+  if (teams.length) {
+    var bar = el('div', 'scoreboard');
+    bar.setAttribute('aria-label', 'Team scores for this period');
     teams.forEach(function(name, i){
       var box = el('div', 'team'), num = el('b', '', '0');
       var minus = el('button', '', '−'), plus = el('button', '', '+');
       minus.type = plus.type = 'button';
       minus.setAttribute('aria-label', 'Take points from ' + name);
       plus.setAttribute('aria-label', 'Give points to ' + name);
-      minus.addEventListener('click', function(e){ e.stopPropagation(); award(i, -step(bar)); });
-      plus.addEventListener('click', function(e){ e.stopPropagation(); award(i, step(bar)); });
+      minus.addEventListener('click', function(e){ e.stopPropagation(); award(i, -step()); });
+      plus.addEventListener('click', function(e){ e.stopPropagation(); award(i, step()); });
       box.appendChild(el('span', 'tn', name)); box.appendChild(num); box.appendChild(minus); box.appendChild(plus);
-      bar.appendChild(box); refs.push({box: box, n: num});
+      bar.appendChild(box); board.push({box: box, n: num});
     });
-    var reset = el('button', 'sreset', 'Reset scores'), armed = false;
+    var reset = el('button', 'sreset', 'New period'), armed = false;
     reset.type = 'button';
     reset.addEventListener('click', function(e){
       e.stopPropagation();
-      if (!armed) { armed = true; reset.textContent = 'Click again to reset';
-        setTimeout(function(){ armed = false; reset.textContent = 'Reset scores'; }, 2500); return; }
-      scores = teams.map(function(){ return 0; }); save(); paint(); armed = false; reset.textContent = 'Reset scores';
+      if (!armed) { armed = true; reset.textContent = 'Click again: all to 0';
+        setTimeout(function(){ armed = false; reset.textContent = 'New period'; }, 2500); return; }
+      scores = teams.map(function(){ return 0; }); save(); paint(); armed = false; reset.textContent = 'New period';
     });
     bar.appendChild(reset);
-    boards.push(refs);
-    return bar;
+    var foot = document.querySelector('.footer'), hintEl = foot && foot.querySelector('.hint');
+    if (hintEl) foot.replaceChild(bar, hintEl); else if (foot) foot.insertBefore(bar, foot.lastElementChild);
+    paint();   // the period's scores, kept from before a reload
   }
-  function step(bar){ var g = bar.parentNode; return parseInt(g && g.getAttribute('data-points'), 10) || 100; }
 
   // ---------- fair guess: data-options, data-answer (from 1), data-why, data-points
   var LETTERS = 'ABCDEF';
@@ -1643,51 +1672,53 @@
     var opts = list(g.getAttribute('data-options')).slice(0, 6);
     var answer = (parseInt(g.getAttribute('data-answer'), 10) || 1) - 1;
     var pts = parseInt(g.getAttribute('data-points'), 10) || 100;
-    var locked = teams.map(function(){ return -1; }), awarded = [];
-    g.appendChild(scoreboard());
-    var grid = el('div', 'opts'), cards = [];
+    var locked = teams.map(function(){ return -1; }), awarded = [], lockBtns = [];
+    var grid = el('div', 'opts');
     opts.forEach(function(o, i){
       var c = el('div', 'opt' + (i === answer ? ' right' : ''));
       c.appendChild(el('span', 'L', LETTERS[i])); c.appendChild(el('span', 't', o));
-      grid.appendChild(c); cards.push(c);
+      grid.appendChild(c);
     });
     g.appendChild(grid);
-    var lock = el('div', 'lock'), lockBtns = [];
-    teams.forEach(function(name, t){
-      var row = el('div', 'lt'); row.appendChild(el('span', '', name));
-      lockBtns[t] = opts.map(function(_, i){
-        var b = el('button', '', LETTERS[i]); b.type = 'button';
-        b.setAttribute('aria-label', name + ' locks in ' + LETTERS[i]);
-        b.addEventListener('click', function(e){
-          e.stopPropagation();
-          if (g.classList.contains('revealed')) return;
-          locked[t] = locked[t] === i ? -1 : i;
-          lockBtns[t].forEach(function(x, k){ x.classList.toggle('on', k === locked[t]); });
+    if (teams.length) {
+      var lock = el('div', 'lock');
+      teams.forEach(function(name, t){
+        var row = el('div', 'lt'); row.appendChild(el('span', '', name));
+        lockBtns[t] = opts.map(function(_, i){
+          var b = el('button', '', LETTERS[i]); b.type = 'button';
+          b.setAttribute('aria-label', name + ' locks in ' + LETTERS[i]);
+          b.addEventListener('click', function(e){
+            e.stopPropagation();
+            if (g.classList.contains('revealed')) return;
+            locked[t] = locked[t] === i ? -1 : i;
+            lockBtns[t].forEach(function(x, k){ x.classList.toggle('on', k === locked[t]); });
+          });
+          row.appendChild(b); return b;
         });
-        row.appendChild(b); return b;
+        lock.appendChild(row);
       });
-      lock.appendChild(row);
-    });
-    g.appendChild(lock);
+      g.appendChild(lock);
+    }
     var ctl = el('div', 'gctl'), btn = el('button', '', 'Reveal (V)');
     btn.type = 'button';
     ctl.appendChild(btn);
     g.appendChild(ctl);
-    var why = el('div', 'why', g.getAttribute('data-why') || '');
-    g.appendChild(why);
+    g.appendChild(el('div', 'why', g.getAttribute('data-why') || ''));
     function reveal(){
       var open = !g.classList.contains('revealed');
       g.classList.toggle('revealed', open);
       btn.textContent = open ? 'Hide answer (V)' : 'Reveal (V)';
+      if (!teams.length) return;
       if (open) {
         awarded = [];
         locked.forEach(function(k, t){ if (k === answer) { awarded.push(t); scores[t] += pts;
           lockBtns[t][k].classList.add('hit'); } });
-        save(); paint(awarded);
+        if (awarded.length) { save(); paint(awarded); }
       } else {
         awarded.forEach(function(t){ scores[t] = Math.max(0, scores[t] - pts); });
         lockBtns.forEach(function(r){ r.forEach(function(b){ b.classList.remove('hit'); }); });
-        awarded = []; save(); paint();
+        if (awarded.length) { save(); paint(); }
+        awarded = [];
       }
     }
     btn.addEventListener('click', function(e){ e.stopPropagation(); reveal(); });
@@ -1699,7 +1730,6 @@
     var bins = list(srt.getAttribute('data-bins'));
     var items = list(srt.getAttribute('data-items')).map(function(x){
       var k = x.lastIndexOf('='); return {label: x.slice(0, k).trim(), bin: parseInt(x.slice(k + 1), 10) - 1}; });
-    if (srt.hasAttribute('data-teams')) srt.appendChild(scoreboard());
     var tray = el('div', 'tray'), binWrap = el('div', 'bins'), zones = [], selected = null;
     // shuffle so the order on the screen gives nothing away
     var order = items.map(function(_, i){ return i; });
@@ -1767,8 +1797,6 @@
     srt.appendChild(tray); srt.appendChild(binWrap); srt.appendChild(ctl); srt.appendChild(why);
     srt.check = run;
   });
-
-  paint();   // scores kept from before a reload
 
   document.addEventListener('keydown', function(e){
     var t = e.target.tagName;

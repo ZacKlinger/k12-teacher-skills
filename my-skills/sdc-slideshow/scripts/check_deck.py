@@ -371,6 +371,9 @@ def check_games(sl: list, rep: Report) -> int:
         for m in re.finditer(r'<div class="(game|sort)\b[^"]*"([^>]*)>', body):
             kind, blob = m.group(1), m.group(2)
             why = (attr(blob, "data-why") or "").strip()
+            if attr(blob, "data-teams") is not None:
+                rep.error(f"Slide {i} ({title}): data-teams on a {kind}. Teams are set once for "
+                          "the whole deck, and only when Zac asks for them: build with --teams.")
             if kind == "game":
                 opts = [o for o in (attr(blob, "data-options") or "").split("|") if o.strip()]
                 ans = attr(blob, "data-answer") or ""
@@ -695,6 +698,11 @@ def main() -> int:
                 args.languages = ",".join(meta["languages"])
             check_against_packet(html, packet, rep)
     games = check_games(sl, rep)
+    body = re.search(r"<body\b[^>]*>", raw)
+    teams = attr(body.group(0), "data-teams") if body else None
+    if teams:
+        rep.note(f"Team play on: {teams.replace('|', ', ')}, one running score in every slide's "
+                 "footer. Teams only when Zac asked for them.")
     check_talk(sl, rep, games)
     check_vocab(html, [w.strip() for w in args.vocab.split(",") if w.strip()], rep)
     langs = [c.strip() for c in args.languages.split(",") if c.strip()] or ["es"]

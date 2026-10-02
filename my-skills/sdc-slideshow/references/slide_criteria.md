@@ -36,11 +36,13 @@ runs on phases that chime, so the teacher can listen instead of watch the clock.
 **Read aloud on demand.** A reads the slide: headline, each language line in its own voice, the
 direction. For a student who can't yet read the question off the wall, the wall reads it to them.
 
-**Key words look the same on the wall and the page.** The packet's key words are marked on every
-slide in the same bold-on-yellow, so recognition carries across from screen to paper.
+**Key words look the same on the wall and the page.** Each key word is marked once on a slide,
+where it first appears, bold with a yellow stroke like the packet's, so recognition carries across
+from screen to paper. Once, because yellow everywhere marks nothing.
 
 **Every guess counts.** A game round or a sort puts every student's thinking in play at once and
 gets students out of their seats to the board; partners agree first, so it is talk, not a quiz.
+Points and teams only when Zac asks for them.
 
 ## Cost
 
