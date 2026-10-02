@@ -90,6 +90,6 @@ page by page.
 
 ## The slide
 
-The slide's criteria live with the slideshow skill (`sdc-slideshow`, `references/slide_criteria.md`).
+The slide's criteria live with the slideshow skill (`k12presentation`, `references/slide_criteria.md`).
 Two of them depend on the packet: the question on a slide is the packet's wording, and the key
 words are marked on the slides the same way they are on the page.

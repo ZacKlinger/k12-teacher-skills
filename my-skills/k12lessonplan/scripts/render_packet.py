@@ -216,6 +216,28 @@ def _rtl(par, lang):
         r._r.get_or_add_rPr().append(OxmlElement("w:rtl"))
 
 
+EAST_ASIAN = {"zh", "ja", "ko"}
+
+
+def _lang_tag(par, lang):
+    """Mark a language line with its language. Read-aloud on a student's device then speaks
+    it in the right voice instead of an English one, and the slideshow skill, reading the
+    packet back, knows which line is which language. Runs after _rtl: w:lang follows w:rtl
+    in a run's properties."""
+    code = str(lang or "").strip()
+    if not code:
+        return
+    base = code.split("-")[0]
+    for r in par.runs:
+        el = OxmlElement("w:lang")
+        el.set(qn("w:val"), code)
+        if base in EAST_ASIAN:
+            el.set(qn("w:eastAsia"), code)
+        if base in RTL:
+            el.set(qn("w:bidi"), code)
+        r._r.get_or_add_rPr().append(el)
+
+
 # ---------------------------------------------------------------- readability
 
 def syllables(word):
@@ -414,6 +436,7 @@ class Renderer:
         for r in par.runs:
             r.font.color.rgb = ES_INK
         _rtl(par, lang)
+        _lang_tag(par, lang)
         return par
 
     def es_in_cell(self, cell, text, lang="es"):
@@ -428,6 +451,7 @@ class Renderer:
         for r in par.runs:
             r.font.color.rgb = ES_INK
         _rtl(par, lang)
+        _lang_tag(par, lang)
         return par
 
     def lang_lines(self, blk, indent=0, space_after=4):

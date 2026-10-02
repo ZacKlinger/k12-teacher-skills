@@ -1,10 +1,10 @@
 ---
-name: "sdc-slideshow"
-description: "Builds the interactive HTML slide deck for Zac's SDC (special day class) grades 9-10 science and math: real photographs found on Wikimedia without a browser, phased talk timers, interactive charts, game rounds and sorting games, key words marked, a language line on every question, all in one file he opens in Chrome. sdc-lesson-planning calls it at its build step with the packet and plan; use it directly whenever Zac wants slides from something he already has: \"make slides for this packet\", \"turn this lesson plan into a deck\", \"slides for the viewing guide\", \"add a game slide\", \"a Jeopardy review for unit 1\", a Google Doc or PDF of a lesson. Do NOT use it to plan a lesson from scratch or to make the printed packet; that is sdc-lesson-planning."
+name: "k12presentation"
+description: "Builds the interactive HTML slide deck for Zac's SDC (special day class) grades 9-10 science and math: real photographs found on Wikimedia without a browser, phased talk timers, interactive charts, game rounds and sorting games, key words marked, a language line on every question, all in one file he opens in Chrome. k12lessonplan calls it when Zac asks for slides with a lesson; use it directly whenever Zac wants slides from something he already has, above all a student packet k12lessonplan made (the .docx, or its Google Doc downloaded as Word): \"make slides for this packet\", \"turn this lesson plan into a deck\", \"slides for the viewing guide\", \"add a game slide\", \"a Jeopardy review for unit 1\", a Google Doc or PDF of a lesson. Do NOT use it to plan a lesson from scratch or to make the printed packet; that is k12lessonplan."
 license: MIT
 ---
 
-# SDC slideshow (grades 9-10, science and math)
+# k12presentation (SDC grades 9-10, science and math)
 
 Builds the deck Zac teaches from: one HTML file, opened with **Open in Chrome** and projected, that
 runs the lesson. It carries real photographs, timers, talk slides whose turns chime, interactive
@@ -21,18 +21,33 @@ questions in the same words, the packet page named on every slide that asks stud
 
 Take the first of these that applies, and build from it alone:
 
-1. **sdc-lesson-planning, in this conversation.** It hands over at its build step: `packet.json`
+1. **k12lessonplan, in this conversation**, whether it called this skill at its build step or
+   Zac took up its offer of a deck afterwards. Build from what it left: `packet.json`
    (every task's exact wording, the language lines, the key words in `meta.vocab`, the lesson code,
    the minutes, the languages) and the plan it wrote into the chat (the agenda, the talk moves, the
    photographs it promised by subject, the video). Every slide comes from those. Don't re-plan,
    don't reword a question, don't add a task the packet doesn't have.
-2. **A lesson Zac already has**: a Google Doc, a PDF, a pasted plan, a packet from last year. Read
+2. **A packet k12lessonplan made, in a later conversation**: the packet `.docx`, or its
+   Google Doc downloaded as Word (File › Download › Microsoft Word), usually with the plan pasted
+   beside it. Read it first:
+
+   ```bash
+   python3 scripts/read_packet.py "<code> - <short title> - packet.docx"
+   ```
+
+   It prints the lesson code, the timed sections, every numbered question with its language
+   lines, and the key words, read from the page as printed, so an edit Zac made in Docs is the
+   wording the deck carries. Then build exactly as in 1, passing the `.docx` itself to `--packet`.
+   The minutes come from the packet's section headings; the talk moves, photographs and video
+   from the pasted plan. With no plan, choose those yourself from the packet's tasks and name them
+   in the three lines you say before building.
+3. **Any other lesson Zac has**: a Google Doc, a PDF, a pasted plan, a packet from last year. Read
    it once and pull out the objective, the agenda with minutes, every task in its own words, the key
    words, and the moments students talk. Say in three lines what you found and the deck you're
    about to build, then build. Ask only what the document and the profile can't answer, and never
    more than one round: usually just the period length, which the profile's schedule answers when
    there is a profile (`project-profile.md` in the working folder).
-3. **Just slides**: pause slides for a viewing guide, a review game, one game slide to add to a
+4. **Just slides**: pause slides for a viewing guide, a review game, one game slide to add to a
    deck. Build exactly that (the "Shapes" section below).
 
 ---
@@ -66,9 +81,10 @@ python3 scripts/build_deck.py slides.html "$OUTPUT_DIR/<code> - <short title> - 
 ```
 
 `--packet` reads the key words and the languages from the packet's `meta` and checks the deck
-against the packet: every question is on a slide in the packet's own words. Without a
-`packet.json`, pass `--vocab "reservoir,pump"` and `--languages es` instead. Add `--teams 3` (or
-team names) only when Zac asks for teams; see "Games" below.
+against the packet: every question is on a slide in the packet's own words. It takes
+`packet.json` or the packet `.docx` itself. With neither, pass `--vocab "reservoir,pump"` and
+`--languages es` instead. Add `--teams 3` (or team names) only when Zac asks for teams; see
+"Games" below.
 
 It writes the deck and runs the checker in one step. Zac opens the deck as a local file in Chrome,
 not in the chat's preview, so everything in it works from a file, which the template does.
@@ -168,6 +184,6 @@ HTML file as its code, so presenting from Drive means downloading the file and o
 Chrome. Everything a slide needs is inside the file or linked by URL, so it works from the working
 folder, a Drive download, or a USB stick; never point a slide at a local file.
 
-When sdc-lesson-planning called this skill, hand back to it quietly: it delivers the files and the
+When k12lessonplan called this skill, hand back to it quietly: it delivers the files and the
 plan together. Keep the machinery invisible either way. Say "slide deck", never "template" or
 "checker".

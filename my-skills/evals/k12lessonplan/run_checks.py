@@ -5,9 +5,11 @@ Usage:
     python3 run_checks.py path/to/lesson-folder [--out checks.txt]
 
 The folder holds what one lesson produced: the packet (`* - packet.docx`), the deck
-(`* - deck.html`), and, when there is one, the `packet.json` it was rendered from. The
-report is the evidence for the rubric's script-judged criteria (SDC-P1, SDC-R1, SDC-R2,
-SDC-L1, SDC-D1, SDC-G1, O14) and is handed to the LLM judge beside the lesson itself.
+(`* - deck.html`), and, when there is one, the `packet.json` it was rendered from. Without
+it, the deck is checked against the packet .docx itself, as a deck built in a later
+conversation would be. The report is the evidence for the rubric's script-judged criteria
+(SDC-P1, SDC-R1, SDC-R2, SDC-L1, SDC-D1, SDC-G1, O14) and is handed to the LLM judge beside
+the lesson itself.
 """
 
 import argparse
@@ -20,9 +22,9 @@ import sys
 import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SCRIPTS = os.path.join(HERE, "..", "..", "sdc-lesson-planning", "scripts")
+SCRIPTS = os.path.join(HERE, "..", "..", "k12lessonplan", "scripts")
 # the deck's checker lives with the slideshow skill once the deck is its own skill
-DECK_SCRIPTS = next((d for d in (os.path.join(HERE, "..", "..", "sdc-slideshow", "scripts"), SCRIPTS)
+DECK_SCRIPTS = next((d for d in (os.path.join(HERE, "..", "..", "k12presentation", "scripts"), SCRIPTS)
                      if os.path.exists(os.path.join(d, "check_deck.py"))), SCRIPTS)
 
 
@@ -67,8 +69,13 @@ def main():
                "--languages", ",".join(meta.get("languages") or ["es"])]
         if meta.get("vocab"):
             cmd += ["--vocab", ",".join(meta["vocab"])]
+        # the deck is held to the packet: its source when there is one, else the packet itself
+        printed = [d for d in sorted(glob.glob(os.path.join(folder, "*packet*.docx")))
+                   if "(reduced)" not in d]
         if js:
             cmd += ["--packet", js[0]]
+        elif printed:
+            cmd += ["--packet", printed[0]]
         text, code = run(cmd)
         out.append(f"== Deck: {os.path.basename(deck)} (exit {code})\n" + text)
 

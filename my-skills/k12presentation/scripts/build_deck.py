@@ -6,8 +6,10 @@ Usage:
         --title "Science 1.7 · Pump build" --minutes 65 --packet packet.json
 
 --packet reads the key words and the languages from the packet's meta, and the checker
-holds the deck to the packet: every question on a slide, in the packet's words. Without a
-packet, pass --vocab "reservoir,pump,gallon" and --languages es.
+holds the deck to the packet: every question on a slide, in the packet's words. It takes
+packet.json or the packet .docx itself (read through read_packet.py), so a deck built in a
+later conversation is held to the page as printed. Without a packet, pass
+--vocab "reservoir,pump,gallon" and --languages es.
 
 --teams turns on team play, and only when Zac asks for teams: "--teams 3" for Team 1-3,
 or names, "--teams Pumps,Roots,Lights". One scoreboard then sits in the footer of every
@@ -25,13 +27,15 @@ builds and checks.
 """
 
 import argparse
-import json
 import os
 import re
 import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+from read_packet import load_packet  # noqa: E402  (packet.json, or the packet .docx itself)
+
 TEMPLATE = os.path.join(HERE, "..", "assets", "deck_template.html")
 STAGE_OPEN = '<div class="stage" id="stage">'
 STAGE_CLOSE = '\n</div>\n\n<div class="footer">'
@@ -47,8 +51,8 @@ def main():
     ap.add_argument("--languages", default="es")
     ap.add_argument("--vocab", default="",
                     help="the packet's key words (meta.vocab), comma-separated; marked on every slide")
-    ap.add_argument("--packet", help="the lesson's packet.json: key words, languages, and the "
-                                     "questions the deck has to carry")
+    ap.add_argument("--packet", help="the lesson's packet.json or packet .docx: key words, "
+                                     "languages, and the questions the deck has to carry")
     ap.add_argument("--teams", default="",
                     help="only when Zac asks for teams: a count (3) or names, comma-separated")
     args = ap.parse_args()
@@ -68,7 +72,10 @@ def main():
                   deck, count=1, flags=re.S)
     meta = {}
     if args.packet:
-        meta = json.load(open(args.packet, encoding="utf-8")).get("meta", {})
+        try:
+            meta = load_packet(args.packet, args.languages).get("meta", {})
+        except (OSError, ValueError) as e:
+            sys.exit(f"Could not read the packet {args.packet}: {e}")
         if not args.vocab and meta.get("vocab"):
             args.vocab = ",".join(meta["vocab"])
         if args.languages == "es" and meta.get("languages"):

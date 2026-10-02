@@ -44,7 +44,7 @@ import urllib.request
 API = "https://commons.wikimedia.org/w/api.php"
 FILEPATH = "https://commons.wikimedia.org/wiki/Special:FilePath/"
 # Wikimedia asks every client for a descriptive User-Agent and blocks generic ones.
-UA = ("sdc-lesson-planning/1.0 (classroom slide builder; "
+UA = ("k12presentation/1.0 (classroom slide builder; "
       "https://github.com/ZacKlinger/k12-teacher-skills) python-urllib")
 THUMB_W = 330
 PHOTO_MIME = ("image/jpeg", "image/png", "image/webp")

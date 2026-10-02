@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Zip a skill in my-skills/ for upload to claude.ai (Settings > Capabilities > Skills).
-#   my-skills/tools/package_skill.sh sdc-lesson-planning
+#   my-skills/tools/package_skill.sh k12lessonplan
 # Writes my-skills/dist/<skill>.zip with the skill folder at the root of the archive.
 set -euo pipefail
 here="$(cd "$(dirname "$0")/.." && pwd)"
