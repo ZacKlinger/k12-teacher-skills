@@ -12,15 +12,14 @@ The renderer's main job beyond typesetting is keeping a task whole: a question, 
 its stems, and its answer space are bound together so a page break can never land inside
 them. Nothing in the JSON needs to say that — it happens for every task block.
 
-Any block a student has to act on may carry an `"es"` string: one short Spanish line,
-rendered under the English it supports. It is abbreviated support, not a translation --
-see references/packet.md for what gets one and what deliberately does not. On a student
-packet the renderer reports, on stderr, every question that has no Spanish line and every
-Spanish line that ran longer than its English.
-
-A room with more than one home language lists them in `meta.languages` (default ["es"]),
-and each block carries one short line per language under a key named by its code:
-`"es": "...", "zh": "..."`. The report then checks every listed language, not only Spanish.
+A room whose students read in other home languages lists them in `meta.languages`
+(["es"], ["es", "vi"], ...), and any block a student has to act on carries one short line
+per language under a key named by its code: `"es": "...", "vi": "..."`, rendered under the
+English it supports. It is abbreviated support, not a translation -- see
+references/packet.md for what gets one and what deliberately does not. On a student packet
+the renderer reports, on stderr, every question missing a line in a listed language and
+every line that ran longer than its English. With no `meta.languages` there are no language
+lines (an older packet that carries "es" lines without the key is read as ["es"]).
 
 `meta.code` is the teacher's own name for the session ("Science 1.7") and leads the header
 and footer. `meta.large_print: true` sets the whole packet in larger type for the students
@@ -31,7 +30,8 @@ a yellow highlight the first time it appears in each section (`meta.vocab_style:
 drops the highlight for a copier that turns it to mud). Once per section, not every time:
 a page where every third word is yellow marks nothing, and highlights on neighbouring lines
 run into each other. Word banks list the words in plain bold. On stderr the renderer reports
-how the student text reads against `meta.reading_level` (default grade 5): the sentences
+how the student text reads against `meta.reading_level` (default: the grade in
+`meta.grade` or `meta.course`): the sentences
 that run long and the long words that aren't key vocab.
 
     python3 render_packet.py packet.json out.docx --reduced
@@ -68,7 +68,7 @@ STUDENT = {
     "small": 10,
     "es": 11,             # the language line is read by the students with the least margin
     "margin": 0.7,
-    "line_gap": 30,       # points between writing lines — sized for teen handwriting
+    "line_gap": 30,       # points between writing lines — room for large handwriting
     "space_after": 8,
 }
 
@@ -86,7 +86,7 @@ TEACHER = {
 
 INK = RGBColor(0x1B, 0x1F, 0x24)
 MUTED = RGBColor(0x69, 0x70, 0x79)
-# The Spanish line is secondary to the English but it is not fine print: the students
+# A language line is secondary to the English but it is not fine print: the students
 # reading it are the ones with the least margin. Darker than MUTED, lighter than INK.
 ES_INK = RGBColor(0x3A, 0x3F, 0x45)
 ACCENT = RGBColor(0x3E, 0x6D, 0xA8)
@@ -279,8 +279,12 @@ def readability(items, vocab, target):
     if not words:
         return []
     grade = 0.39 * words / sents + 11.8 * syl / words - 15.59
-    out = [f"  {'ok  ' if grade <= target + 0.5 else 'note'}  reads at about grade "
-           f"{max(grade, 1):.1f} (target {target:g}), {words / sents:.0f} words a sentence"]
+    if target is None:
+        out = [f"  note  reads at about grade {max(grade, 1):.1f}, {words / sents:.0f} words a "
+               "sentence (no target: set meta.grade, or meta.reading_level from the profile)"]
+    else:
+        out = [f"  {'ok  ' if grade <= max(target, 1) + 0.5 else 'note'}  reads at about grade "
+               f"{max(grade, 1):.1f} (target {max(target, 1):g}), {words / sents:.0f} words a sentence"]
     for line in long_sents[:6]:
         out.append(f"  note  {line}. Break it in two.")
     for label, ws in list(hard.items())[:6]:
@@ -290,6 +294,37 @@ def readability(items, vocab, target):
                    + " outside the key vocab. Say it shorter, or add it to meta.vocab if it "
                    "is being taught.")
     return out
+
+
+def packet_languages(data):
+    """The home languages that get a line, in print order. An explicit `meta.languages`
+    wins, an empty list included. Without the key, a packet that already carries "es"
+    lines (written before languages were opt-in) is read as Spanish; anything else has
+    no language lines."""
+    meta = data.get("meta", {})
+    if "languages" in meta:
+        return [str(c) for c in (meta.get("languages") or [])]
+    if any(isinstance(b, dict) and b.get("es") for b in data.get("sections", [])):
+        return ["es"]
+    return []
+
+
+def reading_target(meta):
+    """The grade the student's English should read at: `meta.reading_level` when the
+    class profile gives one, else the class's own grade (`meta.grade`, or the grade named
+    in `meta.course`, K as 0). None when nothing says."""
+    if meta.get("reading_level") not in (None, ""):
+        return float(meta["reading_level"])
+    for v in (meta.get("grade"), meta.get("course")):
+        if v in (None, ""):
+            continue
+        t = str(v).strip().lower()
+        if re.match(r"^(k|kindergarten)\b", t) or re.search(r"\bgrade k\b", t):
+            return 0.0
+        m = re.search(r"(\d{1,2})", t)
+        if m and 0 < int(m.group(1)) <= 12:
+            return float(m.group(1))
+    return None
 
 
 class Renderer:
@@ -304,7 +339,7 @@ class Renderer:
                 self.S[k] = round(self.S[k] * 1.25 * 2) / 2
             self.S["line_gap"] = round(self.S["line_gap"] * 1.2)
         # the home languages in the room; each carries one short line under the English
-        self.langs = [str(c) for c in (meta.get("languages") or ["es"])]
+        self.langs = packet_languages(data)
         self.days_seen = 0      # `day` blocks so far; every one after the first starts a page
         self.vocab = []
         self._vocab_re = None
@@ -312,7 +347,7 @@ class Renderer:
         self._vocab_seen = set()    # key words already highlighted in this section
         self.add_vocab(meta.get("vocab") or [])
         self.vocab_style = meta.get("vocab_style", "highlight")
-        self.reading_level = float(meta.get("reading_level", 5))
+        self.reading_level = reading_target(meta)
         self._read = []         # (label, English text) for every prompt and direction
         self.doc = Document()
         self._setup()
@@ -422,7 +457,7 @@ class Renderer:
         return r
 
     def es_line(self, text, indent=0, space_after=4, lang="es"):
-        """The Spanish support line — one line, under the English it supports.
+        """A home-language support line — one line, under the English it supports.
 
         Not italic. Italic costs a striving reader real speed, and this line is read
         by the students who have the least of it to spare; the separation from the
@@ -961,7 +996,7 @@ class Renderer:
         return len(re.sub(r"\*\*", "", str(text)).split())
 
     def _check_es_length(self, english, spanish, num, code="es"):
-        """Abbreviated means shorter. Spanish runs 15-20% longer than English for the
+        """Abbreviated means shorter. Most languages run 15-20% longer than English for the
         same content, so only a real overshoot is worth reporting. Languages written
         without spaces between words can't be counted this way and are left to a human."""
         if code.split("-")[0] in UNSPACED:
@@ -1184,7 +1219,7 @@ def reduce_packet(data):
     d = copy.deepcopy(data)
     meta = d.setdefault("meta", {})
     meta["large_print"] = True
-    langs = [str(c) for c in (meta.get("languages") or ["es"])]
+    langs = packet_languages(d)
     secs = d.get("sections", [])
     keep = [True] * len(secs)
     for i, b in enumerate(secs):

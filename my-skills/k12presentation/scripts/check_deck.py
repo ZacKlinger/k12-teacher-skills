@@ -274,7 +274,7 @@ def check_photos(html: str, sl: list, minutes: int, rep: Report) -> None:
 
 
 ES_CLASS = re.compile(r'class="[^"]*\bes\b[^"]*"')
-# text elements in document order, so a Spanish line can be measured against the
+# text elements in document order, so a language line can be measured against the
 # English line immediately above it
 TEXT_EL = re.compile(r'<(h1|h2|p|div)\b([^>]*)>(.*?)</\1>', re.S | re.I)
 
@@ -286,38 +286,40 @@ def text_of(html: str) -> str:
 UNSPACED = {"zh", "ja", "ko", "th", "my", "km", "lo"}
 
 
-def check_language_access(html: str, sl: list, rep: Report, langs=("es",)) -> None:
-    """Every question and every direction carries a Spanish line.
+def check_language_access(html: str, sl: list, rep: Report, langs=()) -> None:
+    """When the class has home languages, every question and every direction carries a
+    line in each of them.
 
-    Reading is the barrier in this room twice over for a newcomer, and a slide is
-    the one surface a student cannot ask a neighbour to re-read for them. The line
-    is abbreviated on purpose -- the task, not the framing -- so this checks that
-    it is *there* and that it stayed short, and leaves whether it is good Spanish
-    to a human.
+    Reading is the barrier twice over for a newcomer, and a slide is the one surface a
+    student cannot ask a neighbour to re-read for them. The line is abbreviated on
+    purpose -- the task, not the framing -- so this checks that it is *there* and that
+    it stayed short, and leaves whether it is good Spanish, Vietnamese or Arabic to a
+    human. A line is `<p class="es" lang="vi">`: the class marks a language line (its
+    name is historical), the lang names the language, and a line with no lang is
+    Spanish. With no languages listed there is nothing to check.
     """
     total = len(ES_CLASS.findall(html))
-    if total == 0:
-        rep.error(
-            "No Spanish anywhere in the deck. Every question and every direction "
-            'carries a <p class="es"> line under the English it supports. See the '
-            '"Language access" section of references/deck.md.'
-        )
-    else:
-        rep.note(f"{total} Spanish support line(s).")
+    if not langs:
+        if total:
+            rep.warn(f"{total} language line(s) in the deck, but no home languages were given. "
+                     "Pass --languages (or a packet that lists them) so they are checked.")
+        else:
+            rep.note("No home languages listed for this class; no language lines expected.")
+        return
+    rep.note(f"{total} language support line(s).")
 
-    # A room with more than one home language: each extra language rides the same
-    # `.es` line style, marked with its code -- <p class="es" lang="zh">.
     for code in langs:
-        if code == "es":
-            continue
         tagged = re.compile(r'<[^>]*\bclass="[^"]*\bes\b[^"]*"[^>]*\blang="' + re.escape(code)
                             + r'(-[^"]*)?"|<[^>]*\blang="' + re.escape(code)
                             + r'(-[^"]*)?"[^>]*\bclass="[^"]*\bes\b')
         n = len(tagged.findall(html))
+        if code == "es":
+            # a line with no lang attribute is Spanish
+            n += len(re.findall(r'<[^>]*\bclass="[^"]*\bes\b[^"]*"(?![^>]*\blang=)[^>]*>', html))
         if n == 0:
             rep.error(
-                f"No '{code}' lines in the deck, but the room's languages include it. Each "
-                f'one sits beside the Spanish as <p class="es" lang="{code}">. See the '
+                f"No '{code}' lines in the deck, but the class's languages include it. Each "
+                f'question and direction carries one as <p class="es" lang="{code}">. See the '
                 '"Language access" section of references/deck.md.'
             )
         else:
@@ -337,12 +339,12 @@ def check_language_access(html: str, sl: list, rep: Report, langs=("es",)) -> No
         if not has_es and (asks or writes):
             why = "asks a question" if asks else "sends students to the packet"
             rep.warn(
-                f"Slide {i} ({title}) {why} but carries no Spanish line. If the slide "
+                f"Slide {i} ({title}) {why} but carries no language line. If the slide "
                 "only points at a page, that is fine -- say so and move on."
             )
 
-        # Abbreviated means shorter. Spanish runs 15-20% longer than English for the
-        # same content, so only a real overshoot means the framing got translated too.
+        # Abbreviated means shorter. Most languages run 15-20% longer than English for
+        # the same content, so only a real overshoot means the framing got translated too.
         prev = ""
         for el in TEXT_EL.finditer(body):
             classes = set((attr(el.group(2), "class") or "").split())
@@ -355,7 +357,7 @@ def check_language_access(html: str, sl: list, rep: Report, langs=("es",)) -> No
                     continue
                 if prev and len(body_text.split()) > len(prev.split()) * 1.2:
                     rep.warn(
-                        f"Slide {i} ({title}): the Spanish line is longer than the English "
+                        f"Slide {i} ({title}): the language line is longer than the English "
                         f"above it ({len(body_text.split())} words to {len(prev.split())}). "
                         "It carries the task, not the framing -- cut it back."
                     )
@@ -376,7 +378,7 @@ def check_games(sl: list, rep: Report) -> int:
             why = (attr(blob, "data-why") or "").strip()
             if attr(blob, "data-teams") is not None:
                 rep.error(f"Slide {i} ({title}): data-teams on a {kind}. Teams are set once for "
-                          "the whole deck, and only when Zac asks for them: build with --teams.")
+                          "the whole deck, and only when the teacher asks for them: build with --teams.")
             if kind == "game":
                 opts = [o for o in (attr(blob, "data-options") or "").split("|") if o.strip()]
                 ans = attr(blob, "data-answer") or ""
@@ -444,7 +446,10 @@ def check_against_packet(html: str, packet: dict, rep: Report) -> None:
         for b in blocks:
             if b.get("type") == "question":
                 yield b
-    langs = packet.get("meta", {}).get("languages") or ["es"]
+    meta = packet.get("meta", {})
+    langs = meta.get("languages")
+    if langs is None:  # a packet written before languages were opt-in
+        langs = ["es"] if any(q.get("es") for q in questions(packet.get("sections", []))) else []
     wall = norm(text_of(html))
     missing, lines = [], []
     for q in questions(packet.get("sections", [])):
@@ -600,7 +605,7 @@ def check_teaching(raw: str, html: str, sl: list, rep: Report) -> None:
             if m2.group(1).split() and not set(m2.group(1).split()) <= {"instruct", "es"}:
                 rep.warn(
                     f"Slide {i} ({title}): a <p class=\"{m2.group(1)}\"> follows the body. "
-                    "Only a direction (.instruct) or its Spanish line (.es) may sit there -- "
+                    "Only a direction (.instruct) or its language line (.es) may sit there -- "
                     "a summary line reads as filler."
                 )
 
@@ -657,8 +662,9 @@ def main() -> int:
     ap.add_argument("deck")
     ap.add_argument("--minutes", type=int, default=60,
                     help="length of the class period (default 60)")
-    ap.add_argument("--languages", default="es",
-                    help="home languages in the room, comma-separated codes (default es)")
+    ap.add_argument("--languages", default="",
+                    help="the class's home languages, comma-separated codes (default: none, or "
+                         "the packet's)")
     ap.add_argument("--vocab", default="",
                     help="the packet's key words, comma-separated; each should be on a slide")
     ap.add_argument("--packet", help="the lesson's packet.json, or the packet .docx itself; the deck "
@@ -698,7 +704,7 @@ def main() -> int:
             meta = packet.get("meta", {})
             if not args.vocab and meta.get("vocab"):
                 args.vocab = ",".join(meta["vocab"])
-            if args.languages == "es" and meta.get("languages"):
+            if not args.languages and meta.get("languages"):
                 args.languages = ",".join(meta["languages"])
             check_against_packet(html, packet, rep)
     games = check_games(sl, rep)
@@ -706,10 +712,10 @@ def main() -> int:
     teams = attr(body.group(0), "data-teams") if body else None
     if teams:
         rep.note(f"Team play on: {teams.replace('|', ', ')}, one running score in every slide's "
-                 "footer. Teams only when Zac asked for them.")
+                 "footer. Teams only when the teacher asked for them.")
     check_talk(sl, rep, games)
     check_vocab(html, [w.strip() for w in args.vocab.split(",") if w.strip()], rep)
-    langs = [c.strip() for c in args.languages.split(",") if c.strip()] or ["es"]
+    langs = [c.strip() for c in args.languages.split(",") if c.strip()]
     check_language_access(html, sl, rep, langs)
 
     size_mb = len(html.encode()) / 1e6

@@ -8,7 +8,7 @@ Usage:
 The deck is the packet seen on the wall, so it builds from the packet. In the conversation
 that planned the lesson that is packet.json. Any other time it is the packet itself: the
 Word file k12lessonplan made, or the same packet downloaded from its Google Doc as a
-.docx, with whatever Zac changed there. This reads that file and returns the shape
+.docx, with whatever the teacher changed there. This reads that file and returns the shape
 packet.json has: the lesson code and title, the timed sections, every numbered question in
 the page's own words with its language lines, the key words, and the languages.
 
@@ -144,7 +144,7 @@ def read_docx(path, languages=None):
             q.setdefault(code, line)
             if code not in seen_langs:
                 seen_langs.append(code)
-    meta["languages"] = langs or seen_langs or ["es"]
+    meta["languages"] = langs or seen_langs
     if vocab:
         meta["vocab"] = vocab
 
@@ -188,13 +188,13 @@ def main():
         return 1
     meta = data.get("meta", {})
     qs = [b for b in data.get("sections", []) if b.get("type") == "question"]
-    langs = meta.get("languages") or ["es"]
+    langs = meta.get("languages") or []
     print(f"  lesson     {meta.get('code', '(no code in the footer)')}  ·  {meta.get('title', '(no title)')}")
     timed = [b for b in data.get("sections", []) if b.get("type") == "heading"]
     if timed:
         print("  sections   " + "  ·  ".join(
             b["text"] + (f" {b['minutes']} min" if b.get("minutes") else "") for b in timed))
-    print(f"  languages  {', '.join(langs)}"
+    print(f"  languages  {', '.join(langs) or '(none)'}"
           + ("" if meta.get("_tagged") or not qs else "  (untagged lines: from --languages or the script)"))
     print(f"  key words  {', '.join(meta.get('vocab', [])) or '(none marked)'}")
     print(f"  questions  {len(qs)}")

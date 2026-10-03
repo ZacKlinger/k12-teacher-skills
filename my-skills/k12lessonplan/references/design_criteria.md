@@ -1,15 +1,16 @@
 # What a good page is made of
 
-These are the output criteria for every packet. They come from one room: students who read two to
-six years below grade level, several with attention, processing, or fine-motor supports, some
-reading English as a new language, and a copier that prints in grey. Each criterion says what it
-protects. `check_packet.py` and the render report measure what can be measured; the rest is
+These are the output criteria for every packet. They were worked out in the hardest case, a room
+of students reading well below grade level, several with attention, processing, or fine-motor
+supports, some reading English as a new language, and a copier that prints in grey, and they hold
+in every room: what a struggling reader needs costs a strong reader nothing. Each criterion says
+what it protects. `check_packet.py` and the render report measure what can be measured; the rest is
 judgment, and this is what the judgment is for.
 
 ## The worksheet
 
-**Printed from Google Docs.** Zac prints from the Google Doc that "Add to Drive" makes, so that is
-the page that counts. Docs ignores Word's keep-together settings and splits tables anywhere; the one
+**Printed from Word or Google Docs.** Many teachers print from the Google Doc that "Add to Drive"
+makes, so the page has to survive that conversion as well as Word. Docs ignores Word's keep-together settings and splits tables anywhere; the one
 thing it never splits is a single table row. So the renderer carries every task, with its heading,
 its lines, and the table or organizer that answers it, in one borderless row, and Docs moves it
 whole or not at all. Docs also sets text about a twentieth taller than Word; `check_packet.py`
@@ -45,7 +46,7 @@ The renderer draws this way; don't ask it for shading.
   sentence before it.
 - Capitals only for short labels (section names, "I CAN", "WORD BANK"), never for sentences.
 - Sentences of twenty words or fewer, and everyday words around the key words. The renderer
-  reports the reading level against the profile's (grade 5 by default), every long sentence, and
+  reports the reading level against the class's (the profile's, else the grade), every long sentence, and
   every long word that isn't a key word; fix the sentence, not the score.
 - **Key words are marked once, where a section first uses them**: bold on a yellow highlight, so
   the word a student is learning is the one their eye finds. Once per section and never in a word

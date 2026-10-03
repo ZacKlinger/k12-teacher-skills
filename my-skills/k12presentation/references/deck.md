@@ -7,7 +7,7 @@ already works. Don't open the template's stylesheet or scripts, don't rewrite th
 position anything by hand. `references/slide_criteria.md` sets the type sizes and contrast the
 template is built to.
 
-The deck does two jobs at once. It's what Zac teaches from, and it's what a student looks up at
+The deck does two jobs at once. It's what the teacher teaches from, and it's what a student looks up at
 when they've lost the thread of the packet.
 
 ---
@@ -40,7 +40,7 @@ matters." If the cards, the flow, or the chart didn't land the point, another se
 it — rebuild the body. A line of commentary at the bottom of every slide reads as filler, and after
 three slides students stop looking at that part of the screen.
 
-The two exceptions are `.es` and `.instruct`. `.es` is the Spanish line (below); `.instruct` is a
+The two exceptions are `.es` and `.instruct`. `.es` is a home-language line (below); `.instruct` is a
 plain direction students can't get from the body itself —
 *"One person per corner says why"*, *"Hand it to me at the door"*, *"Words you can use: water,
 nutrients, soil."* A direction, never a conclusion. Most slides don't need one.
@@ -101,7 +101,7 @@ slide assumes a picture the student doesn't have is a place a photograph goes. T
 invisible from inside expertise — which is why it is a rule in `references/photographs.md` rather
 than a judgement call.
 
-**Focus on human values.** In this room that means the person in the photograph, the town the
+**Focus on human values.** On a slide that means the person in the photograph, the town the
 number comes from, the worker whose job the machine changed. Abstractions are where students who
 read slowly lose the thread; a person doing something is where they find it again.
 
@@ -109,50 +109,55 @@ read slowly lose the thread; a person doing something is where they find it agai
 
 ## Language access
 
-**Every slide that asks a question or gives a direction carries a Spanish line.** It goes directly
-under the thing it supports — under the headline when the headline is the question, under the
-`.instruct` when the direction is the instruction:
+**When the class has home languages, every slide that asks a question or gives a direction carries
+a line in each.** It goes directly under the thing it supports: under the headline when the
+headline is the question, under the `.instruct` when the direction is the instruction. The class
+`es` marks a language line whatever the language (the name is historical); `lang` names the
+language, and a line with no `lang` is read as Spanish. With no home languages there are no lines,
+and nothing below applies. The examples are Spanish:
 
 ```html
 <h2>How many football fields is that?</h2>
-<p class="es">¿Cuántas canchas de fútbol americano son?</p>
+<p class="es" lang="es">¿Cuántas canchas de fútbol americano son?</p>
 …
 <p class="instruct">Work with your partner. One paper between two.</p>
-<p class="es">Trabajen en pareja. Una hoja para dos.</p>
+<p class="es" lang="es">Trabajen en pareja. Una hoja para dos.</p>
 ```
 
-A new word gets its Spanish inside the word cell, where the word is:
+A new word gets its translation inside the word cell, where the word is:
 
 ```html
 <div class="vc word"><div class="k">Word</div><div class="w">Yield</div>
   <div class="say">say it: YEELD</div>
-  <div class="es">rendimiento</div></div>
+  <div class="es" lang="es">rendimiento</div></div>
 ```
 
 The line carries **the task, and nothing else**. Headlines that state a finding, card bodies,
-captions, chart labels, stats, the standfirst — all stay English. A translated slide is two slides
-of text where there was one, and text is the channel this room cannot use; a four-word Spanish line
-under the question is what actually gets a newcomer into the work.
+captions, chart labels, stats, the standfirst: all stay in the language of instruction. A
+translated slide is two slides of text where there was one, and text is the channel a newcomer can
+least use; a four-word line under the question is what actually gets a newcomer into the work.
 
-**Shorter than the English, always.** The checker warns when a Spanish line runs more than about a
+**Shorter than the English, always.** The checker warns when a language line runs more than about a
 fifth longer than the line above it, which is nearly always the framing having been translated
 along with the task.
 
-**It matches the packet, word for word.** The Spanish on a slide is the same Spanish that is on that
+**It matches the packet, word for word.** The line on a slide is the same line that is on that
 question in the packet. The whole deck-and-packet parity rule applies here too — a student looking
 up from the page has to see the sentence they were just reading.
 
-Plain everyday Spanish, `tú`-form imperatives. `check_deck.py` errors on a deck with no Spanish at
-all, and warns on any slide that asks a question or sends students to the packet without it — that
-warning is a judgement call when the slide only names a page number.
+Plain everyday register, the familiar imperative where the language has one (Spanish `tú`-form).
+`check_deck.py` errors when a listed language has no lines at all, and warns on any slide that asks
+a question or sends students to the packet without one; that warning is a judgement call when the
+slide only names a page number.
 
 ---
 
 
-**A second home language** sits right under the Spanish, same class, marked with its code:
-`<p class="es" lang="zh">写下你的答案。</p>`. Add `dir="rtl"` for Arabic, Farsi, Urdu, or Hebrew and
-the rule flips to the right side. Run the checker with the room's languages,
-`--languages es,zh`, and it errors on a language with no lines at all.
+**More than one home language**: each sits right under the one before, same class, marked with its
+code: `<p class="es" lang="zh">写下你的答案。</p>`. Add `dir="rtl"` for Arabic, Farsi, Urdu, or
+Hebrew and the rule flips to the right side. Run the checker with the class's languages,
+`--languages es,zh` (or `--packet`, which carries them), and it errors on a language with no lines
+at all.
 ## What the type is doing
 
 The look is spare on purpose: white ground, square corners, hairline rules, one pastel doing the
@@ -212,7 +217,7 @@ Roughly one slide per two to three minutes: a 60-minute period lands around 14-2
 | Video | `.body.media` + `.video-wrap` | An embedded, verified video. The body must carry `media` — that is what sizes the frame by height so it cannot overflow onto the text below it |
 | Agenda | `.agenda` | The period at a glance, current block marked with `.now` |
 | Checkpoint | `.slide.dark` | One question, nothing else |
-| Spanish line | `.es` | The question or the direction in Spanish, abbreviated — see "Language access" |
+| Language line | `.es` + `lang` | The question or the direction in a home language, abbreviated; see "Language access" |
 
 **Photographs have their own reference** — `references/photographs.md` covers where one is
 required, how to pick it so it argues for the slide's claim rather than merely matching the
@@ -277,8 +282,8 @@ move the idea with their hands. Two game slides do that, and both are talk first
 on the slide's timer before anyone answers, so a game round counts as one of the lesson's talk
 moves.
 
-**No teams and no points unless Zac asks for them.** The game is the guess, the talk and the
-reveal; points are an extra he turns on for a class that wants them. When he asks for teams, build
+**No teams and no points unless the teacher asks for them.** The game is the guess, the talk and
+the reveal; points are an extra for a class that wants them. When the teacher asks for teams, build
 with `--teams 3` (or names, `--teams "Pumps,Roots,Lights"`, two to six). Then one scoreboard sits
 in the footer of **every** slide, not only the game slides, and keeps the period's running total
 across every game in it: it survives a reload, starts fresh on a new day or after two hours with
@@ -364,7 +369,7 @@ slide: every key word gets its word slide and shows up where it is used.
 ## Timers
 
 `data-timer` is seconds; `data-mins` is the label shown when there's no countdown. Timers never
-start by themselves — Zac starts them with S or a click when the work actually begins, because a
+start by themselves: the teacher starts them with S or a click when the work actually begins, because a
 countdown that starts while students are still finding their pencils is a countdown that lies.
 
 Give a timer to anything with a fixed length: do-now, turn-and-talk, stations, independent work,
@@ -383,7 +388,7 @@ height rather than the width, which keeps it from spilling over whatever sits un
 else goes on a video slide except the link line.
 
 **The template ships a click-to-play facade, not a bare iframe.** The markup carries the verified id
-in `data-yt`, shows the YouTube poster image, and swaps in the real player when Zac clicks:
+in `data-yt`, shows the YouTube poster image, and swaps in the real player when the teacher clicks:
 
 ```html
 <div class="body media">
@@ -439,8 +444,8 @@ one — they are judgement calls, not noise. The checker cannot see whether a ph
 - Click through every slide: no slide is a bare headline, nothing overlaps the head, and no slide
   carries a summary line under its body.
 - Every writing slide has `data-packet`; every packet question appears on some slide.
-- Every question and every direction has its Spanish line, and it says the same thing as the
-  Spanish on that question in the packet.
+- When the class has home languages, every question and every direction has its line in each,
+  and it says the same thing as the line on that question in the packet.
 - The video is a facade with a real 11-character `data-yt`, a poster with real alt text, and the
   plain link under it. `scripts/find_photos.py probe` on the deck confirms it plays embedded
   and prints its title; check the title is the video you chose.

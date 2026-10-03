@@ -19,17 +19,20 @@ Never fabricate a standard code, a statement, or a UUID.
 
 ### Resolving the standard
 
-- **A code is known** (from the request or the project profile):
+- **A code is known** (from the request or the class profile):
   `find_standard_statement(code=<code>, academicSubject=<subject>)`. Code search is a prefix match,
   so `7.RP` returns the family and `7.RP.A.3` returns the leaf.
 - **No code**: `find_standard_statement(keywords=["percent increase", "percent change"],
   academicSubject=<subject>)` — a standard matches if any keyword appears in its description. Pick
   the best fit for the grade, then use its `code` to pull relatives if useful.
 
-`academicSubject` is `"Mathematics"` or `"Science"`. Cap at three search attempts; results from the
-wrong grade band count as a miss, so change the keywords rather than giving up early. From the
-chosen standard keep: the verbatim statement, the `code`, and the `caseIdentifierUUID` — every
-later call needs the UUID.
+`academicSubject` is `"Mathematics"`, `"English Language Arts"`, `"Science"`, or
+`"Social Studies"`. Pass `jurisdiction` with the state whenever the profile or the request names
+one, so the lesson quotes the state's adopted wording; social studies standards exist only under a
+state, so for social studies ask for the state in Step 1 if nothing names it. Cap at three search
+attempts; results from the wrong grade band count as a miss, so change the keywords rather than
+giving up early. From the chosen standard keep: the verbatim statement, the `code`, and the
+`caseIdentifierUUID`; every later call needs the UUID.
 
 ### Math — after the standard resolves
 
@@ -59,10 +62,20 @@ nothing for science standards; don't call them. Instead:
    ("Science days"). Also name what students must already know coming in, as a specific skill
    ("can read a bar graph with a scale of 5"), so the plan has a prerequisite to check.
 
+### ELA and social studies — after the standard resolves
+
+The graph has no misconceptions or progressions for these subjects; don't call those tools. For
+K-2 ELA, `find_learning_components_from_standard(caseIdentifierUUID)` returns sub-skills; use them
+as the look-fors. Otherwise the standard statement is the anchor: name the text (ELA) or the
+sources (social studies) the lesson turns on, and the specific prior skill students need coming in
+("can find a key detail and say which sentence shows it"), so the plan has a prerequisite to check.
+Predicted errors come from your knowledge of the standard and the text; say they reflect general
+best practice.
+
 **Never reproduce curriculum student-facing text.** Investigation prompts, discussion questions,
-and activity narratives inform your design; the words on Zac's packet are always original. Unless
-he has said he uses OpenSciEd or Illustrative Mathematics, don't name those curricula anywhere —
-in the documents or in chat.
+and activity narratives inform your design; the words on the packet are always original. Unless
+the teacher has said they use OpenSciEd or Illustrative Mathematics, don't name those curricula
+anywhere, in the documents or in chat.
 
 ## What lands where
 
@@ -70,8 +83,8 @@ in the documents or in chat.
 - The objective is that standard translated into one "I can…" sentence a student can read.
 - The prerequisite standard (math) or the storyline position plus the specific prior skill
   (science) appears in the plan's "what students already know" line.
-- The talk-through's opening line names the code plus a ten-word gist — enough for Zac to catch a
-  mismatch immediately.
+- The talk-through's opening line names the code plus a ten-word gist, enough for the teacher to
+  catch a mismatch immediately.
 - Misconceptions become predicted errors in the plan and, where they fit, the error-analysis task
   in the packet.
 

@@ -1,6 +1,6 @@
 # (Project name)
 
-Class notes. This file is named exactly what the project is called (`SDC Science.md`) and kept by
+Class notes. This file is named exactly what the project is called (`Period 3 Biology.md`) and kept by
 the lesson-planning skill, beside `project-profile.md` in the course's working folder. The
 skill reads this before every lesson and updates it after, so nothing here needs tending. Edit
 anything that's wrong and the skill keeps your edit. Students are described by need or role,

@@ -9,7 +9,9 @@ Math working folder in Cowork (or paste it into the SDC Math project's knowledge
 - Course: SDC Geometry / Algebra 2
 - Lesson code: `Math <unit>.<lesson>`. Last coded packet: **Math 1.5** (Field trip prep, Days 1
   and 2). Next: **Math 1.6**.
-- Grade / setting: 9-10 SDC
+- Grade / setting: 9-10 SDC (special day class): students two to six years below grade level in
+  reading, many with attention or processing supports. Short blocks, one instruction at a time,
+  something to look at that isn't text, and writing small enough to finish.
 - Class size: 9 students (7 Geometry, 2 Algebra 2)
 - Student reading level: 3rd-5th grade (**confirm**)
 - Equipment on hand: projector, whiteboard, calculators (**confirm**)
@@ -41,6 +43,8 @@ From the calendar (period 6). Math doesn't meet Monday or Wednesday.
 - [ ] Word bank above every question that needs vocabulary
 - [x] Read-aloud: every question and direction is on a slide
 - [ ] Reduced item count
+- [ ] Students working from modified or alternate standards (**confirm**: ticking this applies
+      the rubric's `modified-curriculum` condition)
 - [ ] Large print packet
 - [x] Chunked directions: one step per line, numbered
 - [ ] Visual support on every question

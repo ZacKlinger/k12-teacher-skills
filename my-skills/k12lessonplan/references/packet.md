@@ -17,13 +17,15 @@ Cut anything that is:
 - a question whose answer is already printed above it,
 - a graphic organizer nobody will look at again.
 
-**Length caps.** 60-minute period: 5 to 8 tasks, 2-3 pages. 90-minute block: 8 to 12 tasks,
-3-4 pages. If the content won't fit, the lesson is too big for the period — say so during the
-talk-through rather than shrinking the write space.
+**Length caps.** About one task per seven minutes of the period: 5 to 8 tasks for an hour, 2-3
+pages; 8 to 12 for a 90-minute block, 3-4 pages; fewer for younger students, who write more slowly
+and need more room. If the content won't fit, the lesson is too big for the period: say so during
+the talk-through rather than shrinking the write space.
 
-The Spanish lines (below) cost about a line each — roughly a third of a page on a full 8-task
-packet. The caps do not move to make room for them. When a packet is running over, the space comes
-from cutting a task, never from shrinking the write space or dropping the Spanish.
+Language lines (below) cost about a line each per language, roughly a third of a page on a full
+8-task packet with one language. The caps do not move to make room for them. When a packet is
+running over, the space comes from cutting a task, never from shrinking the write space or
+dropping the lines.
 
 ## Room to write
 
@@ -88,12 +90,15 @@ about it:
 A question with all three is over-supported and the page starts to look like a wall. Pick the one
 that unlocks it.
 
-## The Spanish line
+## Language lines
 
-Every question a student answers and every direction they have to follow carries **one short
-Spanish line**, in an `"es"` field on the block, rendered directly under the English.
+When `meta.languages` lists the class's home languages, every question a student answers and every
+direction they have to follow carries **one short line in each**, in a field named by the
+language's code (`"es"`, `"vi"`, `"zh"` …), rendered directly under the English. With no
+`meta.languages`, there are no lines. The example below is Spanish; every language works the same
+way.
 
-It is support, not translation. The line carries **the task and nothing else** — what to do, what
+It is support, not translation. The line carries **the task and nothing else**: what to do, what
 is being asked, the numbers involved. The framing, the context sentence, the worked example, the
 scaffold: all of that stays in English, where the student is already getting it from the slide, the
 photograph, and you.
@@ -109,31 +114,34 @@ photograph, and you.
 }
 ```
 
-**What takes an `"es"`:** `question` (the prompt), `text`, `labeled`, `note`, `list` / `steps` (one
+**What takes a line:** `question` (the prompt), `text`, `labeled`, `note`, `list` / `steps` (one
 line summarizing the direction, never one per item), `heading`, `wordbank`.
 
 **What deliberately does not:** `hint`, `example`, `stems`, `parts`, and table headers. Those are
-the exclusions that keep this abbreviated, and they are load-bearing — translating the hints and the
-stems doubles the page, and a page that has doubled is a page a struggling reader stops reading. A
-student who needs the Spanish needs it to know *what is being asked*; the support around the
+the exclusions that keep this abbreviated, and they are load-bearing: translating the hints and
+the stems doubles the page, and a page that has doubled is a page a struggling reader stops reading.
+A student who needs the line needs it to know *what is being asked*; the support around the
 question is already the shortest thing on the page.
 
 **Length.** Shorter than the English, or the framing got translated too. This is also why the
 exclusions matter to the page and not only to the reader: one line per task is a third of a page,
 and translating the hints and stems as well would be a page and a half. The renderer reports any
-line that ran more than about 20% over — Spanish naturally runs a little longer, so only a real
-overshoot is worth reporting, and when it does, cut back to the task.
+line that ran more than about 20% over (most languages run a little longer than English, so only
+a real overshoot is worth reporting), and when it does, cut back to the task. Languages written
+without spaces between words (Chinese, Japanese, Thai) are left to your judgment.
 
-**Register.** Plain everyday Spanish, `tú`-form imperatives — *escribe*, *mira*, *explica*. Not
-academic register, not `usted`. Keep the technical term in English with the Spanish beside it when
-the cognate isn't obvious (*yield (rendimiento)*), because the term on the board, in the word bank,
-and on the slide is the English one and a student has to be able to match them.
+**Register.** Plain everyday language, the familiar imperative where the language has one
+(Spanish *escribe*, *mira*, *explica*, not academic register or *usted*). Keep the technical term in
+English with the translation beside it when the cognate isn't obvious (*yield (rendimiento)*),
+because the term on the board, in the word bank, and on the slide is the English one and a student
+has to be able to match them. Right-to-left languages (`ar`, `fa`, `ur`, `he`) print right-aligned
+on their own.
 
-The renderer prints a note on any student packet question that has no Spanish line. Read those
-notes; they are the only thing that checks this.
+The renderer prints a note on any student packet question missing a line in a listed language.
+Read those notes; they are the only thing that checks this.
 
 Each line is marked in the Word file with its language, so read-aloud on a student's device
-speaks it in a Spanish voice rather than an English one, and the slideshow skill, reading the
+speaks it in the right voice rather than an English one, and the presentation skill, reading the
 packet back in a later conversation, knows which line belongs to which language.
 
 ## Page breaks
@@ -191,18 +199,18 @@ copier it comes out as a pale band behind bold type, which still reads. If copie
 ## Reading level
 
 The renderer reads the student's English back to you on every render: a grade estimate against
-`meta.reading_level` (from the profile; default grade 5), every sentence over 20 words, and the long
-words that aren't key words. Key words count as easy, because they are being taught. Act on the
+`meta.reading_level` (from the profile; else the grade in `meta.grade`), every sentence over 20
+words, and the long words that aren't key words. Key words count as easy, because they are being taught. Act on the
 sentences and the words, not the number: split the long sentence, swap *approximately* for
 *about*, and if a long word is really being taught, it belongs in `meta.vocab`.
 
 ## The reduced packet
 
-When Zac asks for it ("the reduced version", "the modified packet", "a version for the students
-on modified assignments"), render the same `packet.json` again with `--reduced`:
+When the teacher asks for it ("the reduced version", "the modified packet", "a version for the
+students on modified assignments"), render the same `packet.json` again with `--reduced`:
 
 ```bash
-python3 scripts/render_packet.py packet.json "$OUTPUT_DIR/<code> - <short title> - packet (reduced).docx" --reduced
+python3 scripts/render_packet.py packet.json "$OUTPUT_DIR/<name> - packet (reduced).docx" --reduced
 ```
 
 It leaves out every question marked `"core": false` with its lead-ins and answer space, keeps
@@ -220,9 +228,9 @@ match the slides and the class can work from either. Nothing on the page says "r
 ```
 {
   "audience": "student" | "teacher",
-  "meta":   {"code", "title", "course", "day", "period", "name_line": true,
-             "languages": ["es"], "large_print": false,
-             "vocab": ["reservoir", "pump"], "vocab_style": "highlight", "reading_level": 5},
+  "meta":   {"code"?, "title", "course", "grade", "day", "period", "name_line": true,
+             "languages": [], "large_print": false,
+             "vocab": ["reservoir", "pump"], "vocab_style": "highlight", "reading_level"?},
   "objective": "I can …",
   "standard":  "CODE — ten-word gist",
   "agenda":  [["Do Now", 5], ["Model", 12], …],      // prints on the lesson plan only
@@ -250,15 +258,18 @@ Blocks:
 | `page_break` | — | Force a new page |
 | `day` | `code`, `day`, `period`, `title`, `es?`, `objective?`, `standard?`, `vocab[]?` | Opens one day of a multi-day packet (`references/formats.md`); every day after the first starts a new page with its own name line |
 
-`heading`, `text`, `labeled`, `note`, `list` / `steps` and `wordbank` each take an optional `es`
-as well — one short Spanish line, rendered under the block. See "The Spanish line" above.
+`heading`, `text`, `labeled`, `note`, `list` / `steps` and `wordbank` each take one optional line
+per listed language as well (`"es"`, `"vi"` …), rendered under the block. See "Language lines"
+above.
 
-**`meta` fields worth knowing.** `code` is the lesson code from the profile ("Science 1.7"); it
-leads the header and the footer, so `course` can usually be left out and `day` can carry the unit
-name ("Hydroponics"). `languages` lists the home languages in print order (default `["es"]`); each
-block then takes one line per code, `"es"` and `"zh"` side by side, and the renderer reports any
-question missing any of them. Right-to-left languages (`ar`, `fa`, `ur`, `he`) print right-aligned
-on their own. `large_print: true` sets the whole packet about a quarter larger, for the students
+**`meta` fields worth knowing.** `code` is the lesson code, when the teacher numbers lessons
+("Science 1.7"); it leads the header and the footer, so `course` can usually be left out and `day`
+can carry the unit name ("Hydroponics"). `grade` is the class's grade ("7", "K"); it sets the
+reading-level target when the profile gives no `reading_level`. `languages` lists the home
+languages in print order, and is left out (or empty) when the class has none; each block then takes
+one line per code, `"es"` and `"zh"` side by side, and the renderer reports any question missing
+any of them. Right-to-left languages (`ar`, `fa`, `ur`, `he`) print right-aligned on their own.
+`large_print: true` sets the whole packet about a quarter larger, for the students
 whose plans call for it; it adds pages, so cut a question before it adds more than one.
 
 `**bold**` works inside any text field. Nothing else marks up — no markdown headings, no pipes,
@@ -270,6 +281,6 @@ The renderer builds one file: the student packet. The lesson plan is written int
 SKILL.md Step 3), and the answer key goes there with it — not on a page that has to be printed,
 hidden from students, and found again tomorrow.
 
-`"audience": "teacher"` still exists in the renderer for the rare case where Zac asks for something
-printed for himself — a station card, an observation grid, a set of corner signs. It is never used
-for the plan.
+`"audience": "teacher"` exists in the renderer for something printed for the teacher (a station
+card, an observation grid, a set of corner signs), and for the plan itself when the teacher asks
+for it as a document instead of in chat.

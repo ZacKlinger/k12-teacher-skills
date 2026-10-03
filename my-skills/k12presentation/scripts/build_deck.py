@@ -11,7 +11,7 @@ packet.json or the packet .docx itself (read through read_packet.py), so a deck 
 later conversation is held to the page as printed. Without a packet, pass
 --vocab "reservoir,pump,gallon" and --languages es.
 
---teams turns on team play, and only when Zac asks for teams: "--teams 3" for Team 1-3,
+--teams turns on team play, and only when the teacher asks for teams: "--teams 3" for Team 1-3,
 or names, "--teams Pumps,Roots,Lights". One scoreboard then sits in the footer of every
 slide with the period's running total, and each game round gets a lock-in row per team.
 Without it the games run as partner talk, with no points.
@@ -48,13 +48,14 @@ def main():
     ap.add_argument("out", help="the deck to write")
     ap.add_argument("--title", required=True, help="browser tab title, e.g. 'Science 1.7 · Pump build'")
     ap.add_argument("--minutes", type=int, default=60)
-    ap.add_argument("--languages", default="es")
+    ap.add_argument("--languages", default="",
+                    help="the class's home languages, comma-separated codes (default: none, or the packet's)")
     ap.add_argument("--vocab", default="",
                     help="the packet's key words (meta.vocab), comma-separated; marked on every slide")
     ap.add_argument("--packet", help="the lesson's packet.json or packet .docx: key words, "
                                      "languages, and the questions the deck has to carry")
     ap.add_argument("--teams", default="",
-                    help="only when Zac asks for teams: a count (3) or names, comma-separated")
+                    help="only when the teacher asks for teams: a count (3) or names, comma-separated")
     args = ap.parse_args()
 
     template = open(TEMPLATE, encoding="utf-8").read()
@@ -78,7 +79,7 @@ def main():
             sys.exit(f"Could not read the packet {args.packet}: {e}")
         if not args.vocab and meta.get("vocab"):
             args.vocab = ",".join(meta["vocab"])
-        if args.languages == "es" and meta.get("languages"):
+        if not args.languages and meta.get("languages"):
             args.languages = ",".join(meta["languages"])
     words = [w.strip() for w in args.vocab.split(",") if w.strip()]
     teams = [t.strip() for t in args.teams.split(",") if t.strip()]
@@ -98,8 +99,9 @@ def main():
     print(f"wrote {args.out} ({len(deck.encode()) // 1000} KB, {n} slides)")
 
     check = os.path.join(HERE, "check_deck.py")
-    r = subprocess.run([sys.executable, check, args.out, "--minutes", str(args.minutes),
-                        "--languages", args.languages] + (["--vocab", args.vocab] if words else [])
+    r = subprocess.run([sys.executable, check, args.out, "--minutes", str(args.minutes)]
+                       + (["--languages", args.languages] if args.languages else [])
+                       + (["--vocab", args.vocab] if words else [])
                        + (["--packet", args.packet] if args.packet else []))
     return r.returncode
 

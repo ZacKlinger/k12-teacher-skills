@@ -68,7 +68,7 @@ To fix it once: in Claude's settings, under Capabilities, find code execution's 
 access and allow commons.wikimedia.org and upload.wikimedia.org (or all domains).
 Until then, use the fallback in references/photographs.md section 4: web search
 restricted to commons.wikimedia.org, judged from each file page. Never open a
-browser tab for photographs, and never ask Zac for them."""
+browser tab for photographs, and never ask the teacher for them."""
 
 
 class NetworkDown(Exception):

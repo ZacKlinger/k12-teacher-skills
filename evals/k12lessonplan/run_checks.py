@@ -7,9 +7,9 @@ Usage:
 The folder holds what one lesson produced: the packet (`* - packet.docx`), the deck
 (`* - deck.html`), and, when there is one, the `packet.json` it was rendered from. Without
 it, the deck is checked against the packet .docx itself, as a deck built in a later
-conversation would be. The report is the evidence for the rubric's script-judged criteria
-(SDC-P1, SDC-R1, SDC-R2, SDC-L1, SDC-D1, SDC-G1, O14) and is handed to the LLM judge beside
-the lesson itself.
+conversation would be. The report is the evidence for the criteria a script can measure
+(O14, O16, O-C1, O-C2, O-C3 in the lesson rubrics; O-D1, O-D4, O-D5, O-D6, P-D3, P-D4 in
+the deck rubric) and is handed to the LLM judge beside the lesson itself.
 """
 
 import argparse
@@ -22,10 +22,21 @@ import sys
 import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SCRIPTS = os.path.join(HERE, "..", "..", "k12lessonplan", "scripts")
-# the deck's checker lives with the slideshow skill once the deck is its own skill
-DECK_SCRIPTS = next((d for d in (os.path.join(HERE, "..", "..", "k12presentation", "scripts"), SCRIPTS)
-                     if os.path.exists(os.path.join(d, "check_deck.py"))), SCRIPTS)
+ROOT = os.path.join(HERE, "..", "..")
+
+
+def skill_scripts(name):
+    """The skill's scripts folder: plugin/skills/<name> in the repository layout, or
+    my-skills/<name> in a fork that keeps its own skills apart."""
+    for base in ("plugin/skills", "my-skills"):
+        d = os.path.join(ROOT, base, name, "scripts")
+        if os.path.isdir(d):
+            return d
+    sys.exit(f"Can't find the {name} skill's scripts under plugin/skills/ or my-skills/.")
+
+
+SCRIPTS = skill_scripts("k12lessonplan")
+DECK_SCRIPTS = skill_scripts("k12presentation")
 
 
 def run(cmd):
@@ -66,7 +77,7 @@ def main():
     for deck in sorted(glob.glob(os.path.join(folder, "*deck*.html"))):
         cmd = [os.path.join(DECK_SCRIPTS, "check_deck.py"), deck,
                "--minutes", minutes.group(0) if minutes else "60",
-               "--languages", ",".join(meta.get("languages") or ["es"])]
+               ] + (["--languages", ",".join(meta["languages"])] if meta.get("languages") else [])
         if meta.get("vocab"):
             cmd += ["--vocab", ",".join(meta["vocab"])]
         # the deck is held to the packet: its source when there is one, else the packet itself

@@ -1,14 +1,14 @@
 # Session shapes beyond the single lesson
 
 Most requests are one class session: one packet, one deck, one plan in chat. That is the default,
-always. Three other shapes come up often enough to have their own rules. Each keeps the parts that never change (lesson code,
-objective and standard, the language lines, the accommodations from the profile, the plan in chat
-with an answer key) and changes only what the shape needs.
+always. Three other shapes come up often enough to have their own rules. Each keeps the parts that
+never change (the lesson's name, objective and standard, any language lines, the accommodations,
+the plan in chat with an answer key) and changes only what the shape needs.
 
 | Shape | Asked for as | Files |
 |---|---|---|
 | Multi-day lesson | "Day 1 and 2 of field trip prep", "one packet for the whole week", "plan Monday through Wednesday" | One packet with a section per day; one deck per day |
-| Viewing guide | "a viewing guide for Top Gun", "worksheet for this tubing video" | Packet only, unless slides are asked for |
+| Viewing guide | "a viewing guide for this documentary", "worksheet for this video" | Packet only, unless slides are asked for |
 | Review game | "make a Jeopardy for this", "a game to review the six parts" | One HTML game board, built by the `k12presentation` skill |
 
 When the request doesn't name a shape, it's a lesson. When it names one of these, skip the parts of
@@ -28,7 +28,7 @@ it is: `"Running the lines — 5:16"`. The minutes on the heading are the footag
 - **Online video:** get the timestamps from the transcript or the chapter markers of the verified
   video, never from memory. If you can't see either, name the segments without times and say so in
   one line; a wrong timestamp sends the class scrubbing through footage in front of everyone.
-- **Feature film:** name scenes, not times ("the canyon run", "the final dogfight"). Classroom copies
+- **Feature film:** name scenes, not times ("the storm scene", "the courtroom speech"). Classroom copies
   and streaming cuts drift by minutes.
 
 **What goes on the page, in order:**
@@ -38,10 +38,9 @@ it is: `"Running the lines — 5:16"`. The minutes on the heading are the footag
    This is the one table whose last column carries the home languages, because the word itself is
    the task.
 3. The segment questions. Most are answerable in the moment: a word or number from the footage in a
-   stem (`He uses ______ mm tubing`), or circle-one (`MORE lift or LESS lift`). A question that needs
-   a composed sentence goes at a pause, not while footage runs. The prompt may carry one sentence of
-   context before the question (the Mach 10 fact before the "why so long to shape it" question); the
-   language line still carries only the question.
+   stem (`The pipe is ______ mm wide`), or circle-one (`MORE lift or LESS lift`). A question that
+   needs a composed sentence goes at a pause, not while footage runs. The prompt may carry one
+   sentence of context before the question; the language line still carries only the question.
 4. A closing transfer question that ties the footage to the class project: *one thing to copy on our
    system, and one thing you'd do differently*, or *which force matters most for your glider*.
 
@@ -65,7 +64,8 @@ as one of the three next moves instead. "Tomorrow" is one lesson.
 The work runs across days (a budget planned on Day 1 and checked on Day 2, a build over a week), so
 the packet does too, and every day still stands on its own:
 
-- **Every day keeps its own code and its own minutes.** Science 1.7 and Science 1.8, each with its
+- **Every day keeps its own name and its own minutes**, its own code when the teacher uses codes
+  (Science 1.7 and Science 1.8), each with its
   minutes read off the schedule for its own weekday (Monday's block and Wednesday's period are not
   the same length), and each day's blocks summing to that day's period.
 - **One packet, one `day` block per day.** The `day` block (`references/packet.md`) opens each day
@@ -83,11 +83,11 @@ the packet does too, and every day still stands on its own:
 - Day 2's do-now reaches back to a Day 1 answer by name: *"What was your near-miss category from
   yesterday?"* It is the cheapest retrieval in the packet and it tells you in five minutes who
   kept Day 1.
-- A take-along page (the checklist that goes to Scrap SF, the data sheet that goes to the garden)
+- A take-along page (the checklist that goes on the field trip, the data sheet that goes to the garden)
   sits last, on its own page, under a `note` banner saying where it goes.
 - **One deck per day**, each named by its own code (`Science 1.8 - Check it - deck.html`), so the
   deck on the projector always matches the day on the page. A single deck with a divider slide per
-  day only if Zac asks for it.
+  day only if the teacher asks for it.
 - **The talk-through in Step 2 covers the whole arc first**: one point of view for the run, then
   each day's objective, agenda and spine in order, so a wrong turn on Day 1 is caught before Day 3
   is built on it. The plan in chat then covers every day in order, each with its own agenda, look

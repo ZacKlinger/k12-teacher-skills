@@ -10,7 +10,9 @@ claude.ai).
 - Course: SDC Science (full year, project-based; physical and life science)
 - Lesson code: `Science <unit>.<lesson>`. Last coded packet: **Science 1.6** (Vote and get ready).
   Next: **Science 1.7**.
-- Grade / setting: 9-10 SDC
+- Grade / setting: 9-10 SDC (special day class): students two to six years below grade level in
+  reading, many with attention or processing supports. Short blocks, one instruction at a time,
+  something to look at that isn't text, and writing small enough to finish.
 - Class size: 6 students, one paraprofessional
 - Student reading level: 3rd-5th grade (**confirm**)
 - Equipment on hand: projector, whiteboard, the hydroponic frame with lights (built), pH and EC/TDS
@@ -45,6 +47,8 @@ sensory breaks, and behavior supports") and from what every packet so far alread
 - [x] Word bank above every question that needs vocabulary
 - [x] Read-aloud: every question and direction is on a slide
 - [x] Reduced item count (modified assignments)
+- [ ] Students working from modified or alternate standards (**confirm**: ticking this applies
+      the rubric's `modified-curriculum` condition)
 - [ ] Large print packet
 - [x] Chunked directions: one step per line, numbered
 - [x] Visual support on every question

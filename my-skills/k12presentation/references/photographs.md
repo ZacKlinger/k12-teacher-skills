@@ -90,9 +90,10 @@ one, and only search when none does.
    applied-math topic, including most of what NASA, USDA, NOAA, USGS and NIH have released into
    the public domain, so one search reaches those collections too.
 
-**Photographs never depend on Zac.** Never ask him for one, never wait on an upload, and never
-build a slot around a picture of the class: sourcing them is the skill's job, every time. A deck
-that needs a photograph from him is a deck that isn't ready on the morning he opens it.
+**Photographs never depend on the teacher.** Never ask them for one, never wait on an upload, and
+never build a slot around a picture of the class: sourcing them is the skill's job, every time. A
+deck that needs a photograph from the teacher is a deck that isn't ready on the morning they open
+it.
 
 **Never open a browser tab to find, judge, or test a photograph.** Not Claude in Chrome, not a
 built-in browser. The script does all three from the sandbox, and it costs one image per slot
@@ -159,7 +160,7 @@ usually say whether a shot is a close-up or a wide establishing view, and files 
 `Category:Quality images` are reliably single-subject and sharp. Prefer file names that describe a
 single subject over ones that describe a place. You can't see these photographs, so say once in the
 handover that they are unverified, and note that the deck degrades a blocked photo to a labeled
-card rather than a broken icon. Still no browser tab, and still nothing asked of Zac.
+card rather than a broken icon. Still no browser tab, and still nothing asked of the teacher.
 
 ---
 

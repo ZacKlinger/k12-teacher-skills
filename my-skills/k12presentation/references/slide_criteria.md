@@ -42,7 +42,7 @@ from screen to paper. Once, because yellow everywhere marks nothing.
 
 **Every guess counts.** A game round or a sort puts every student's thinking in play at once and
 gets students out of their seats to the board; partners agree first, so it is talk, not a quiz.
-Points and teams only when Zac asks for them.
+Points and teams only when the teacher asks for them.
 
 ## Cost
 
