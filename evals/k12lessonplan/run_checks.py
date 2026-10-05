@@ -26,13 +26,13 @@ ROOT = os.path.join(HERE, "..", "..")
 
 
 def skill_scripts(name):
-    """The skill's scripts folder: plugin/skills/<name> in the repository layout, or
-    my-skills/<name> in a fork that keeps its own skills apart."""
-    for base in ("plugin/skills", "my-skills"):
+    """The skill's scripts folder: classroom-plugin/skills/<name> or plugin/skills/<name>
+    in the repository layout, or my-skills/<name> in a fork that keeps its own skills apart."""
+    for base in ("classroom-plugin/skills", "plugin/skills", "my-skills"):
         d = os.path.join(ROOT, base, name, "scripts")
         if os.path.isdir(d):
             return d
-    sys.exit(f"Can't find the {name} skill's scripts under plugin/skills/ or my-skills/.")
+    sys.exit(f"Can't find the {name} skill's scripts under classroom-plugin/skills/, plugin/skills/ or my-skills/.")
 
 
 SCRIPTS = skill_scripts("k12lessonplan")
@@ -60,6 +60,8 @@ def main():
         with tempfile.TemporaryDirectory() as tmp:
             text, _ = run([os.path.join(SCRIPTS, "render_packet.py"), js[0],
                            os.path.join(tmp, "packet.docx")])
+        # the scratch copy's path changes every run and says nothing about the packet
+        text = "\n".join(l for l in text.splitlines() if not l.startswith("wrote "))
         out.append("== Packet text (render report: key words, reading level, language lines)\n" + text)
     meta = data.get("meta", {})
     days = sum(1 for b in data.get("sections", []) if b.get("type") == "day") or 1

@@ -1,5 +1,4 @@
 == Packet text (render report: key words, reading level, language lines)
-wrote /tmp/tmp5jgxmwou/packet.docx
   ok    key words used (each highlighted once per section): fable ×4, moral ×6, key detail ×3
   ok    reads at about grade 1.1 (target 3), 8 words a sentence
 

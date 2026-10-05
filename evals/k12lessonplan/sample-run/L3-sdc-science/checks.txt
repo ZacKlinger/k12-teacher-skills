@@ -1,5 +1,4 @@
 == Packet text (render report: key words, reading level, language lines)
-wrote /tmp/tmpncavzwnl/packet.docx
   ok    key words used (each highlighted once per section): criteria ×2, system ×4, flow rate ×4, prime ×3
   ok    reads at about grade 1.6 (target 4), 8 words a sentence
 

@@ -1,5 +1,4 @@
 == Packet text (render report: key words, reading level, language lines)
-wrote /tmp/tmpy1wvt0op/packet.docx
   ok    key words used (each highlighted once per section): proportional ×11, ratio ×3, unit rate ×2
   ok    reads at about grade 1.6 (target 6), 7 words a sentence
 
