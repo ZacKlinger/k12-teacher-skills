@@ -220,13 +220,15 @@ time.
 day; printing it makes a document nobody opens twice. Write it in the message that delivers the
 files, in this order, tight enough to skim:
 
-1. **Objective and standard**: the "I can" sentence, the code, the standard statement verbatim
-   once, and the prerequisite the lesson assumes.
+1. **Objective and standard**: the Big Idea in one line, then the "I can" sentence, the code, the
+   standard statement verbatim once, and the prerequisite the lesson assumes. The Big Idea and the
+   "I can" stay two lines, here as in the talk-through: one is why today matters, the other is
+   what students do today.
 2. **Agenda**: one line per block with minutes, summing to the period.
 3. **The blocks**: for each, what you say (real say-aloud lines for the moves that matter), what
    students do, what to watch for. Two to four lines each, not a script for every minute. For the
-   main work block, name **three look-fors**: something you could see a student do, why it
-   matters, and your move when you see it. Take them from the learning components when Step 1.5
+   main work block, name **three look-fors** as a short numbered list under that block, one line
+   each: something you could see a student do, why it matters, and your move when you see it. Take them from the learning components when Step 1.5
    returned them. Where a task has more than one correct answer, say so, so a right answer that
    doesn't match the key isn't marked down.
 4. **Student talk**: each talk move by name, the question, the stem, who is Partner A, and what

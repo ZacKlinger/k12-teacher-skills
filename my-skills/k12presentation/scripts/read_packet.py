@@ -75,6 +75,17 @@ def _runs(p):
     return out
 
 
+def _indented(p):
+    """A numbered step in a directions list sits indented; a question sits at the margin.
+    Both open with a bold "1.", so the indent is what tells them apart."""
+    ppr = p.find(W + "pPr")
+    ind = ppr.find(W + "ind") if ppr is not None else None
+    if ind is None:
+        return False
+    left = ind.get(W + "left") or ind.get(W + "start") or "0"
+    return left.lstrip("-").isdigit() and int(left) > 0
+
+
 def _guess_lang(text):
     """Only for a packet whose language lines carry no language tag and no --languages
     was given: tell the scripts apart, and the Latin-script lines by their marks."""
@@ -120,7 +131,7 @@ def read_docx(path, languages=None):
             continue
         lead = visible[0] if visible else None
         m = QUESTION.match(text)
-        if m and lead and lead["bold"]:
+        if m and lead and lead["bold"] and not _indented(p):
             last_q = {"type": "question", "number": m.group(1), "prompt": m.group(2).strip()}
             sections.append(last_q)
             continue
@@ -145,6 +156,10 @@ def read_docx(path, languages=None):
             if code not in seen_langs:
                 seen_langs.append(code)
     meta["languages"] = langs or seen_langs
+    # the renderer marks a key word however the sentence inflects it ("flow rates"), so a
+    # plural whose singular is also marked is the same word
+    vocab = [w for w in vocab
+             if not any(w in (v + "s", v + "es") for v in vocab if v != w)]
     if vocab:
         meta["vocab"] = vocab
 

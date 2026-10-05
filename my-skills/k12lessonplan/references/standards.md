@@ -34,6 +34,13 @@ attempts; results from the wrong grade band count as a miss, so change the keywo
 giving up early. From the chosen standard keep: the verbatim statement, the `code`, and the
 `caseIdentifierUUID`; every later call needs the UUID.
 
+**Match the standard to the day, not the unit.** A profile's "standards in play" lists the
+unit's standards; today's task may meet a different one. Before settling, say what students will
+actually do (build and test a part against criteria, compare two tables, trace a moral through
+details) and pick the standard whose verb that is. A test-against-criteria day in a unit filed
+under "break the problem down" is the evaluate-against-criteria standard, and the plan should say
+so.
+
 ### Math — after the standard resolves
 
 Issue these together, then read the results:

@@ -43,6 +43,11 @@ you actually want:
 
 Writing lines are set at 30-point pitch — big-handwriting friendly. Don't shrink them.
 
+**Compute, then explain: a box, not lines.** A task that asks for a test, a calculation, or a
+drawing *and* a sentence about it gets the box; its stems print above the box, and the student
+writes the sentence inside it under the work. Ruled lines under a calculation tell a student to
+write words where they need room to work.
+
 **Sentence starters sit on the writing line.** A question's `stems` print on its first lines, with
 gaps on the rule where the words go and a trailing blank left as the rest of the line, so the
 student starts writing where the sentence starts. `count` is the total number of lines, the
@@ -69,7 +74,9 @@ full. `scripts/check_packet.py` measures it; the order for fixing it is in
 ## Every packet also carries
 
 - **One reflection prompt**, usually under the closing: "Which part was hardest? What made it
-  hard?" with two lines. It is the one place a student writes about their own thinking.
+  hard?" with two lines and its stem on the first, `The hardest part was ______ because ______.`
+  It is the one place a student writes about their own thinking, and the stem is what gets a
+  student who has never been asked that question started.
 - **On a science day:** a "Draw it" box for the first model before the investigation, a second
   "Draw it again. Show how, not only what." box beside or below it for the revised model, and a
   closing claim-evidence-reasoning with three stems (claim, evidence from today's investigation,

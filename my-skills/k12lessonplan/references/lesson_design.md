@@ -51,6 +51,12 @@ built talk move.
 
 **Science, ELA and social studies** follow their own orders, below.
 
+**Every case the standard names gets a task.** Read the standard for its cases before writing
+the problems: the representations it lists (a table *and* a graph), the unknown positions, the
+number types. Each one lands in a task on the packet, not only on a slide, or the plan says which
+day takes it. A lesson that tests proportionality in tables only, for a standard that also says
+"graphing on a coordinate plane," covers half the standard and says so nowhere.
+
 The **Discuss** block belongs to the students: most of its minutes are students talking to each
 other about the hardest case, not answering you one at a time. It is at least a fifth of the
 period, or 10 minutes when the period is 50 or longer, and it must have a named talk move. See
@@ -107,8 +113,10 @@ worksheet marks students in front of each other. Differentiate inside the task i
 
 **Scaffolding.** Chunk directions to one instruction per line. Bold the verb. Give a worked
 example before independent practice, every time. Vocabulary gets defined in the sentence where it
-first appears, in words a reader at the class's reading level knows. Numbers stay friendly until
-the concept is secure, then reach the standard's full range.
+first appears, in words a reader at the class's reading level knows, and above the first task
+that uses it: a vote on "which table is proportional?" asked before anyone has said what
+proportional means is a vote on the word. Numbers stay friendly until the concept is secure, then
+reach the standard's full range.
 
 **Vocabulary, defined where it lands.** Every new word the lesson needs gets defined on the slide
 at the moment it's first used — the word, how to say it, what it means in one short sentence, and a

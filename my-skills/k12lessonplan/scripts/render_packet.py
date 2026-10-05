@@ -197,6 +197,9 @@ def _row_height(row, inches):
 
 # languages written without spaces between words: the word-count length check skips them
 UNSPACED = {"zh", "ja", "ko", "th", "my", "km", "lo"}
+# languages that put a space between syllables, not words: a word count runs far past the
+# English for the same content, so their lines are measured in characters instead
+SYLLABIC = {"vi"}
 # languages written right to left: their line is right-aligned and marked bidi
 RTL = {"ar", "fa", "ur", "he", "ps", "prs"}
 
@@ -548,6 +551,30 @@ class Renderer:
                             for w in sorted(self.vocab, key=len, reverse=True))
             self._vocab_re = re.compile(r"(?<![\w-])(" + alts + r")(?:s|es|ed|ing)?(?![\w-])",
                                         re.IGNORECASE)
+
+    def _in_a_task(self, word):
+        """Whether a key word turns up in something a student answers (a question's prompt,
+        parts, stems or choices, or an organizer's stems), not only in a note or a text."""
+        pat = re.compile(r"(?<![\w-])" + r"\s+".join(map(re.escape, word.split()))
+                         + r"(?:s|es|ed|ing)?(?![\w-])", re.IGNORECASE)
+
+        def walk(blocks):
+            for b in blocks or []:
+                if not isinstance(b, dict):
+                    continue
+                if b.get("type") == "question":
+                    yield b.get("prompt", "")
+                    for k in ("parts", "stems", "choices"):
+                        yield from (str(x) for x in (b.get(k) or []))
+                elif b.get("type") == "organizer":
+                    if b.get("kind") == "cer":
+                        yield "Claim Evidence Reasoning"   # the organizer's own row names
+                    stems = b.get("stems") or {}
+                    yield from (str(v) for v in (stems.values() if isinstance(stems, dict) else stems))
+                    yield from (str(c) for c in (b.get("columns") or []) + (b.get("steps") or []))
+                yield from walk(b.get("sections"))
+
+        return any(pat.search(t) for t in walk(self.data.get("sections")))
 
     # ------------------------------------------------------------ group binding
     def begin_group(self):
@@ -999,11 +1026,18 @@ class Renderer:
         """Abbreviated means shorter. Most languages run 15-20% longer than English for the
         same content, so only a real overshoot is worth reporting. Languages written
         without spaces between words can't be counted this way and are left to a human."""
-        if code.split("-")[0] in UNSPACED:
+        base = code.split("-")[0]
+        if base in UNSPACED:
+            return
+        name = "Spanish" if code == "es" else f"'{code}'"
+        if base in SYLLABIC:
+            en = len(re.sub(r"\*\*", "", str(english)))
+            es = len(re.sub(r"\*\*", "", str(spanish)))
+            if en and es > en * 1.2:
+                self._long_es.append(f"{num or '?'}: {es} {name} characters for {en} English")
             return
         en, es = self._words(english), self._words(spanish)
         if en and es > en * 1.2:
-            name = "Spanish" if code == "es" else f"'{code}'"
             self._long_es.append(f"{num or '?'}: {es} {name} words for {en} English")
 
     def report(self):
@@ -1033,6 +1067,11 @@ class Renderer:
         if missing:
             print("  note  key word(s) never used on the page: " + ", ".join(missing)
                   + ". Use each one in a task, or take it off meta.vocab.", file=sys.stderr)
+        idle = [w for w in self.vocab if w not in missing and not self._in_a_task(w)]
+        if idle:
+            print("  note  key word(s) defined but in no task: " + ", ".join(idle)
+                  + ". A word students never use is a word they don't keep: put it in a "
+                  "question, a stem, or a choice.", file=sys.stderr)
         for line in readability(self._read, self.vocab, self.reading_level):
             print(line, file=sys.stderr)
 

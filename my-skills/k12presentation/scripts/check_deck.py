@@ -161,6 +161,24 @@ def check_structure(html: str, sl: list, minutes: int, rep: Report) -> None:
             )
 
 
+def check_minutes(sl: list, minutes: int, rep: Report) -> None:
+    """The minutes on the slides are the plan's agenda seen from the front of the room. A
+    cover that names the whole period doesn't count toward it."""
+    total, counted = 0.0, 0
+    for a, _ in sl:
+        m = re.match(r"\s*(\d+(?:\.\d+)?)\s*min", attr(a, "data-mins") or "")
+        if not m or float(m.group(1)) >= minutes:
+            continue
+        total += float(m.group(1))
+        counted += 1
+    if counted and abs(total - minutes) > max(2, minutes * 0.05):
+        rep.warn(f"The slides' minutes add up to {total:g}; the period is {minutes}. "
+                 "Make each slide's data-mins match the plan's agenda, so the clock on the "
+                 "wall and the plan in hand tell the same story.")
+    elif counted:
+        rep.note(f"Slide minutes add up to {total:g} of {minutes}.")
+
+
 def check_photos(html: str, sl: list, minutes: int, rep: Report) -> None:
     all_imgs = [t for t in imgs(html) if not is_poster(t)]
     floor = 5 if minutes <= 70 else 8
@@ -169,7 +187,7 @@ def check_photos(html: str, sl: list, minutes: int, rep: Report) -> None:
     if len(all_imgs) < floor:
         rep.error(
             f"{len(all_imgs)} photographs; a {minutes}-minute period needs {floor}-{ceil}. "
-            "A student who reads at a third-grade level and has never seen the thing "
+            "A student who reads slowly, or has never seen the thing, "
             "cannot picture it from the word."
         )
     elif len(all_imgs) > ceil:
@@ -284,6 +302,8 @@ def text_of(html: str) -> str:
 
 
 UNSPACED = {"zh", "ja", "ko", "th", "my", "km", "lo"}
+# a space between syllables, not words: measured in characters, not words
+SYLLABIC = {"vi"}
 
 
 def check_language_access(html: str, sl: list, rep: Report, langs=()) -> None:
@@ -354,6 +374,14 @@ def check_language_access(html: str, sl: list, rep: Report, langs=()) -> None:
             if "es" in classes:
                 code = (attr(el.group(2), "lang") or "es").split("-")[0]
                 if code in UNSPACED:
+                    continue
+                if code in SYLLABIC:
+                    if prev and len(body_text) > len(prev) * 1.2:
+                        rep.warn(
+                            f"Slide {i} ({title}): the '{code}' line is longer than the English "
+                            f"above it ({len(body_text)} characters to {len(prev)}). It carries the "
+                            "task, not the framing -- cut it back."
+                        )
                     continue
                 if prev and len(body_text.split()) > len(prev.split()) * 1.2:
                     rep.warn(
@@ -430,6 +458,15 @@ def check_vocab(html: str, words: list, rep: Report) -> None:
                  + ". Each one gets a word slide and appears where it is used.")
     else:
         rep.note(f"{len(words)} key word(s), each on a slide and marked.")
+    shown = {" ".join(text_of(w).lower().split())
+             for w in re.findall(r'<div class="w">(.*?)</div>', html, flags=re.S)}
+    unslid = [w for w in words if w not in missing
+              and not any(t in (w.lower(), w.lower() + "s", w.lower() + "es") or w.lower() in
+                          (t, t + "s", t + "es") for t in shown)]
+    if unslid:
+        rep.warn("Key word(s) with no word slide: " + ", ".join(unslid)
+                 + ". Each key word gets one: the word, how to say it, what it means, and a "
+                 "picture or a non-example.")
 
 
 def norm(text: str) -> str:
@@ -691,6 +728,7 @@ def main() -> int:
     rep = Report()
     sl = slides(html) or []
     check_structure(html, sl, args.minutes, rep)
+    check_minutes(sl, args.minutes, rep)
     check_photos(html, sl, args.minutes, rep)
     check_template_wiring(raw, html, rep)
     check_teaching(raw, html, sl, rep)
