@@ -1,0 +1,7 @@
+== Packet text (render report: key words, reading level, language lines)
+wrote /tmp/tmpqegkl_w7/packet.docx
+  ok    key words used (each highlighted once per section): structure ×2, function ×2, evidence ×1
+  ok    reads at about grade 1.0 (target 4), 7 words a sentence
+
+== Packet pages: Beaks as tools - packet.docx (exit 0)
+  skip  LibreOffice could not convert the packet; look at the pages by hand.
