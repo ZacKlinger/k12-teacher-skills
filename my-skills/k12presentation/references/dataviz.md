@@ -13,7 +13,8 @@ the base type; `dv-bars` picks the type. With only the type class the chart buil
 catches this, but it is worth knowing why.
 
 **Every deck carries at least one interactive chart, and two to four when the lesson has numbers
-in it.** This is enforced, not encouraged: a deck with none has pushed the whole lesson back into
+in it.** A what-if model and an estimate (`references/interactives.md`) count: both carry a real
+number through the same predict-then-reveal moment. This is enforced, not encouraged: a deck with none has pushed the whole lesson back into
 prose, which is the one channel these students cannot use. Static `.bars` from the deck's component
 catalog do not count — they are for a comparison you don't need to reveal, and they skip the
 predict-then-reveal moment that makes a number stick.
@@ -53,6 +54,8 @@ always the same:
 | Two to four quantities compared | Bars revealed one at a time | `dv-bars` |
 | One value against the range it should be in | Gauge with a target band | `dv-gauge` |
 | Percent increase or decrease | Percent strip — the chunk drawn on the base | `dv-percent` |
+| A cause and its effect the class can push on | What-if model: sliders, a formula, a target band | `whatif` (interactives.md) |
+| One quantity the class estimates as a range | Too low, just right, too high, then the real number | `estimate` (interactives.md) |
 
 Two rules of thumb. **The percent strip is the fix for the most common percent error** — a student
 who has seen 20% drawn *on* the $65 bar stops answering "$13" to "what's the new price." And
@@ -113,6 +116,14 @@ kit builds them in — use them rather than working around them:
   the next one. The order you write them in is the order the story is told.
 - **Restraint everywhere else.** Hairline rules, no chart junk, one accent per chart, generous
   white space around it. The motion is the only thing moving.
+
+## Slow reveal
+
+A published graph read all at once is read by the strongest reader in the room. Read slowly, it is
+read by everyone: draw it as an inline SVG in a `.figure`, give the data, the axis labels and the
+title their own `data-step` numbers in that order, and let each → add one piece while the class says
+what it notices and wonders. The title comes last, so students read the shape before they are told
+what it shows.
 
 ## Making the class the data source
 

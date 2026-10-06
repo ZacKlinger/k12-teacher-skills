@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="800" viewBox="0 0 2400 800">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C9CDD3"/><stop offset="1" stop-color="#3A3F45"/></linearGradient></defs>
+<rect width="2400" height="800" fill="url(#g)"/>
+<g stroke="#fff" stroke-opacity=".35"><line x1="600.0" y1="0" x2="600.0" y2="800"/><line x1="0" y1="200.0" x2="2400" y2="200.0"/><line x1="1200.0" y1="0" x2="1200.0" y2="800"/><line x1="0" y1="400.0" x2="2400" y2="400.0"/><line x1="1800.0" y1="0" x2="1800.0" y2="800"/><line x1="0" y1="600.0" x2="2400" y2="600.0"/></g>
+<circle cx="720.0" cy="280.0" r="96.0" fill="#fff" fill-opacity=".8"/>
+<text x="720.0" y="280.0" font-family="Georgia" font-size="64.0" text-anchor="middle" dominant-baseline="middle" fill="#3A3F45">3</text>
+<text x="1200.0" y="760" font-family="Arial" font-size="40.0" text-anchor="middle" fill="#fff">pano 2400x800 #3</text>
+</svg>

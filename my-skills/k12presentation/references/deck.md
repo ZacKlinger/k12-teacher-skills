@@ -190,6 +190,16 @@ A slide carrying three moves at once loses a student who reads slowly. Break it:
 Roughly one slide per two to three minutes: a 60-minute period lands around 14-20 slides, a
 90-minute block around 20-28.
 
+## Any screen
+
+The type is sized to the screen it lands on, not to its width alone: a 16:9 projector, a 4:3
+projector and a laptop presenting in a browser window (often about 1366 by 657 once the toolbar
+is counted) all get a slide that fits. When a slide still runs past its box, the deck shrinks that
+slide's type a step at a time, down to 70%, and if even that will not fit (an 800 by 600
+projector, a slide carrying too much) the slide scrolls rather than letting text run under the
+footer. A slide that shrinks or scrolls is telling you it carries two ideas: segment it. Answers and
+reasons reserve their space before they appear, so nothing on a slide moves when the answer lands.
+
 ---
 
 ## Components
@@ -210,9 +220,20 @@ Roughly one slide per two to three minutes: a 60-minute period lands around 14-2
 | Vote, talk, revote | `.vote` | Hands counted before and after partners talk; the shift between the two bars is what the talk did |
 | Game round | `.game` | A fair-guess question with lettered answers: partners agree on the timer and show a letter, V reveals and explains. See "Games" below |
 | Sort it | `.sort` | Cards students come up and drag into bins; C checks every card and shows the reason. See "Games" below |
+| Hinge question | `.hinge` | The check before moving on: every wrong option is a known wrong idea, hands are counted, and the tally says move on or reteach. See `references/interactives.md` |
+| True or false | `.tf` | Quick-fire claims, one at a time, every student holding up a card; → reveals, → again moves on |
+| Order it | `.order` | Shuffled steps students put in order at the board; C checks |
+| Number line | `.line` | Cards students place where their values live; C checks and shows where each really goes |
+| Estimate | `.estimate` | Too low, just right, too high on a line, then the real number counts up to its place |
+| Match | `.match` | Draw a line from each word to its meaning or its photograph; C checks |
+| Which one doesn't belong | `.wodb` | Four tiles, a reason for every one: talk about reasons, not right answers |
+| Find the mistake | `.mistake` | Someone's worked steps with one gone wrong; V names the step and the fix |
+| What if | `.whatif` | Sliders feed a formula; the class predicts before each reveal. Counts as an interactive chart |
+| Zoom-in | `.zoomin` | A photo that opens on one detail and steps back with each → |
+| Label the photo | `.pinned` + `data-quiz` | The labelled photo with its names held back, one per → |
 | Pair picker | `.picker` | Calls a pair by number, never by name, after they've rehearsed. P picks |
 | What we heard | `.heard` | A board you type students' ideas into during a share-out, credited to pairs |
-| Build steps | `data-step` on any element | Holds an element back until → , so the prediction comes before the answer |
+| Build steps | `data-step` on any element | Holds an element back until → , so the prediction comes before the answer. A game inside a build step waits for it |
 | Figure | `.figure` + inline `<svg>` | A diagram drawn in SVG: flows, cross-sections, labeled parts |
 | Video | `.body.media` + `.video-wrap` | An embedded, verified video. The body must carry `media` — that is what sizes the frame by height so it cannot overflow onto the text below it |
 | Agenda | `.agenda` | The period at a glance, current block marked with `.now` |
@@ -269,6 +290,8 @@ How each talk move (the lesson skill's talk catalog, or whatever the plan names)
 | Four corners, defend | `.corners`, then `Talk\|120; Defend\|180` and the picker per corner |
 | Stations in pairs | One slide per rotation with its own phases, or one `Station\|480` phase each |
 | Game round, sort it | `.game` or `.sort` with `data-timer` on the slide: partners agree first, then answer |
+| Any game in `interactives.md` | The format with `data-timer` on the slide and an eyebrow that says how students answer |
+| Which one doesn't belong | `.wodb` with `Think\|60; Talk\|120`: every answer can be right, so the talk is the reasons |
 
 Keep the slide still while students talk, and keep the visual on it: the screen is never blanked.
 Clicking a photograph opens it at full size with the slide's question under it, for close looking
@@ -278,9 +301,19 @@ voices, for the student who can't yet read the question off the wall.
 ## Games
 
 HTML can do what paper can't: let every guess in the room count, and let a student walk up and
-move the idea with their hands. Two game slides do that, and both are talk first: partners agree
-on the slide's timer before anyone answers, so a game round counts as one of the lesson's talk
-moves.
+move the idea with their hands. The game round and the sort below do that, and so do the formats
+in `references/interactives.md` (hinge question, true or false, order it, number line, estimate,
+match, which one doesn't belong, find the mistake, what if, zoom-in, label the photo), chosen by
+what students should do with the idea. All of them are talk first: partners agree on the slide's
+timer before anyone answers, so a game slide counts as one of the lesson's talk moves.
+
+**A clicker runs the reveals.** On a slide whose game has an answer to reveal, → reveals it before
+the deck moves on (and steps a zoom-in back, or moves to the next true-or-false claim), after first
+bringing in any build steps on the slide. So the
+answer never arrives before the prediction, and the teacher can run the round from the back of the room.
+Games students arrange with their hands (the sort, order it, the number line, match) are checked
+with `C` or their Check button instead, since checking a half-built arrangement would only mark it
+wrong; → on those slides simply moves on. One game per slide keeps `V` and `C` unambiguous.
 
 **No teams and no points unless the teacher asks for them.** The game is the guess, the talk and
 the reveal; points are an extra for a class that wants them. When the teacher asks for teams, build
@@ -453,7 +486,11 @@ one — they are judgement calls, not noise. The checker cannot see whether a ph
 - Timer seconds match the packet's minutes, and the phases sum to the period.
 - Every interactive chart works: starts empty, each click does what it should, the caption lands
   at the end, and the numbers match the packet answer key.
-- Every game round's answer and every sort card's bin agree with the packet's answer key.
+- Every game round's answer and every sort card's bin agree with the packet's answer key, and so
+  does every answer in the formats from `references/interactives.md` (its own closing checklist
+  covers them).
+- Click through the deck once with → alone, as a presentation clicker would: every game reveals
+  before the deck moves on.
 - New words appear as `.vocab` slides at the moment they're first used, and the packet repeats the
   same wording.
 - The deck is a single HTML file with no sidecar folder. Photographs and the video are

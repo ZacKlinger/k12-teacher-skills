@@ -19,7 +19,9 @@ built deck. Every row's verdict and its reason is in [`scores.csv`](scores.csv),
 
 ## Results
 
-Rows whose condition did not hold are skipped, as the rubric README says. Two rows could not be
+Rows whose condition did not hold are skipped, as the rubric README says. The decks were scored
+against `deck.csv` as it stood then; P-D5 to P-D7, O-D8 and M-D2 came after this run and are not
+in these rates. Two rows could not be
 tested here at all (below), so they are left out of the rates.
 
 | | L1 | L2 | L3 | L4 | All |

@@ -3,3 +3,4 @@ __pycache__/
 .claude/
 .idea/
 .vscode/
+evals/k12presentation/harness/out/

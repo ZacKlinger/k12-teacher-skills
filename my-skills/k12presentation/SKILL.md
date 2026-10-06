@@ -1,6 +1,6 @@
 ---
 name: "k12presentation"
-description: "Builds the interactive HTML slide deck a K-12 teacher projects to run a lesson: real photographs found on Wikimedia without a browser, phased talk timers, predict-then-reveal charts, game rounds and sorting games, key words marked, and a home-language line on every question when the class has home languages, all in one file that runs from the teacher's computer with no student devices. k12lessonplan calls it when slides are asked for with a lesson; use it directly whenever a teacher wants slides from something they already have, above all a student packet k12lessonplan made (the .docx, or its Google Doc downloaded as Word): \"make slides for this packet\", \"turn this lesson plan into a deck\", \"slides for the viewing guide\", \"add a game slide\", \"a Jeopardy review for unit 1\", a Google Doc or PDF of a lesson. Do NOT use it to plan a lesson from scratch or to make the printed packet; that is k12lessonplan."
+description: "Builds the interactive HTML slide deck a K-12 teacher projects to run a lesson: real photographs found on Wikimedia without a browser, phased talk timers, predict-then-reveal charts, game rounds, sorts, hinge questions, matching, ordering, number lines, what-if models and other whole-class games a clicker can run, key words marked, and a home-language line on every question when the class has home languages, all in one file that runs from the teacher's computer with no student devices. k12lessonplan calls it when slides are asked for with a lesson; use it directly whenever a teacher wants slides from something they already have, above all a student packet k12lessonplan made (the .docx, or its Google Doc downloaded as Word): \"make slides for this packet\", \"turn this lesson plan into a deck\", \"slides for the viewing guide\", \"add a game slide\", \"a Jeopardy review for unit 1\", \"a matching game for the vocab\", a Google Doc or PDF of a lesson. Do NOT use it to plan a lesson from scratch or to make the printed packet; that is k12lessonplan."
 license: MIT
 ---
 
@@ -64,6 +64,10 @@ Take the first of these that applies, and build from it alone:
 - `references/photographs.md`: the deck carries real photographs and they are not optional. The
   claim-first method lives there, and it is the difference between photographs that argue for the
   lesson and photographs that merely sit near it.
+- `references/interactives.md`: the games beyond the game round and the sort, and why each one
+  works for this room: hinge question, true or false, order it, number line, estimate, match, which
+  one doesn't belong, find the mistake, what if, zoom-in, label the photo. Read it whenever a moment
+  in the lesson asks students to *do* something with an idea, and pick the format by that verb.
 - `references/dataviz.md`: the chart kit. Every deck carries at least one interactive chart, two to
   four whenever the lesson touches a number, which is nearly always. For any student for whom
   reading is the barrier, a chart they can interpret carries more of the lesson than any paragraph,
@@ -99,9 +103,14 @@ in the plan gets a talk slide built the way `references/deck.md` "Talk slides" d
 thing students talk about on it. A game run as talk (partners agree on the timer before anyone
 answers) counts as one.
 
-**Use a game where it earns its place**: a game round for a fair-guess question, a sort for anything
-students can classify with their hands (`references/deck.md`, "Games"). HTML can do what paper
-can't: let every guess in the room count, and let a student walk to the board and move the idea.
+**Use a game where it earns its place**, chosen by what students should do with the idea: a game
+round for a fair guess, a hinge question before independent work, a sort to classify, order it for
+a procedure, a number line or an estimate for a quantity, a match for vocabulary, which one doesn't
+belong for an argument, find the mistake for the error the class always makes, a what-if for cause
+and effect, a zoom-in to open (`references/deck.md`, "Games", and `references/interactives.md`).
+HTML can do what paper can't: let every guess in the room count, hold the answer until the room has
+committed, and let a student walk to the board and move the idea. Two to four in a period, one per
+slide.
 
 **Games have no teams and no points unless the teacher asks for them.** When they do, `--teams`
 puts one scoreboard in the footer of every slide, carrying the period's running total from game to
@@ -184,7 +193,9 @@ cover the rest.
 
 ## Hand it back
 
-Name the file and say to open it in a browser (it is built in and used from Chrome). If the
+Name the file and say to open it in a browser (it is built in and used from Chrome). When the
+deck has games, add one line: a presentation clicker runs it, since → reveals each game's answer
+before it moves on. If the
 photographs could not be load-tested this session, say so in one line and name the fix: network
 access to `commons.wikimedia.org` and `upload.wikimedia.org` for Claude's sandbox. A copy kept in
 Drive is for keeping: Drive previews an HTML file as its code, so presenting from Drive means

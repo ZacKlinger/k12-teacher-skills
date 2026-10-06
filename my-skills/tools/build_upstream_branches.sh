@@ -167,7 +167,7 @@ it, so the official plugin and its lesson planner are unchanged:
   marked key words and language lines, checked against the packet.
 
 Rubrics: evals/k12lessonplan/rubrics/classroom.csv (11 rows) and
-evals/k12presentation/rubrics/deck.csv (12 rows), layered on shared.csv,
+evals/k12presentation/rubrics/deck.csv (17 rows), layered on shared.csv,
 with four conditions documented in evals/README.md.
 
 Sample run: four lessons (Grade 7 math, Grade 4 science, a grades 9-10

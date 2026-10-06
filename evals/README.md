@@ -15,7 +15,7 @@ Each rubric criterion represents a specific aspect of an LLM-generated classroom
 | k12-lesson-prep/rubrics/ | Rubric for scoring lesson-prep outputs: `internalization.csv` (the prep conversation and the teacher-only prep note) |
 | k12-check-for-understanding/rubrics/ | Rubric for scoring check-for-understanding outputs: `math.csv` (item quality, misconception-based distractors, and the teacher guide) |
 | k12lessonplan/rubrics/ | Rubric for the class-profile lesson planner: `classroom.csv`, layered on `k12-lesson-plan-creation/rubrics/shared.csv` and the subject file (talk moves, language lines, print integrity, key words, the plan in chat, class context) |
-| k12presentation/rubrics/ | Rubric for the projected slide deck: `deck.csv` (the wall matches the page, nothing teacher-only on screen, visible time, predict-then-reveal, built talk, one-computer interactivity) |
+| k12presentation/rubrics/ | Rubric for the projected slide deck: `deck.csv` (the wall matches the page, nothing teacher-only on screen, visible time, predict-then-reveal, built talk, games that fit the moment and take every student's answer, one-computer interactivity, any classroom screen). `k12presentation/harness/` adds deterministic browser checks of the deck; see its README |
 
 ---
 
@@ -45,7 +45,7 @@ Conditional criteria (marked in the `Conditional` column) apply only when the sp
 | `home-languages` | The teacher or class profile names home languages for the class |
 | `plan-in-chat` | The lesson plan was delivered in the chat response rather than as a document |
 | `class-context-available` | A class profile, class notes, or a previous lesson was available to the model |
-| `game-present` | The deck contains a game round, sort, or review board |
+| `game-present` | The deck contains a game: a game round, sort, review board, or any other format in the deck skill's `references/interactives.md` (hinge question, true or false, order it, number line, estimate, match, which one doesn't belong, find the mistake, what if, zoom-in, label the photo) |
 
 Criteria score independently — a failing `R2` tells you something specific about cognitive demand, not just that the output is "bad." Depending on your situation, consider tracking per-criterion pass rates across a prompt suite rather than relying on aggregate scores, since aggregate pass rates can mask meaningful gaps.
 
