@@ -1,4 +1,7 @@
 # Agent Skills for K-12 Teachers
+
+> **About this fork.** This is a fork of [anthropics/k12-teacher-skills](https://github.com/anthropics/k12-teacher-skills). It adds two classroom skills, `k12lessonplan` and `k12presentation`, in [`my-skills/`](my-skills/), with their rubrics and a scored sample run in [`evals/`](evals/), and proposes calibrations to the shared lesson-plan rubrics. Everything below this note is the upstream README.
+
 Source code and evaluation framework for the agent skills that are included with [Claude for Teachers](https://claude.com/solutions/teachers). 
 
 Included are four skills:

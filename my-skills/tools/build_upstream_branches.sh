@@ -89,8 +89,6 @@ cat > classroom-plugin/.claude-plugin/plugin.json <<'JSON'
 JSON
 
 git checkout -q "$src" -- evals/k12lessonplan evals/k12presentation evals/README.md
-git show "$src":my-skills/profiles/sdc-science-profile.md \
-  > evals/k12lessonplan/sample-run/L3-sdc-science/profile.md
 
 python3 - <<'PY'
 import json
@@ -110,24 +108,19 @@ with open(p, "w") as f:
     json.dump(d, f, indent=2, ensure_ascii=False)
     f.write("\n")
 
-edit("evals/k12lessonplan/sample-run/L3-sdc-science/transcript.md",
-     "(my-skills/profiles/sdc-science-profile.md in this repository)", "(profile.md in this folder)")
-
 p = "evals/k12lessonplan/sample-run/README.md"
 s = open(p).read()
 s = s[:s.index("## Reproducing it")] + """## Reproducing it
 
 Install the `k12-classroom` plugin from this repository's marketplace (or upload each folder in
 `classroom-plugin/skills/` as a skill in claude.ai), connect the Learning Commons Knowledge
-Graph, and send each transcript's first teacher message in a fresh chat. For L1 and L3, put the
+Graph, and send each transcript's first teacher message in a fresh chat. For L1, put the
 folder's `profile.md` in the project's knowledge first. Judge with the prompt in
 [the rubric README](../../README.md), passing `shared.csv`, the subject's CSV, `classroom.csv`,
 and `deck.csv` when there is a deck. `run_checks.py` in the folder above runs the skills' own
 checkers over a lesson folder and writes the report the judge reads beside it.
 """
 open(p, "w").write(s)
-edit(p, "A real class profile, and the previous lesson read from Drive by its code",
-     "A real class profile (`profile.md`), and the previous lesson read from Drive by its code")
 
 edit("README.md", """## Layout
 
@@ -170,10 +163,9 @@ Rubrics: evals/k12lessonplan/rubrics/classroom.csv (11 rows) and
 evals/k12presentation/rubrics/deck.csv (17 rows), layered on shared.csv,
 with four conditions documented in evals/README.md.
 
-Sample run: four lessons (Grade 7 math, Grade 4 science, a grades 9-10
-special day class build day, Grade 3 ELA) scored row by row: 193 of 214
-before the skill fixes it found, 210 of 214 after, with the limits of a
-self-judged run written down.
+Sample run: three lessons (Grade 7 math, Grade 4 science, Grade 3 ELA)
+scored row by row: 138 of 154 before the skill fixes it found, 151 of
+154 after, with the limits of a self-judged run written down.
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 MSG
