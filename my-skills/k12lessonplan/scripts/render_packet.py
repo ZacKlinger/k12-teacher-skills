@@ -50,7 +50,6 @@ import re
 import sys
 
 from docx import Document
-from docx.enum.section import WD_SECTION
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.enum.text import (WD_ALIGN_PARAGRAPH, WD_BREAK, WD_COLOR_INDEX, WD_LINE_SPACING,
                              WD_TAB_ALIGNMENT)
@@ -793,7 +792,7 @@ class Renderer:
         par.paragraph_format.space_before = Pt(1)
         self.rich(par, text)
         _no_split(t)
-        p = self.p(space_after=2)
+        self.p(space_after=2)
         return t
 
     def tinted(self, label, text):
@@ -1061,7 +1060,7 @@ class Renderer:
             )
         missing = [w for w in self.vocab if not self._vocab_hits.get(" ".join(w.lower().split()))]
         if self.vocab:
-            print(f"  ok    key words used (each highlighted once per section): " + ", ".join(
+            print("  ok    key words used (each highlighted once per section): " + ", ".join(
                 f"{w} ×{self._vocab_hits.get(' '.join(w.lower().split()), 0)}" for w in self.vocab),
                 file=sys.stderr)
         if missing:

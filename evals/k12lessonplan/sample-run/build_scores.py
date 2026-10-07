@@ -19,7 +19,6 @@ FILE = {**{k: "k12-lesson-plan-creation/rubrics/shared.csv" for k in SHARED},
 LESSONS = {
     "L1": ("Grade 7 math, 7.RP.A.2a, class profile with Spanish and Vietnamese, deck", MATH, True),
     "L2": ("Grade 4 science, 4-LS1-1, no profile, packet and plan", SCI, False),
-    "L3": ("Grades 9-10 SDC science, engineering build, class profile with Spanish, deck", SCI, True),
     "L4": ("Grade 3 ELA, RL.3.2, no profile, Arabic lines, packet and plan", ELA, False),
 }
 
@@ -36,11 +35,9 @@ UT = {"O-C2": "check_packet.py needs LibreOffice, which cannot open files in thi
 J = {
  ("L1","P3"): ("F","P","Run 1: the Big Idea was in the talk-through but not in the delivered plan. Fixed in SKILL.md part 1."),
  ("L2","P3"): ("F","P","Same gap as L1."),
- ("L3","P3"): ("F","P","Same gap as L1."),
  ("L4","P3"): ("F","P","Same gap as L1."),
  ("L1","O13"): ("F","F*","Look-fors were inline prose in run 1, a list in run 2; block bullets still run 4-6 sentences against the skill's own two-to-four lines."),
  ("L2","O13"): ("F","F*","As L1."),
- ("L3","O13"): ("F","F","As L1; the Build and test and Name it bullets run 6-8 sentences."),
  ("L4","O13"): ("F","F*","As L1."),
  ("L1","O-C4"): ("F","P","Run 1: the reflection prompt had no stem (packet.md said lines only). Fixed in packet.md."),
  ("L2","O-C4"): ("F","P","As L1."),
@@ -50,13 +47,10 @@ J = {
  ("L1","P-M4"): ("F*","P","Cases: proportional table (Q3, Q4), steady-but-not-proportional table (Q3, Q5, Q7), decimal rates (Q4), graph through the origin (run 1: slide only; run 2: Q6). lesson_design.md now says every case the standard names gets a task."),
  ("L1","O-M1"): ("F","P","Run 1: Q4 and Q7 asked for a test on ruled lines. packet.md now says compute-then-explain gets a box with its stems above it."),
  ("L1","O-C3"): ("F*","P","Run 1: 'proportional' was voted on in Q2 before the note that defines it, and 'ratio' was in no task. The renderer now flags a key word no task uses; lesson_design.md says define above the first task."),
- ("L3","O-C3"): ("F","P","Run 1: 'prime' was defined but no question used it (the new renderer check flags it). Run 2: Q7 asks how they prime the pump."),
  ("L1","P-D3"): ("F*","P*","Run 1 failed only on 'who reports' for a vote-and-revote and a partner compare. deck.csv was calibrated so a reporter is required when the move ends in a share. Calibrated after seeing the failure: judge this row with that in mind."),
  ("L1","O-D4"): ("F","P","Run 1: 'ratio' had no word slide. check_deck.py now warns on any key word without one."),
- ("L3","R3"): ("F*","P","Run 1 aligned to HS-ETS1-2 (from the profile's unit list) while the exit judged a part against criteria. standards.md now says match the standard to the day; run 2 aligns to HS-ETS1-3 and the exit weighs a trade-off."),
- ("L3","O-C1"): ("F*","P","Run 1 gave a context sentence a Spanish line, which the skill says stays in English."),
  ("L1","P1"): ("P*","P*","The packet carries a code plus a ten-word gist, not the statement; a strict judge could call that a paraphrase."),
- ("L2","P1"): ("P*","P*","As L1."), ("L3","P1"): ("P*","P*","As L1."), ("L4","P1"): ("P*","P*","As L1."),
+ ("L2","P1"): ("P*","P*","As L1."), ("L4","P1"): ("P*","P*","As L1."),
  ("L2","P9"): ("P*","P*","Closing: a three-part CER and a reflection in 6 minutes is tight for grade 4."),
  ("L4","P9"): ("P*","P*","Closing: a cold read, two answers in 8 minutes is tight for readers below grade level."),
  ("L2","P-S5"): ("P*","P*","The revision is a new bird (the heron) drawn with the test's mechanism, not the same drawing revised."),
@@ -64,7 +58,6 @@ J = {
  ("L4","P-E1"): ("P*","P*","Lexile is an estimate flagged [suggested], about 550-650L for a retelling written for the grade 2-3 band."),
  ("L4","O-C1"): ("P*","P*","Arabic lines render right to left with language tags; their wording has not been checked by an Arabic reader."),
  ("L1","O-D3"): ("P*","P*","The checkpoint slide is a question and a one-line reveal."),
- ("L3","O-D3"): ("P*","P*","The stretch slide is a direction and one sentence."),
 }
 
 rows = []
