@@ -1,0 +1,6 @@
+== Packet text (render report: key words, reading level, language lines)
+  ok    key words used (each highlighted once per section): fable ×4, moral ×6, key detail ×3
+  ok    reads at about grade 1.1 (target 3), 8 words a sentence
+
+== Packet pages: What does the fable teach - packet.docx (exit 0)
+  skip  LibreOffice could not convert the packet; look at the pages by hand.

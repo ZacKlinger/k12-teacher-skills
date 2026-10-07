@@ -1,0 +1,346 @@
+{
+ "audience": "student",
+ "meta": {
+  "title": "Proportional or not?",
+  "course": "Grade 7 Math",
+  "grade": "7",
+  "day": "Ratios and rates",
+  "period": "50 minutes",
+  "name_line": true,
+  "languages": [
+   "es",
+   "vi"
+  ],
+  "reading_level": 6,
+  "vocab": [
+   "proportional",
+   "ratio",
+   "unit rate"
+  ]
+ },
+ "objective": "I can decide if a table shows a proportional relationship by checking the ratio in every row.",
+ "standard": "7.RP.A.2a — decide whether two quantities are proportional",
+ "sections": [
+  {
+   "type": "heading",
+   "text": "Do Now",
+   "minutes": 5
+  },
+  {
+   "type": "question",
+   "number": "1",
+   "prompt": "A recipe uses **2 cups of flour for 3 batches** of cookies. Fill in the table.",
+   "es": "Completa la tabla: 2 tazas de harina por 3 tandas.",
+   "vi": "Điền vào bảng: 2 cốc bột cho 3 mẻ bánh.",
+   "space": {
+    "kind": "none"
+   }
+  },
+  {
+   "type": "fill_table",
+   "headers": [
+    "Batches",
+    "Cups of flour"
+   ],
+   "rows": [
+    [
+     "3",
+     "2"
+    ],
+    [
+     "6",
+     ""
+    ],
+    [
+     "9",
+     ""
+    ],
+    [
+     "12",
+     ""
+    ]
+   ]
+  },
+  {
+   "type": "heading",
+   "text": "Which one is proportional?",
+   "minutes": 10
+  },
+  {
+   "type": "table",
+   "headers": [
+    "Snow cones",
+    "Cost ($)"
+   ],
+   "rows": [
+    [
+     "2",
+     "3.00"
+    ],
+    [
+     "4",
+     "6.00"
+    ],
+    [
+     "6",
+     "9.00"
+    ]
+   ]
+  },
+  {
+   "type": "table",
+   "headers": [
+    "Bowling games",
+    "Cost ($)"
+   ],
+   "rows": [
+    [
+     "1",
+     "7.00"
+    ],
+    [
+     "2",
+     "11.00"
+    ],
+    [
+     "3",
+     "15.00"
+    ]
+   ]
+  },
+  {
+   "type": "text",
+   "text": "Both tables go up by the same amount each row."
+  },
+  {
+   "type": "note",
+   "label": "Key words",
+   "text": "A table is **proportional** when every row has the same **ratio**. The **unit rate** is that ratio for one: the cost of one snow cone.",
+   "es": "Proporcional: cada fila tiene la misma razón.",
+   "vi": "Tỉ lệ thuận: mỗi hàng có cùng tỉ số."
+  },
+  {
+   "type": "question",
+   "number": "2",
+   "prompt": "Which table is **proportional**? Circle one.",
+   "es": "¿Cuál es proporcional? Encierra una.",
+   "vi": "Bảng nào tỉ lệ thuận? Khoanh một.",
+   "choices": [
+    "Snow cones",
+    "Bowling",
+    "Both",
+    "Neither"
+   ],
+   "stems": [
+    "I think so because"
+   ],
+   "space": {
+    "kind": "lines",
+    "count": 2
+   }
+  },
+  {
+   "type": "question",
+   "number": "3",
+   "prompt": "Test every row. Divide the cost by the number. Is the unit rate the same in every row?",
+   "es": "Divide el costo entre el número en cada fila. ¿Es igual?",
+   "vi": "Chia giá cho số lượng ở mỗi hàng. Có bằng nhau không?",
+   "example": "Snow cones, row 1: 3.00 ÷ 2 = 1.50",
+   "space": {
+    "kind": "none"
+   }
+  },
+  {
+   "type": "fill_table",
+   "headers": [
+    "Table",
+    "Row 1",
+    "Row 2",
+    "Row 3",
+    "Same in every row?"
+   ],
+   "rows": [
+    [
+     "Snow cones",
+     "1.50",
+     "",
+     "",
+     ""
+    ],
+    [
+     "Bowling",
+     "",
+     "",
+     "",
+     ""
+    ]
+   ]
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "text": "Partner test",
+   "minutes": 15
+  },
+  {
+   "type": "table",
+   "headers": [
+    "Hours",
+    "Liters of water"
+   ],
+   "rows": [
+    [
+     "2",
+     "3"
+    ],
+    [
+     "3",
+     "4.5"
+    ],
+    [
+     "5",
+     "7.5"
+    ]
+   ]
+  },
+  {
+   "type": "question",
+   "number": "4",
+   "prompt": "A faucet drips into a bucket. Is this table **proportional**? Test every row.",
+   "es": "¿Es proporcional? Prueba cada fila.",
+   "vi": "Quan hệ này có tỉ lệ thuận không? Kiểm tra từng hàng.",
+   "stems": [
+    "Liters ÷ hours is",
+    "It is / is not proportional because"
+   ],
+   "space": {
+    "kind": "box",
+    "height_in": 1.4,
+    "label": "Show your test"
+   }
+  },
+  {
+   "type": "table",
+   "headers": [
+    "Letters",
+    "Cost ($)"
+   ],
+   "rows": [
+    [
+     "1",
+     "8"
+    ],
+    [
+     "2",
+     "10"
+    ],
+    [
+     "4",
+     "14"
+    ]
+   ]
+  },
+  {
+   "type": "question",
+   "number": "5",
+   "prompt": "A shop engraves names on phone cases. Is the cost **proportional** to the number of letters?",
+   "es": "¿El costo es proporcional al número de letras?",
+   "vi": "Giá có tỉ lệ thuận với số chữ không?",
+   "parts": [
+    "(a) Test every row. Is it proportional? Explain.",
+    "(b) The shop drops its $6 setup fee. Make the new table for 1, 2 and 4 letters. Is it proportional now?"
+   ],
+   "stems": [
+    "It is / is not proportional because"
+   ],
+   "space": {
+    "kind": "box",
+    "height_in": 1.6,
+    "label": "Show your test"
+   }
+  },
+  {
+   "type": "heading",
+   "text": "Discuss",
+   "minutes": 10
+  },
+  {
+   "type": "text",
+   "text": "Ana says: \"The engraving cost goes up by $2 for each letter, so it is proportional.\""
+  },
+  {
+   "type": "question",
+   "number": "6",
+   "prompt": "Do you agree or disagree with Ana? Would a graph of her table go through (0, 0)? Talk with your partner first, then write.",
+   "es": "¿Estás de acuerdo con Ana? ¿La gráfica pasa por (0, 0)?",
+   "vi": "Em có đồng ý với Ana không? Đồ thị có đi qua (0, 0) không?",
+   "stems": [
+    "I agree / disagree with Ana because",
+    "At 0 letters the cost is ______, so the graph",
+    "The ratio in each row is"
+   ],
+   "space": {
+    "kind": "lines",
+    "count": 4
+   }
+  },
+  {
+   "type": "heading",
+   "text": "Closing",
+   "minutes": 8
+  },
+  {
+   "type": "table",
+   "headers": [
+    "Movie tickets",
+    "Cost ($)"
+   ],
+   "rows": [
+    [
+     "1",
+     "5"
+    ],
+    [
+     "2",
+     "8"
+    ],
+    [
+     "3",
+     "11"
+    ]
+   ]
+  },
+  {
+   "type": "question",
+   "number": "7",
+   "prompt": "Is the cost of movie tickets **proportional** to the number of tickets? Show your test and explain.",
+   "es": "¿Es proporcional? Muestra tu prueba y explica.",
+   "vi": "Giá vé có tỉ lệ thuận không? Cho thấy cách kiểm tra và giải thích.",
+   "stems": [
+    "My test shows",
+    "So it is / is not proportional because"
+   ],
+   "space": {
+    "kind": "box",
+    "height_in": 1.4,
+    "label": "Show your test"
+   }
+  },
+  {
+   "type": "question",
+   "number": "8",
+   "prompt": "Which part was hardest? What made it hard?",
+   "es": "¿Qué fue lo más difícil? ¿Por qué?",
+   "vi": "Phần nào khó nhất? Vì sao?",
+   "space": {
+    "kind": "lines",
+    "count": 2
+   },
+   "stems": [
+    "The hardest part was ______ because ______."
+   ]
+  }
+ ]
+}

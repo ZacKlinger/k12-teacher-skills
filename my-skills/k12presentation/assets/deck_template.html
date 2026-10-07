@@ -1,0 +1,1811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LESSON TITLE — Grade 9</title>
+<!--
+  DECK TEMPLATE — copy this file, keep <head> and the <script> at the bottom untouched,
+  replace the slides between <div class="stage"> and </div>.
+
+  EVERY SLIDE USES THE SAME SKELETON — head, headline, body:
+
+    <section class="slide" data-day="Day 2" data-title="Do Now"
+             data-packet="p. 1" data-timer="300" data-mins="5 min">
+      <header class="head"><div class="eyebrow">Do Now · on your own</div></header>
+      <h2>The headline, six to twelve words, sentence case.</h2>
+      <div class="body"> …cards, a flow, a chart, stems, vocabulary, video… </div>
+    </section>
+
+  The content lives in the BODY, as cards or a flow — not as stacked sentences. Nothing
+  is summarized underneath it. The only thing that may follow the body is
+  <p class="instruct">, and only when students need a direction they cannot get from the
+  body itself ("hand it to me at the door", "one person per corner").
+
+  EVERY QUESTION AND EVERY DIRECTION CARRIES A SPANISH LINE — <p class="es">, straight
+  under the headline or the .instruct it supports, and the same wording that is on
+  that question in the packet. Abbreviated: the task, not the framing. Headlines,
+  captions, card bodies and chart labels stay English.
+
+  The head's right side is filled automatically: the live countdown when the slide has
+  data-timer, otherwise the plain duration from data-mins. The packet chip is injected
+  into the head from data-packet. Never place either by hand — that is what used to collide.
+
+  Keys: ← → slides (→ reveals data-step items first) · S start/pause timer · R reset ·
+  G jump menu · A read the slide aloud · P pick a pair · click a photo to look closer.
+-->
+<style>
+  :root{
+    --bg:#FFFFFF; --paper:#F5F7FA; --ink:#1B1F24; --ink-2:#3A3F45; --muted:#697079; --rule:#E4E7EB;
+    /* Caviar carries every dark surface: checkpoints, the vocabulary word cell,
+       the jump menu, the video letterbox. It is a warm near-black -- the old
+       dark surface was #1B1F24, cool enough to read as navy on a projector.
+       --ink stays cool: it is body text on white, where cool reads as crisp. */
+    --caviar:#2E2A26; --caviar-soft:#3B352E; --caviar-line:#4E463C;
+    /* pastels fill shapes; -deep siblings carry text and thin lines */
+    --accent:#B6A2E0;  --accent-deep:#6B54A8; --accent-soft:#E7DFF7;
+    --blue:#8FB4E8;    --blue-deep:#3E6DA8;
+    --mint:#8FCBB0;    --mint-deep:#3C8368;
+    --peach:#F4A99A;   --peach-deep:#B75B48;
+    --butter:#EFCF8A;  --butter-deep:#A57B26;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,"Helvetica Neue",Arial,sans-serif;
+    --r:0;                       /* square, like the rest of the deck */
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;overflow:hidden}
+
+  .stage{position:relative;width:100vw;height:100vh}
+  .slide{position:absolute;inset:0;display:none;flex-direction:column;
+    padding:5.5vh 5.5vw 8.5vh;overflow:hidden}
+  .slide.on{display:flex}
+  .slide.dark{background:var(--caviar);color:#F7F8FA}
+  .slide.dark .stand{color:#C9CDD3}
+  .slide.dark .card,.slide.dark .panel,.slide.dark .frame,.slide.dark .stat,
+  .slide.dark .corner,.slide.dark .vc{background:var(--caviar-soft);
+    border-color:var(--caviar-line);color:#F7F8FA}
+  .slide.dark .instruct{color:#9AA1A9}
+
+  /* ---- head: eyebrow + packet chip left, time right --------------------- */
+  .head{display:flex;justify-content:space-between;align-items:flex-start;gap:2em;
+    margin-bottom:1.8vh;min-height:3.4vh}
+  .eyebrow{font-size:clamp(11px,1.15vw,15px);letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);font-weight:600}
+  .slide.dark .eyebrow{color:#9AA1A9}
+  .chip{color:var(--accent-deep);margin-left:.55em}
+  .chip::before{content:"· "}
+  .slide.dark .chip{color:var(--accent)}
+  .head-right{font-size:clamp(11px,1.15vw,15px);letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);font-weight:600;text-align:right;white-space:nowrap;
+    display:flex;align-items:baseline;gap:.6em}
+
+  /* ---- type ------------------------------------------------------------- */
+  h1,h2{font-family:var(--serif);font-weight:400;letter-spacing:-.015em;line-height:1.06}
+  h1{font-size:clamp(34px,5.4vw,76px);max-width:19ch}
+  h2{font-size:clamp(27px,3.9vw,56px);max-width:24ch}
+  /* the standfirst is the old lede: quiet sans under the serif headline. It exists so a
+     slide always says something beyond its title — that is content, not decoration. */
+  .stand{font-size:clamp(17px,2vw,29px);line-height:1.45;color:var(--ink-2);
+    max-width:54ch;margin-top:1.8vh}
+  .body{flex:1;display:flex;flex-direction:column;justify-content:center;
+    margin:2.4vh 0 1.6vh;min-height:0}
+  /* The only line allowed under the body is a direction — what students physically do.
+     No summary line, no takeaway, no closing thought. The content said it already. */
+  .instruct{color:var(--ink-2);font-size:clamp(17px,1.9vw,27px);line-height:1.4;max-width:62ch}
+  .quiet{color:var(--muted)}
+
+  /* ---- the home-language line (.es, with lang= naming the language) ----------
+     One short line under the English it supports: the question, the direction,
+     the new word. Never a translated slide -- the task only, in the fewest words
+     that still carry it. The tick of accent on the left is how a student finds it
+     from across the room; it is NOT italic, because italic costs a striving
+     reader speed and this line is read by the students with the least to spare. */
+  .es{color:var(--ink-2);font-size:clamp(16px,1.8vw,26px);line-height:1.4;max-width:56ch;
+    border-left:2px solid var(--accent-soft);padding-left:.75em;margin-top:1.2vh}
+  h1 + .es,h2 + .es{margin-top:1.6vh}
+  /* a second home language stacks tight under the first; right-to-left scripts mirror the rule */
+  .es + .es{margin-top:.4vh}
+  .es[dir=rtl]{border-left:0;border-right:2px solid var(--accent-soft);padding-left:0;padding-right:.75em;text-align:right}
+  .instruct + .es{margin-top:.9vh}
+  .slide.dark .es{color:#C9CDD3;border-left-color:var(--caviar-line)}
+
+  ul.beats{list-style:none;max-width:60ch}
+  ul.beats li{font-size:clamp(15px,1.68vw,25px);line-height:1.35;
+    padding:1vh 0 1vh 1.4em;position:relative}
+  ul.beats li::before{content:"";position:absolute;left:0;top:.72em;
+    width:.55em;height:1px;background:var(--accent)}
+
+  /* ---- cards ------------------------------------------------------------ */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:1.1vw;width:100%}
+  .card{background:var(--paper);border-top:2px solid var(--accent);padding:2.2vh 1.4em;
+    display:flex;flex-direction:column}
+  .card .n{font-size:clamp(10px,1.02vw,14px);letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent-deep);font-weight:700;margin-bottom:.9vh}
+  .card h3{font-family:var(--serif);font-weight:400;font-size:clamp(16px,1.75vw,26px);
+    line-height:1.15;margin-bottom:.9vh}
+  .card p{font-size:clamp(16px,1.75vw,25px);line-height:1.4;color:var(--ink-2)}
+  .card .big{font-family:var(--serif);color:var(--accent-deep);font-size:clamp(22px,2.8vw,42px);
+    line-height:1.05;margin-bottom:.6vh}
+
+  /* ---- flow: steps with connectors, the shape of any process ------------- */
+  .flow{display:flex;align-items:stretch;width:100%;gap:0}
+  .flow .step{flex:1 1 0;min-width:0;background:var(--paper);border-top:2px solid var(--accent);
+    padding:2.2vh 1.3em}
+  .flow .step .k{font-size:clamp(10px,1.02vw,14px);letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent-deep);font-weight:700;margin-bottom:.8vh}
+  .flow .step .t{font-family:var(--serif);font-size:clamp(16px,1.75vw,26px);line-height:1.15;
+    margin-bottom:.7vh}
+  .flow .step p{font-size:clamp(15px,1.6vw,23px);line-height:1.4;color:var(--ink-2)}
+  .flow .arrow{flex:0 0 auto;align-self:center;color:var(--accent);padding:0 .7vw;
+    font-size:clamp(16px,2vw,30px);line-height:1}
+  .flow.stack{flex-direction:column}
+  /* Rotating the right-arrow glyph left its layout box unrotated, so the
+     turned glyph slid over the step underneath it. Swap the character instead
+     of rotating: no transform, a real box, nothing to collide with. */
+  .flow.stack .arrow{align-self:flex-start;transform:none;padding:0;
+    margin:.5vh 0 .5vh 1.3em;line-height:1;font-size:0}
+  .flow.stack .arrow::before{content:"\2193";font-size:clamp(16px,2vw,30px);
+    display:block;line-height:1}
+  .flow .step.end{border-top-color:var(--mint)}
+  .flow .step.problem{border-top-color:var(--peach)}
+
+  /* ---- panel: a titled container for a chart, a source, an example ------- */
+  /* a panel is just a titled area — a hairline and a label, no box, no shadow */
+  .panel{width:100%;border-top:1px solid var(--rule);padding-top:1.8vh}
+  .panel .plabel{font-size:clamp(10px,1.02vw,14px);letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent-deep);font-weight:700;margin-bottom:1.4vh}
+  .panel .pnote{font-size:clamp(12px,1.26vw,18px);line-height:1.45;color:var(--muted);
+    margin-top:1.4vh;max-width:62ch}
+
+  /* ---- sentence stems ---------------------------------------------------- */
+  .frames{width:100%;max-width:68ch}
+  .frames-label{font-size:clamp(10px,1.02vw,14px);letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent-deep);font-weight:700;margin-bottom:1.2vh}
+  .frame{background:var(--paper);border-left:2px solid var(--accent-soft);
+    padding:1.5vh 1.3em;margin-bottom:1.2vh;font-family:var(--serif);
+    font-size:clamp(19px,2.2vw,32px);line-height:1.55}
+  .blank{display:inline-block;min-width:5.5em;border-bottom:1.5px solid currentColor;margin:0 .18em}
+  .blank.long{min-width:11em}
+
+  /* ---- vocabulary: word, meaning, non-example ---------------------------- */
+  .vocab{display:grid;grid-template-columns:1.05fr 1fr 1fr;gap:1.1vw;width:100%}
+  .vc{background:var(--paper);padding:2.2vh 1.4em;border-top:2px solid var(--accent)}
+  .vc.word{background:var(--caviar);color:#F7F8FA;border-top-color:var(--accent-deep)}
+  .vc .k{font-size:clamp(10px,1.02vw,14px);letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent-deep);font-weight:700;margin-bottom:1.1vh}
+  .vc.word .k{color:var(--accent)}
+  .vc .w{font-family:var(--serif);font-weight:400;font-size:clamp(22px,3.1vw,46px);line-height:1.05}
+  .vc .say{font-size:clamp(11px,1.15vw,16px);color:#9AA1A9;margin-top:.9vh;letter-spacing:.04em}
+  /* the word's translation sits with the word, not in a line of its own */
+  .vc .es{font-size:clamp(12px,1.25vw,17px);margin-top:1.1vh;border-left-color:var(--accent-deep)}
+  .vc.word .es{color:#C9CDD3;border-left-color:var(--accent)}
+  .vc .d,.vc .ex{font-size:clamp(16px,1.8vw,26px);line-height:1.4;color:var(--ink-2)}
+  .term{border-bottom:2px solid var(--accent);padding-bottom:.04em}
+
+  /* ---- stats ------------------------------------------------------------- */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1.1vw;width:100%}
+  .stat{background:var(--paper);border-top:2px solid var(--mint);padding:2.4vh 1.5em}
+  .stat .n{font-family:var(--serif);font-size:clamp(30px,4.4vw,66px);line-height:1;
+    letter-spacing:-.02em;color:var(--ink)}
+  .stat .unit{font-size:clamp(13px,1.32vw,18px);color:var(--muted);margin-top:1vh;line-height:1.4}
+
+  /* ---- static comparison bars (the kit's dv-bars are the interactive ones) */
+  .bars{width:100%;max-width:78ch}
+  .bar-row{display:grid;grid-template-columns:minmax(8em,16ch) 1fr auto;align-items:center;
+    gap:1.1em;margin-bottom:1.5vh}
+  .bar-label{font-size:clamp(16px,1.75vw,25px);line-height:1.2}
+  .bar-track{background:var(--paper);height:clamp(18px,2.9vh,34px);position:relative;overflow:hidden}
+  .bar-fill{position:absolute;left:0;top:0;bottom:0;width:var(--w,50%);background:var(--c,var(--accent))}
+  .bar-val{font-family:var(--serif);font-size:clamp(15px,1.8vw,26px);
+    font-variant-numeric:tabular-nums;white-space:nowrap}
+
+  /* ---- scale anchor ------------------------------------------------------ */
+  .scale{width:100%}
+  .scale-row{display:flex;align-items:center;gap:1em;margin-bottom:1.6vh;flex-wrap:wrap}
+  .scale-key{font-size:clamp(12px,1.3vw,18px);min-width:12ch;font-weight:700}
+  .glyphs{display:flex;flex-wrap:wrap;gap:.3em;max-width:66ch}
+  .glyph{width:clamp(14px,1.7vw,26px);height:clamp(9px,1.1vw,17px);border-radius:2px;
+    background:var(--c,var(--accent))}
+  .glyph.ghost{background:none;border:1px dashed var(--rule)}
+
+  /* ---- side by side ------------------------------------------------------ */
+  .compare{display:grid;grid-template-columns:1fr auto 1fr;gap:1.3vw;align-items:stretch;width:100%}
+  .compare .side{background:var(--paper);border-top:2px solid var(--accent);padding:2.2vh 1.4em}
+  .compare .side.alt{border-top-color:var(--mint)}
+  .compare h3{font-family:var(--serif);font-weight:400;font-size:clamp(16px,1.75vw,26px);
+    margin-bottom:1.1vh}
+  .compare .vs{align-self:center;font-family:var(--serif);color:var(--muted);
+    font-size:clamp(15px,1.9vw,27px)}
+  .compare ul{list-style:none}
+  .compare li{font-size:clamp(16px,1.75vw,25px);line-height:1.4;
+    padding:.55vh 0 .55vh 1em;position:relative;color:var(--muted)}
+  .compare li::before{content:"";position:absolute;left:0;top:.75em;width:.45em;height:2px;
+    background:var(--muted);border-radius:2px}
+
+  /* ---- four corners ------------------------------------------------------ */
+  .corners{display:grid;grid-template-columns:1fr 1fr;gap:1.1vw;width:100%}
+  .corner{background:var(--paper);border-left:3px solid var(--c,var(--accent));padding:2.2vh 1.4em}
+  .corner .where{font-size:clamp(10px,1.02vw,14px);letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);font-weight:700;margin-bottom:.8vh}
+  .corner .claim{font-family:var(--serif);font-weight:400;font-size:clamp(16px,1.78vw,26px);
+    line-height:1.2}
+
+  /* ---- figure / video ---------------------------------------------------- */
+  .figure{width:100%;display:flex;justify-content:center}
+  .figure svg,.figure img{width:100%;max-width:min(84vw,1080px);height:auto;display:block}
+  /* Height-first sizing. A width-first box overflows its band on short screens and
+     lands on whatever is underneath — which is exactly what it used to do. */
+  .media{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:1.4vh;width:100%}
+  .video-wrap{position:relative;height:min(100%, calc(min(64vw,940px) * 9 / 16));
+    aspect-ratio:16/9;width:auto;max-width:100%;background:var(--caviar);margin:0 auto;flex:0 1 auto}
+  .video-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  /* Click-to-play facade. A bare iframe shows a black rectangle whenever the
+     embed is blocked -- a school network, a sandboxed viewer, an offline room --
+     and black tells you nothing and offers no way forward. The poster is an
+     ordinary image, so if it is blocked too it falls through to the same
+     labelled card every other photo uses, and the link underneath still works.
+     Nothing loads from YouTube until the teacher clicks. */
+  .vfacade{position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;
+    cursor:pointer;background:var(--caviar);display:block;overflow:hidden}
+  .vfacade img{width:100%;height:100%;object-fit:cover;display:block}
+  .vfacade .vbtn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:clamp(54px,7vw,92px);height:clamp(38px,4.9vw,64px);background:rgba(20,18,16,.78);
+    display:flex;align-items:center;justify-content:center;pointer-events:none}
+  .vfacade .vbtn::before{content:"";border-style:solid;border-width:.55em 0 .55em .95em;
+    border-color:transparent transparent transparent #fff;font-size:clamp(11px,1.3vw,17px)}
+  .vfacade:hover .vbtn{background:rgba(20,18,16,.92)}
+  .vfacade .vhint{position:absolute;left:0;right:0;bottom:0;padding:.5em .8em;
+    background:linear-gradient(transparent,rgba(20,18,16,.85));color:#fff;
+    font-size:clamp(10px,1.05vw,14px);letter-spacing:.08em;text-transform:uppercase;
+    text-align:center;pointer-events:none}
+  .vlink{font-size:clamp(11px,1.2vw,16px);color:var(--muted);text-align:center;flex:0 0 auto}
+  .vlink a{color:var(--accent-deep);text-decoration:none;border-bottom:1px solid var(--accent)}
+
+  /* ---- agenda ------------------------------------------------------------ */
+  .agenda{width:100%;max-width:64ch}
+  .ag-row{display:grid;grid-template-columns:1fr auto;gap:1em;align-items:baseline;
+    padding:1.05vh 0;border-bottom:1px solid var(--rule);font-size:clamp(14px,1.6vw,24px)}
+  .ag-row .mins{color:var(--muted);font-size:.78em;font-variant-numeric:tabular-nums}
+  .ag-row.now{color:var(--accent-deep);font-weight:600}
+  .ag-row.now .mins{color:var(--accent-deep)}
+
+  /* ---- chrome ------------------------------------------------------------ */
+  .timer-time{font-family:var(--serif);font-variant-numeric:tabular-nums;
+    font-size:clamp(26px,3.2vw,48px);line-height:1;cursor:pointer;letter-spacing:-.02em;
+    color:var(--ink)}
+  .slide.dark .timer-time{color:#F7F8FA}
+  .timer.running .timer-time{color:var(--accent-deep)}
+  .slide.dark .timer.running .timer-time{color:var(--accent)}
+  .timer.done .timer-time{color:var(--peach-deep);animation:pulse 1s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  .timer{display:flex;align-items:baseline;gap:.5em}
+  .timer-ctl{font:inherit;font-size:clamp(9px,.9vw,12px);letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);cursor:pointer;background:none;border:0;padding:.2em .1em;font-weight:700}
+  .timer-ctl:hover{color:var(--accent-deep)}
+
+  .footer{position:fixed;left:5.5vw;right:5.5vw;bottom:2.6vh;display:flex;
+    justify-content:space-between;align-items:center;font-size:clamp(10px,1vw,13px);
+    letter-spacing:.1em;text-transform:uppercase;color:var(--muted);z-index:30}
+  .nav{display:flex;gap:.8em;align-items:center}
+  .nav button{background:none;border:0;color:var(--muted);cursor:pointer;font-size:1.35em;
+    line-height:1;padding:.15em .4em;font-family:var(--sans)}
+  .nav button:hover{color:var(--accent-deep)}
+  .day-tag{color:var(--accent-deep);font-weight:600}
+  .hint{text-transform:none;letter-spacing:.03em;font-weight:400}
+  .progress{position:fixed;left:0;right:0;bottom:0;height:3px;z-index:45}
+  .progress span{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+
+  .jump{position:fixed;inset:0;background:rgba(46,42,38,.96);color:#F7F8FA;z-index:60;
+    display:none;padding:7vh 8vw;overflow-y:auto}
+  .jump.show{display:block}
+  .jump h4{font-family:var(--serif);font-weight:400;font-size:clamp(20px,2.4vw,34px);
+    margin-bottom:2.2vh}
+  .jump ol{list-style:none}
+  .jump li{padding:.85vh 0;border-bottom:1px solid var(--caviar-line);cursor:pointer;
+    font-size:clamp(13px,1.45vw,20px);display:flex;gap:1.2em}
+  .jump li:hover{color:var(--accent)}
+  .jump li span{color:#8A9099;min-width:2.5em;font-variant-numeric:tabular-nums}
+
+  @media (max-width:900px){
+    .slide{padding:4vh 6vw 11vh}
+    .vocab,.compare{grid-template-columns:1fr}
+    .compare .vs{display:none}
+  }
+  @media print{
+    .slide.dark{background:#fff !important;color:var(--ink) !important}
+    .slide.dark *{color:var(--ink) !important}
+    .zoom{display:none !important}
+    .slide{display:block !important;position:static;height:auto;page-break-after:always;
+      border-bottom:1px solid var(--rule);padding:6vh 6vw}
+    .footer,.progress,.jump{display:none !important}
+    body{overflow:visible}
+  }
+
+  /* ---- photographs ------------------------------------------------------- */
+  /* Height-first, like the video: a width-first photo overflows its band on a
+     short projector screen and lands on whatever sits underneath it.
+     --focus aims every crop. Default 50% 50% is a centre crop, which is what
+     decapitates an off-centre subject -- set --focus per photo, always. */
+  .photo{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:1.1vh;width:100%}
+  .photo img{min-height:0;max-height:100%;max-width:100%;width:auto;object-fit:contain;
+    object-position:var(--focus,50% 50%);display:block;background:var(--paper)}
+  /* .photo.fill crops to the full band instead of letterboxing -- use it when the
+     photo is the slide and the subject can survive a crop. --focus is required. */
+  .photo.fill img{width:100%;height:100%;max-height:100%;object-fit:cover}
+  .cap{font-size:clamp(15px,1.6vw,23px);line-height:1.4;color:var(--ink-2);text-align:center;
+    max-width:70ch;flex:0 0 auto}
+  .cap .cred{display:block;font-size:.78em;letter-spacing:.06em;color:#9AA1A9;margin-top:.5vh}
+  .pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1.2vw;
+    width:100%;flex:1 1 auto;min-height:0}
+  .pgrid figure{display:flex;flex-direction:column;min-height:0}
+  .pgrid img{width:100%;flex:1 1 auto;min-height:0;object-fit:cover;
+    object-position:var(--focus,50% 50%);background:var(--paper);display:block}
+  .pgrid figcaption{font-size:clamp(12px,1.3vw,18px);line-height:1.35;color:var(--muted);
+    border-top:2px solid var(--accent);padding-top:.9vh;margin-top:.9vh;flex:0 0 auto}
+  .pgrid figcaption b{font-family:var(--serif);font-weight:400;color:var(--ink);display:block;
+    font-size:clamp(15px,1.6vw,23px)}
+  .vc.shot{padding:0;background:var(--caviar);position:relative;overflow:hidden;min-height:18vh}
+  .vc.shot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+    object-position:var(--focus,50% 50%);display:block}
+  .pinned{position:relative;display:flex;min-height:0;max-height:100%}
+  .pinned img{max-height:100%;max-width:100%;width:auto;object-fit:contain;display:block}
+  .pin{position:absolute;left:var(--x);top:var(--y);transform:translate(-50%,-50%);
+    display:flex;align-items:center;gap:.45em}
+  .pin .n{width:clamp(18px,1.9vw,26px);height:clamp(18px,1.9vw,26px);background:var(--peach);
+    color:#3A1E17;font-weight:700;font-size:clamp(11px,1.1vw,15px);display:flex;
+    align-items:center;justify-content:center;flex:0 0 auto;border:2px solid #fff}
+  .pin .lab{background:#fff;border-left:3px solid var(--peach);padding:.3em .6em;
+    font-size:clamp(11px,1.2vw,16px);line-height:1.2;white-space:nowrap;color:var(--ink)}
+  .imgmiss{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:.8vh;
+    background:var(--paper);border-top:2px solid var(--peach);padding:3vh 1.4em;text-align:center;
+    width:100%;flex:1 1 auto;min-height:14vh}
+  .imgmiss .k{font-size:clamp(10px,1vw,13px);letter-spacing:.12em;text-transform:uppercase;
+    color:var(--peach-deep);font-weight:700}
+  .imgmiss .d{font-family:var(--serif);font-size:clamp(15px,1.7vw,25px);line-height:1.25;
+    max-width:40ch}
+  .slide.dark .imgmiss{background:var(--caviar-soft);color:#F7F8FA}
+
+  /* ---- what fills the band, and what deliberately does not ---------------- */
+  /* Photographs grow to fill the space they are given -- a photo is worth every
+     pixel it can get on a projector. Cards, flows and comparisons deliberately
+     do NOT stretch: forcing them to fill turns three short cards into three tall
+     boxes with one line of text at the top of each, which reads as emptier than
+     the same cards at their natural height. A slide that feels empty is nearly
+     always a content problem -- see "Spare is not the same as thin" in
+     references/deck.md -- and stretching the furniture only draws a bigger box
+     around the hole. */
+  .body > .pgrid{flex:1 1 auto;min-height:0}
+  /* ---- talk kit ----------------------------------------------------------
+     Student talk is the non-negotiable, so the deck's job on a talk slide is to
+     run the talk: who speaks, what the listener does, the words to start with,
+     how long each turn is, and who reports. See "Talk slides" in deck.md. */
+  .timer-phase{font-size:clamp(10px,1vw,14px);letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent-deep);font-weight:700}
+  .timer-phase:empty{display:none}
+  .slide.dark .timer-phase{color:var(--accent)}
+  .roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.1vw;width:100%}
+  /* the talk layout: the thing to talk about on the left, at the size of a wall,
+     and the turns on the right, stacked in the order they happen */
+  .talk{display:grid;grid-template-columns:1.25fr 1fr;gap:2.4vw;width:100%;flex:1;min-height:0;
+    align-items:stretch}
+  .talk-visual{display:flex;flex-direction:column;min-height:0;gap:1vh}
+  .talk-visual img{flex:1 1 auto;min-height:0;width:100%;object-fit:cover;
+    object-position:var(--focus,50% 50%);background:var(--paper);display:block}
+  .talk-visual .cap{text-align:left;flex:0 0 auto}
+  .talk-side{display:flex;flex-direction:column;justify-content:center;gap:1.4vh;min-width:0}
+  .talk-side .roles{grid-template-columns:1fr;gap:.8vh}
+  .talk-side .role{padding:1.3vh 1.1em}
+  .talk-side .frames{margin-top:.6vh}
+  .role{background:var(--paper);border-top:2px solid var(--rule);padding:2vh 1.4em;
+    transition:background .25s,border-color .25s}
+  .role .k{font-size:clamp(10px,1.02vw,14px);letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);font-weight:700;margin-bottom:.8vh}
+  .role p{font-family:var(--serif);font-size:clamp(16px,1.75vw,26px);line-height:1.25}
+  .role.live{background:var(--accent-soft);border-top-color:var(--accent-deep)}
+  .role.live .k{color:var(--accent-deep)}
+  .role.live .k::after{content:" · now"}
+  .roles + .frames{margin-top:2.2vh}
+
+  .js-steps [data-step]{transition:opacity .35s}
+  .js-steps [data-step]:not(.shown){opacity:0;visibility:hidden}
+
+  .vote{width:100%;max-width:90ch;font-size:clamp(13px,1.4vw,20px)}
+  .vote .rounds{display:flex;gap:.6em;margin-bottom:1.6vh;flex-wrap:wrap}
+  .vote .rounds button,.picker button{font:inherit;font-size:.78em;letter-spacing:.08em;
+    text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--muted);
+    padding:.5em 1em;cursor:pointer}
+  .vote .rounds button.on{border-color:var(--accent-deep);color:var(--accent-deep);font-weight:700}
+  .vote .vrow{display:grid;grid-template-columns:minmax(6em,16ch) 1fr auto auto;gap:1em;
+    align-items:center;margin-bottom:1.2vh}
+  .vote .vlab{line-height:1.2}
+  .vote .vbars{display:flex;flex-direction:column;gap:.25em}
+  .vote .vbar{height:1.3em;background:var(--paper);position:relative}
+  .vote .vbar i{position:absolute;inset:0 auto 0 0;width:0;transition:width .5s cubic-bezier(.2,.7,.3,1)}
+  .vote .vbar.r1 i{background:var(--blue)}
+  .vote .vbar.r2 i{background:var(--accent-deep)}
+  .vote .vn{font-family:var(--serif);font-size:1.3em;font-variant-numeric:tabular-nums;
+    white-space:nowrap;min-width:4.5ch;text-align:right}
+  .vote .vn .arrow{color:var(--muted);font-size:.7em;margin:0 .25em}
+  .vote .vctl{display:flex;gap:.3em}
+  .vote .vctl button{font:inherit;width:1.8em;height:1.8em;border-radius:50%;border:1px solid var(--rule);
+    background:var(--bg);color:var(--muted);cursor:pointer;line-height:1}
+  .vote .vctl button:hover{color:var(--accent-deep);border-color:var(--accent-deep)}
+  .vote .key{font-size:.72em;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:1vh}
+  .vote .key b{display:inline-block;width:1.4em;height:.7em;margin:0 .4em 0 1em;vertical-align:middle}
+
+  .picker{display:flex;align-items:center;gap:2vw;flex-wrap:wrap}
+  .picker .pick-now{font-family:var(--serif);font-size:clamp(40px,7vw,110px);line-height:1;
+    min-width:4ch;color:var(--accent-deep);font-variant-numeric:tabular-nums}
+  .picker .pick-label{font-size:clamp(11px,1.1vw,15px);letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);font-weight:700}
+  .picker .called{display:flex;gap:.35em;flex-wrap:wrap;margin-top:1vh}
+  .picker .called span{font-size:clamp(11px,1.1vw,15px);width:2em;height:2em;display:flex;
+    align-items:center;justify-content:center;background:var(--paper);color:var(--muted)}
+  .picker .called span.done{background:var(--rule);color:#B5BAC1;text-decoration:line-through}
+
+  .heard{width:100%}
+  .heard .hlabel{font-size:clamp(10px,1.02vw,14px);letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent-deep);font-weight:700;margin-bottom:1vh}
+  .heard textarea{width:100%;min-height:24vh;font-family:var(--serif);font-size:clamp(16px,1.8vw,27px);
+    line-height:1.5;border:0;border-left:2px solid var(--accent-soft);background:var(--paper);
+    padding:1.2vh 1em;color:var(--ink);resize:vertical}
+  .heard textarea:focus{outline:none;border-left-color:var(--accent-deep)}
+
+  /* look closer: a photo opens at wall size with the slide's question under it, so
+     the class talks about the thing itself, not about a thumbnail of it */
+  .zoom{position:fixed;inset:0;background:var(--caviar);z-index:80;display:none;
+    flex-direction:column;align-items:center;justify-content:center;padding:3vh 3vw;cursor:zoom-out}
+  .zoom.on{display:flex}
+  .zoom img{max-width:100%;max-height:82vh;object-fit:contain;display:block}
+  .zoom .zq{color:#F7F8FA;font-family:var(--serif);font-size:clamp(22px,2.8vw,42px);
+    line-height:1.2;margin-top:2.2vh;text-align:center;max-width:40ch}
+  .zoom .zes{color:#C9CDD3;font-size:clamp(16px,1.8vw,26px);margin-top:.8vh;text-align:center}
+  .photo img,.pgrid img,.vc.shot img,.talk-visual img{cursor:zoom-in}
+  @media print{ .js-steps [data-step]{opacity:1 !important;visibility:visible !important} }
+
+
+  /* ===== KEY WORDS ========================================================
+     The lesson's key words (body data-vocab="reservoir|pump") are marked once
+     per slide, where each first appears, as a highlighter stroke across the
+     lower half of the word. The stroke stays inside its own line: a full
+     yellow box is taller than a tight headline's line and paints over the
+     line above it. On a dark surface the word turns yellow instead, since
+     light text on a yellow stroke can't be read. */
+  mark.kw{color:inherit;font-weight:700;padding:0 .06em;
+    background:linear-gradient(#FFE45C,#FFE45C) 0 80%/100% .62em no-repeat;
+    -webkit-box-decoration-break:clone;box-decoration-break:clone}
+  .slide.dark mark.kw{background:none;color:#FFE45C}
+
+  /* ===== GAMES ============================================================
+     A fair-guess round (.game) and a sort (.sort), both run as talk: partners
+     agree on the slide's timer before anyone answers. No teams and no points
+     unless the deck is built with teams (body data-teams); then one
+     scoreboard sits in the footer of every slide and keeps the period's
+     running total. */
+  .scoreboard{display:flex;gap:1.1em;align-items:center;flex-wrap:nowrap;text-transform:none;
+    letter-spacing:0;font-size:clamp(12px,1.2vw,18px)}
+  .scoreboard .team{display:flex;align-items:baseline;gap:.4em;padding:.2em .45em;
+    border-bottom:2px solid transparent;transition:border-color .3s,background .3s}
+  .scoreboard .team .tn{letter-spacing:.08em;text-transform:uppercase;font-weight:700;
+    color:var(--ink-2);font-size:.78em}
+  .scoreboard .team b{font-family:var(--serif);font-weight:400;font-size:1.55em;line-height:1;
+    min-width:2.2ch;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+  .scoreboard button{font:inherit;font-size:.72em;width:1.6em;height:1.6em;align-self:center;
+    border-radius:50%;border:1px solid var(--rule);background:transparent;color:var(--muted);
+    cursor:pointer;line-height:1;opacity:.7}
+  .scoreboard button:hover{opacity:1;color:var(--accent-deep)}
+  .scoreboard .sreset{width:auto;border-radius:0;padding:0 .7em;letter-spacing:.08em;
+    text-transform:uppercase;font-size:.62em}
+  .scoreboard .team.up{border-bottom-color:var(--mint-deep);background:#E3F3EB}
+  body.on-dark .scoreboard .team .tn{color:#C9CDD3}
+  body.on-dark .scoreboard .team b{color:#F7F8FA}
+  body.on-dark .scoreboard button{border-color:var(--caviar-line);color:#9AA1A9}
+  body.on-dark .scoreboard .team.up{background:var(--caviar-soft)}
+
+  .game{width:100%}
+  .game .opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(11em,1fr));gap:1.1vw}
+  .game .opt{background:var(--paper);border-top:3px solid var(--rule);padding:2.2vh 1.1em;
+    display:flex;gap:.7em;align-items:baseline;transition:opacity .35s,background .35s,border-color .35s}
+  .game .opt .L{font-family:var(--serif);font-size:clamp(30px,3.6vw,56px);line-height:1;
+    color:var(--accent-deep);min-width:1ch}
+  .game .opt .t{font-family:var(--serif);font-size:clamp(19px,2.1vw,32px);line-height:1.22;color:var(--ink)}
+  .game.revealed .opt{opacity:.32}
+  .game.revealed .opt.right{opacity:1;background:#E3F3EB;border-top-color:var(--mint-deep)}
+  .game.revealed .opt.right .L{color:var(--mint-deep)}
+  .game .lock{display:flex;flex-wrap:wrap;gap:.5em 1.6em;margin-top:2vh;font-size:clamp(12px,1.2vw,17px)}
+  .game .lock .lt{display:flex;align-items:center;gap:.35em}
+  .game .lock .lt span{letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;
+    font-size:.8em;margin-right:.2em}
+  .game .lock button,.game .gctl button,.sort .sctl button{font:inherit;cursor:pointer;
+    border:1px solid var(--rule);background:var(--bg);color:var(--ink-2)}
+  .game .lock button{width:2.1em;height:2.1em;font-weight:700}
+  .game .lock button.on{background:var(--accent-deep);border-color:var(--accent-deep);color:#fff}
+  .game.revealed .lock button.on.hit{background:var(--mint-deep);border-color:var(--mint-deep)}
+  .game .gctl,.sort .sctl{display:flex;gap:.6em;align-items:center;margin-top:2vh;flex-wrap:wrap}
+  .game .gctl button,.sort .sctl button{font-size:clamp(11px,1.05vw,15px);letter-spacing:.1em;
+    text-transform:uppercase;padding:.55em 1.1em}
+  .game .why,.sort .why{display:none;font-family:var(--serif);font-size:clamp(18px,1.9vw,28px);
+    line-height:1.3;color:var(--ink);border-left:3px solid var(--mint-deep);padding:.2em 0 .2em .8em}
+  .game.revealed .why,.sort.checked .why{display:block}
+
+  .sort{width:100%;user-select:none;-webkit-user-select:none}
+  .sort .tray{display:flex;flex-wrap:wrap;gap:.6em;min-height:3.4em;padding:1vh .4em;
+    background:var(--paper);margin-bottom:1.6vh}
+  .sort .bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(12em,1fr));gap:1.1vw}
+  .sort .bin{border:2px dashed var(--rule);min-height:20vh;padding:1vh .6em;display:flex;
+    flex-direction:column;gap:.5em;transition:border-color .2s,background .2s}
+  .sort .bin.over{border-color:var(--accent-deep);background:var(--accent-soft)}
+  .sort .bin .bn{letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink-2);
+    font-size:clamp(12px,1.2vw,17px)}
+  .sort .card{font-family:var(--serif);font-size:clamp(18px,1.9vw,28px);line-height:1.15;
+    background:var(--bg);border:1px solid var(--rule);border-top:3px solid var(--accent);
+    padding:.45em .8em;cursor:grab;touch-action:none;transition:border-color .25s,background .25s}
+  .sort .card.sel{border-top-color:var(--accent-deep);background:var(--accent-soft)}
+  .sort .card.drag{cursor:grabbing;position:relative;z-index:30;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+  .sort.checked .card.ok{border-top-color:var(--mint-deep);background:#E3F3EB}
+  .sort.checked .card.no{border-top-color:var(--peach-deep);background:#FBE7E2}
+  .sort .tally{font-size:clamp(13px,1.3vw,19px);color:var(--ink-2)}
+  @media print{ .game .opt{opacity:1 !important} .sort .why,.game .why{display:block} }
+</style>
+
+<!-- ===== CHART KIT =======================================================
+     Six click-driven chart types (dv-icons, dv-guess, dv-dots, dv-bars,
+     dv-gauge, dv-percent), configured entirely through data- attributes.
+     This used to be a paste-in step, and one deck in three shipped with no
+     charts at all, so it lives here now. Don't edit it -- see
+     references/dataviz.md for how to configure a chart. ================= -->
+<style>
+  .dv{font-size:clamp(12px,1.45vw,21px);width:100%;max-width:96ch;margin-top:1.6em;
+    /* pastels fill shapes; -deep siblings carry text, numbers and thin lines */
+    --dv-a:var(--accent,#B6A2E0);   --dv-a-deep:var(--accent-deep,#6B54A8);
+    --dv-b:var(--mint,#8FCBB0);     --dv-b-deep:var(--mint-deep,#3C8368);
+    --dv-c:var(--blue,#8FB4E8);     --dv-c-deep:var(--blue-deep,#3E6DA8);
+    --dv-d:var(--butter,#EFCF8A);   --dv-d-deep:var(--butter-deep,#A57B26);
+    --dv-warn:var(--peach,#F4A99A); --dv-warn-deep:var(--peach-deep,#B75B48);
+    --dv-ink:var(--ink,#1B1F24); --dv-mute:var(--muted,#697079);
+    --dv-paper:var(--paper,#F5F7FA); --dv-rule:var(--rule,#E4E7EB);
+    --dv-serif:var(--serif,Georgia,serif)}
+  .dv *{box-sizing:border-box}
+  .dv-cap{font-size:.92em;line-height:1.45;color:var(--dv-mute);margin-top:1em;max-width:52ch;
+    opacity:0;transition:opacity .45s}
+  .dv-cap.on{opacity:1}
+  .dv-hint{font-size:.72em;letter-spacing:.1em;text-transform:uppercase;color:var(--dv-mute);
+    margin-top:.9em}
+  .dv-big{font-family:var(--dv-serif);font-size:2.6em;line-height:1;font-variant-numeric:tabular-nums}
+  .dv-btn{font:inherit;font-size:.8em;letter-spacing:.08em;text-transform:uppercase;
+    background:none;border:1px solid var(--dv-rule);color:var(--dv-mute);padding:.5em 1em;
+    cursor:pointer;margin-top:1em}
+  .dv-btn:hover{color:var(--dv-a-deep);border-color:var(--dv-a-deep)}
+
+  /* 1 · icon array ------------------------------------------------------- */
+  .dv-icons .dv-grid{display:grid;gap:.34em;width:max-content;max-width:100%}
+  .dv-icons .dot{width:1.35em;height:1.35em;border-radius:50%;background:var(--dv-paper);
+    border:1px solid var(--dv-rule);transition:background .18s,border-color .18s}
+  .dv-icons .dot.on{background:var(--dv-a);border-color:var(--dv-a)}
+  .dv-icons .dv-count{font-family:var(--dv-serif);font-size:2.2em;line-height:1;margin-top:.5em;
+    font-variant-numeric:tabular-nums;color:var(--dv-a-deep);opacity:0;transition:opacity .3s}
+  .dv-icons .dv-count.on{opacity:1}
+
+  /* 2 · guess then reveal ------------------------------------------------ */
+  .dv-guess .plot{position:relative;height:12em;background:var(--dv-paper);cursor:ns-resize;
+    border-bottom:2px solid var(--dv-ink);touch-action:none}
+  .dv-guess .gridline{position:absolute;left:0;right:0;height:1px;background:var(--dv-rule)}
+  .dv-guess .gridline span{position:absolute;left:.5em;top:-1.1em;font-size:.72em;color:var(--dv-mute)}
+  .dv-guess .actual{position:absolute;left:22%;width:26%;bottom:0;height:0;background:var(--dv-b);
+    transition:height 1.1s cubic-bezier(.16,.84,.28,1)}
+  .dv-guess .actual b{position:absolute;bottom:calc(100% + .4em);left:50%;transform:translateX(-50%);
+    font-family:var(--dv-serif);font-size:1.5em;color:var(--dv-b-deep);white-space:nowrap;
+    font-variant-numeric:tabular-nums}
+  .dv-guess .guess{position:absolute;left:0;right:0;border-top:2px dashed var(--dv-a-deep);
+    transition:bottom .08s}
+  .dv-guess .guess b{position:absolute;right:.6em;top:-1.7em;font-size:.8em;color:var(--dv-a-deep);
+    background:#fff;padding:0 .4em}
+  .dv-guess .ask{font-size:1.05em;margin-bottom:.8em}
+
+  /* 3 · live dot plot ---------------------------------------------------- */
+  .dv-dots .cols{display:grid;gap:.7em;align-items:end;height:13em}
+  .dv-dots .col{display:flex;flex-direction:column;justify-content:flex-end;height:100%;
+    cursor:pointer;user-select:none;padding-bottom:.3em;border-bottom:2px solid var(--dv-ink)}
+  .dv-dots .stack{display:flex;flex-direction:column-reverse;align-items:center;gap:.22em;
+    min-height:1px}
+  .dv-dots .pt{width:1.15em;height:1.15em;border-radius:50%;background:var(--dv-a);
+    animation:dvpop .25s cubic-bezier(.2,1.4,.4,1)}
+  @keyframes dvpop{from{transform:scale(0)}to{transform:scale(1)}}
+  .dv-dots .binlabs{display:grid;gap:.7em;margin-top:.6em}
+  .dv-dots .binlab{font-size:.78em;text-align:center;color:var(--dv-mute);line-height:1.25}
+  .dv-dots .n{font-family:var(--dv-serif);font-size:1.1em;text-align:center;color:var(--dv-mute)}
+
+  /* 4 · progressive bars -------------------------------------------------- */
+  .dv-bars .row{display:grid;grid-template-columns:minmax(6em,14ch) 1fr auto;gap:1.1em;
+    align-items:center;margin-bottom:1.5em}
+  .dv-bars .lab{font-size:1em;line-height:1.2}
+  .dv-bars .track{background:var(--dv-paper);height:3.2em;position:relative}
+  .dv-bars .fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--c,var(--dv-a));
+    transition:width 1.1s cubic-bezier(.16,.84,.28,1)}
+  .dv-bars .val{font-family:var(--dv-serif);font-size:1.7em;font-variant-numeric:tabular-nums;
+    white-space:nowrap;opacity:0;transition:opacity .35s .25s;letter-spacing:-.01em}
+  .dv-bars .row.on .val{opacity:1}
+  .dv-bars .rownote{grid-column:2 / 4;font-size:.8em;color:var(--dv-a-deep);margin-top:-.9em;
+    padding-left:.2em;opacity:0;transition:opacity .5s .7s;letter-spacing:.02em}
+  .dv-bars .rownote.on{opacity:1}
+  .dv-bars .rownote::before{content:"";display:inline-block;width:1.6em;height:1px;
+    background:currentColor;vertical-align:middle;margin-right:.6em;opacity:.6}
+  .dv-ratio{display:inline-block;font-size:1em;letter-spacing:.02em;color:var(--dv-a-deep);
+    border-left:2px solid var(--dv-a);padding:.15em 0 .15em .8em;margin-top:.6em;
+    opacity:0;transform:translateY(.3em);transition:opacity .5s,transform .5s;font-weight:600}
+  .dv-ratio.on{opacity:1;transform:none}
+
+  /* 5 · gauge against a target band --------------------------------------- */
+  .dv-gauge .track{position:relative;height:3.2em;background:var(--dv-paper);margin-top:2.2em}
+  .dv-gauge .band{position:absolute;top:0;bottom:0;background:rgba(143,203,176,.4);
+    border-left:2px solid var(--dv-b-deep);border-right:2px solid var(--dv-b-deep)}
+  .dv-gauge .band span{position:absolute;top:-1.7em;left:50%;transform:translateX(-50%);
+    font-size:.75em;color:var(--dv-b-deep);white-space:nowrap;font-weight:700;letter-spacing:.06em}
+  .dv-gauge .needle{position:absolute;top:-.9em;bottom:-.9em;width:3px;background:var(--dv-a-deep);
+    left:0;transition:left 1s cubic-bezier(.2,.7,.3,1)}
+  .dv-gauge .needle b{position:absolute;top:-1.9em;left:50%;transform:translateX(-50%);
+    font-family:var(--dv-serif);font-size:1.2em;color:var(--dv-a-deep);white-space:nowrap}
+  .dv-gauge .ends{display:flex;justify-content:space-between;font-size:.75em;
+    color:var(--dv-mute);margin-top:.5em}
+
+  /* 6 · percent change: before and after, stacked, percent drawn on the before bar */
+  .dv-percent .prow{display:grid;grid-template-columns:minmax(4.5em,8ch) 1fr;gap:1em;
+    align-items:center;margin:2.4em 0 1.4em}
+  .dv-percent .rlab{font-size:.78em;color:var(--dv-mute);letter-spacing:.1em;text-transform:uppercase}
+  .dv-percent .track{position:relative;height:3.1em;background:var(--dv-paper)}
+  .dv-percent .fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--dv-a);
+    transition:width .9s cubic-bezier(.2,.7,.3,1)}
+  .dv-percent .endlab{position:absolute;top:50%;transform:translateY(-50%);margin-left:.7em;
+    font-family:var(--dv-serif);font-size:1.35em;white-space:nowrap;opacity:0;
+    transition:opacity .4s .55s;font-variant-numeric:tabular-nums}
+  .dv-percent .endlab.on{opacity:1}
+  .dv-percent .chunk{position:absolute;top:0;bottom:0;width:0;opacity:0;
+    transition:opacity .45s;background:var(--dv-d);border-left:2px solid var(--dv-d-deep);
+    border-right:2px solid var(--dv-d-deep)}
+  .dv-percent .chunk.on{opacity:1}
+  .dv-percent .chunk .chunklab{position:absolute;bottom:calc(100% + .5em);left:50%;
+    transform:translateX(-50%);font-size:.82em;color:var(--dv-d-deep);white-space:nowrap;
+    font-weight:700;letter-spacing:.04em}
+
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+
+  <!-- ============ COVER — three cards carry the shape of the period ======= -->
+  <section class="slide" data-day="Day 1" data-title="Cover" data-mins="60 min">
+    <header class="head"><div class="eyebrow">Grade 9 Science · STANDARD CODE</div></header>
+    <h1>The question this lesson answers.</h1>
+    <div class="body">
+      <div class="cards">
+        <div class="card"><div class="n">First</div><h3>What it is</h3>
+          <p>What students meet in the first block, in one sentence.</p></div>
+        <div class="card"><div class="n">Then</div><h3>What the numbers say</h3>
+          <p>The data they will read and argue about.</p></div>
+        <div class="card"><div class="n">Last</div><h3>What it costs</h3>
+          <p>The trade-off that makes the closing question real.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FLOW — a process, one step per box ====================== -->
+  <section class="slide" data-day="Day 1" data-title="How it works" data-mins="3 min">
+    <header class="head"><div class="eyebrow">How it works · follow the arrows</div></header>
+    <h2>Four steps, start to finish.</h2>
+    <div class="body">
+      <div class="flow">
+        <div class="step"><div class="k">Step 1</div><div class="t">What goes in</div>
+          <p>One line naming the input.</p></div>
+        <div class="arrow">&#8594;</div>
+        <div class="step"><div class="k">Step 2</div><div class="t">What moves it</div>
+          <p>The part that does the work.</p></div>
+        <div class="arrow">&#8594;</div>
+        <div class="step"><div class="k">Step 3</div><div class="t">Where it acts</div>
+          <p>Where the change happens.</p></div>
+        <div class="arrow">&#8594;</div>
+        <div class="step end"><div class="k">Result</div><div class="t">What comes out</div>
+          <p>What the system produces.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DO NOW ================================================== -->
+  <section class="slide" data-day="Day 1" data-title="Do Now"
+           data-packet="p. 1" data-timer="300" data-mins="5 min">
+    <header class="head"><div class="eyebrow">Do Now · silent · on your own</div></header>
+    <h2>The do-now question, readable from the back row.</h2>
+    <p class="es">La pregunta en español, en pocas palabras.</p>
+    <div class="body">
+      <div class="frames">
+        <div class="frames-label">Start here</div>
+        <div class="frame">I think <span class="blank long"></span> because <span class="blank long"></span>.</div>
+      </div>
+    </div>
+    <p class="instruct">Write for the whole five minutes. Do not stop to fix anything.</p>
+    <p class="es">La instrucción en español, en pocas palabras.</p>
+  </section>
+
+  <!-- ============ PHOTOGRAPH — the real thing, before any definition ======
+       Every photo slide carries four things: --focus aiming the crop, real alt
+       text (a sentence — it becomes the visible text if the image is blocked), a
+       caption saying WHAT TO NOTICE, and a credit. See references/photographs.md.
+       Build the src as Special:FilePath/<file name>?width=1400 — never a
+       hand-assembled upload.wikimedia.org/thumb/ path, those carry a hash you
+       cannot guess and 404 every time. ==================================== -->
+  <section class="slide" data-day="Day 1" data-title="The real thing" data-mins="2 min">
+    <header class="head"><div class="eyebrow">Look first · no notes yet</div></header>
+    <h2>The claim this photograph proves, six to twelve words.</h2>
+    <div class="body media">
+      <figure class="photo" style="--focus:50% 40%">
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/REPLACE_FILE_NAME?width=1400"
+             alt="A full sentence describing what is in the photo, so a student could picture it from the words alone.">
+        <figcaption class="cap">What to notice — not what the thing is.
+          <span class="cred">Wikimedia Commons · CC BY-SA 4.0</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ TWO PHOTOGRAPHS COMPARED =============================== -->
+  <section class="slide" data-day="Day 1" data-title="Compare" data-mins="3 min">
+    <header class="head"><div class="eyebrow">Notice and wonder · with your partner</div></header>
+    <h2>What is different between these two?</h2>
+    <div class="body">
+      <div class="pgrid">
+        <figure style="--focus:50% 50%">
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/REPLACE_FILE_NAME?width=900"
+               alt="A full sentence describing the first photo.">
+          <figcaption><b>Label</b>What to look for in this one</figcaption>
+        </figure>
+        <figure style="--focus:50% 50%">
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/REPLACE_FILE_NAME?width=900"
+               alt="A full sentence describing the second photo.">
+          <figcaption><b>Label</b>What to look for in this one</figcaption>
+        </figure>
+      </div>
+      <p class="cap"><span class="cred">Both photographs: Wikimedia Commons · CC BY-SA 4.0</span></p>
+    </div>
+  </section>
+
+  <!-- ============ VOCABULARY ============================================== -->
+  <section class="slide" data-day="Day 1" data-title="New word" data-mins="2 min">
+    <header class="head"><div class="eyebrow">New word · we use this all period</div></header>
+    <h2>One word, then we put it to work.</h2>
+    <div class="body">
+      <div class="vocab">
+        <div class="vc word"><div class="k">Word</div><div class="w">Yield</div>
+          <div class="say">say it: YEELD</div>
+          <div class="es">rendimiento</div></div>
+        <div class="vc"><div class="k">What it means</div>
+          <div class="d">How much food you get out of a space.</div></div>
+        <div class="vc"><div class="k">This is not yield</div>
+          <div class="ex">How big the tray is. A big empty tray has no yield at all.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ INTERACTIVE CHART — every deck carries at least one ======
+       Configured entirely by data- attributes; the numbers below are demo
+       values and none of them should reach a real slide. Rows are
+       "Label|value|color|optional note". Bars reveal one click at a time, so
+       the order you write them in is the order the story is told.
+       Every chart needs BOTH classes: `dv` defines the colour variables and
+       base type, `dv-bars` picks the type. Without `dv` the chart builds but
+       renders invisible -- labels, no bars.
+       See references/dataviz.md for the other five types. ================== -->
+  <section class="slide" data-day="Day 1" data-title="Predict, then reveal"
+           data-packet="p. 2" data-mins="6 min">
+    <header class="head"><div class="eyebrow">The numbers · guess first, then click</div></header>
+    <h2>Same lettuce. One twelfth of the water.</h2>
+    <div class="body">
+      <div class="dv dv-bars"
+           data-rows="In a field|250|var(--dv-c)|what most lettuce costs to grow; Hydroponics|20|var(--dv-a)"
+           data-unit=" L"
+           data-ratio="12 times less water for the same head of lettuce"
+           data-caption="A field needs twelve times the water for the same head of lettuce."></div>
+    </div>
+    <p class="instruct">Ask for a guess out loud before the first click.</p>
+    <p class="es">Adivina primero. Después miramos.</p>
+  </section>
+
+  <!-- ============ CHART — the chart is the slide ========================== -->
+  <section class="slide" data-day="Day 1" data-title="The data" data-packet="p. 2" data-mins="6 min">
+    <header class="head"><div class="eyebrow">The numbers · click to reveal</div></header>
+    <h2>The finding, stated as the headline.</h2>
+    <div class="body">
+      <!-- a dv- chart from dataviz_kit.html goes here; its own caption does the talking -->
+      <div class="bars">
+        <div class="bar-row"><div class="bar-label">In a field</div>
+          <div class="bar-track"><div class="bar-fill" style="--w:100%;--c:var(--blue)"></div></div>
+          <div class="bar-val">250 L</div></div>
+        <div class="bar-row"><div class="bar-label">Hydroponics</div>
+          <div class="bar-track"><div class="bar-fill" style="--w:8%;--c:var(--accent)"></div></div>
+          <div class="bar-val">20 L</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VIDEO — height-first, nothing under it =================== -->
+  <section class="slide" data-day="Day 1" data-title="Video" data-mins="4 min">
+    <header class="head"><div class="eyebrow">Watch · what to listen for goes here</div></header>
+    <h2>What to watch for while it plays.</h2>
+    <div class="body media">
+      <!-- data-yt is the verified video id; the script swaps in the real iframe
+           on click. Keep the poster's alt text real -- it is what students see
+           if the thumbnail is blocked too. -->
+      <div class="video-wrap" data-yt="VIDEO_ID">
+        <button class="vfacade" type="button">
+          <img src="https://img.youtube.com/vi/VIDEO_ID/hqdefault.jpg"
+               alt="Title card of the video: describe what it shows, in a sentence.">
+          <span class="vbtn"></span>
+          <span class="vhint">click to play · Channel · 3 min</span>
+        </button>
+      </div>
+      <p class="vlink">Channel · 3 min ·
+        <a href="https://www.youtube.com/watch?v=VIDEO_ID" target="_blank" rel="noopener">open on YouTube</a>
+        — use this link if the embed is blocked at school</p>
+    </div>
+  </section>
+
+  <!-- ============ TALK — turn-and-talk with a phased timer ==================
+       data-phases runs the turns: each phase chimes into the next, and any
+       element with a matching data-phase lights up while its turn is on.
+       data-timer stays: it is the sum of the phases, and it is what the
+       checker adds up against the period. -->
+  <section class="slide" data-day="Day 1" data-title="Turn and talk" data-packet="p. 2"
+           data-timer="210" data-mins="3.5 min"
+           data-phases="Think|30; A talks|60; B talks|60; Share|60">
+    <header class="head"><div class="eyebrow">Turn and talk · with your partner</div></header>
+    <h2>Which would you build first, the pump or the reservoir?</h2>
+    <p class="es">¿Qué construirías primero: la bomba o el tanque?</p>
+    <div class="body">
+      <div class="talk">
+        <figure class="talk-visual" style="--focus:50% 55%">
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Salades%20dans%20un%20canal%20NFT.jpg?width=1200"
+               alt="Rows of lettuce growing in long white plastic channels, with water running underneath them.">
+          <figcaption class="cap">Every plant here drinks from the same pumped water.
+            <span class="cred">Wikimedia Commons · CC0</span></figcaption>
+        </figure>
+        <div class="talk-side">
+          <div class="roles">
+            <div class="role" data-phase="Think"><div class="k">Everyone</div><p>Look. Pick one.</p></div>
+            <div class="role" data-phase="A talks"><div class="k">Partner A</div><p>Say your pick and one reason.</p></div>
+            <div class="role" data-phase="B talks"><div class="k">Partner B</div><p>Say it back: "You said…" Then add yours.</p></div>
+          </div>
+          <div class="frames">
+            <div class="frames-label">Say it</div>
+            <div class="frame">I would build the <span class="blank"></span> first because…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VOTE, TALK, REVOTE ========================================
+       Count hands for round 1, run the talk, count again for round 2. The
+       shift between the two bars is what the talk did. The picker calls on a
+       pair by number, never by name, after they have rehearsed. -->
+  <section class="slide" data-day="Day 1" data-title="Vote, talk, revote" data-mins="6 min">
+    <header class="head"><div class="eyebrow">Vote · talk · vote again</div></header>
+    <h2>Which part fails first if nobody checks on it?</h2>
+    <p class="es">¿Qué parte falla primero si nadie la revisa?</p>
+    <div class="body">
+      <div class="vote" data-options="Pump|Reservoir|Tubing|Monitoring"
+           data-rounds="Before we talk|After we talk"></div>
+      <div class="picker" data-count="8" data-label="Pair" data-step style="margin-top:2.4vh"></div>
+    </div>
+  </section>
+
+  <!-- ============ GAME: FAIR GUESS =========================================
+       Partners agree on the timer and hold up their letter, then V reveals.
+       data-answer counts from 1. The reveal explains, it doesn't just mark.
+       Only in a deck built with teams (body data-teams) does each team lock
+       in a letter; a team that locked the right one scores data-points on
+       its own, and the footer's + and - fix anything by hand. -->
+  <section class="slide" data-day="Day 1" data-title="Game round" data-timer="60" data-mins="4 min">
+    <header class="head"><div class="eyebrow">Game · agree with your partner, then show your letter</div></header>
+    <h2>Where should the pump sit?</h2>
+    <p class="es">¿Dónde debe ir la bomba?</p>
+    <div class="body">
+      <div class="game" data-options="Inside the reservoir|Next to the reservoir|Up on the frame"
+           data-answer="1" data-points="100"
+           data-why="A pump has to sit in the water it moves. Out of the water it runs dry and burns out."></div>
+    </div>
+  </section>
+
+  <!-- ============ GAME: SORT IT ============================================
+       Students come up and drag each card into a bin (or tap a card, then a
+       bin). C checks: right cards go green, the rest go red, and the reason
+       appears. data-items reads "card=bin number"; bins count from 1. -->
+  <section class="slide" data-day="Day 1" data-title="Sort it" data-timer="120" data-mins="5 min">
+    <header class="head"><div class="eyebrow">Game · come up and sort it</div></header>
+    <h2>Which parts need electricity?</h2>
+    <p class="es">¿Qué partes necesitan electricidad?</p>
+    <div class="body">
+      <div class="sort" data-bins="Needs electricity|No electricity"
+           data-items="Pump=1|Grow light=1|Reservoir=2|Net pot=2|Timer=1|Tubing=2"
+           data-why="Anything that moves water or makes light runs on electricity. The rest just holds things."></div>
+    </div>
+  </section>
+
+  <!-- ============ CHECKPOINT — the one sparse slide type ================== -->
+  <section class="slide dark" data-day="Day 1" data-title="Checkpoint" data-timer="120" data-mins="2 min">
+    <header class="head"><div class="eyebrow">Stop and think · nothing written down</div></header>
+    <h1>One question, big enough to fill the screen.</h1>
+    <p class="es">La misma pregunta, en español.</p>
+    <div class="body"></div>
+  </section>
+
+</div>
+
+<div class="footer">
+  <span class="day-tag" id="dayTag">Day 1</span>
+  <span class="hint">← → slides · S timer · A read aloud · G jump · click a photo to enlarge</span>
+  <span class="nav">
+    <button id="prev" aria-label="Previous slide">&#8592;</button>
+    <span id="counter">1 / 1</span>
+    <button id="next" aria-label="Next slide">&#8594;</button>
+  </span>
+</div>
+
+<div class="progress"><span id="progressBar"></span></div>
+<div class="jump" id="jump"><h4>Jump to</h4><ol id="jumpList"></ol></div>
+
+<div class="timer" id="timer" hidden>
+  <span class="timer-phase" id="timerPhase"></span>
+  <span class="timer-time" id="timerTime">0:00</span>
+  <button class="timer-ctl" id="timerToggle">start</button>
+  <button class="timer-ctl" id="timerReset">reset</button>
+</div>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var idx = 0;
+  var counter = document.getElementById('counter');
+  var dayTag  = document.getElementById('dayTag');
+  var progress = document.getElementById('progressBar');
+  var timerEl = document.getElementById('timer');
+  var timeEl  = document.getElementById('timerTime');
+  var toggleBtn = document.getElementById('timerToggle');
+  var resetBtn  = document.getElementById('timerReset');
+  var jump = document.getElementById('jump');
+  var jumpList = document.getElementById('jumpList');
+  var total = 0, left = 0, tick = null, running = false, chime = null;
+  // a talk slide's timer runs in phases (think, A talks, B talks, share), chiming
+  // at each switch so the teacher can circulate instead of watching the clock
+  var phases = null, pi = 0;
+  var phaseEl = document.getElementById('timerPhase');
+  document.body.classList.add('js-steps');
+
+  // Each slide gets its own head-right slot. The timer is MOVED into the current
+  // slide's slot rather than floated over the page — which is why nothing collides.
+  slides.forEach(function(s){
+    var head = s.querySelector('.head');
+    if (!head){ head = document.createElement('header'); head.className = 'head';
+      s.insertBefore(head, s.firstChild); }
+    var pk = s.getAttribute('data-packet');
+    if (pk){
+      var eb = head.querySelector('.eyebrow');
+      if (!eb){ eb = document.createElement('div'); eb.className = 'eyebrow'; head.appendChild(eb); }
+      var chip = document.createElement('span');
+      chip.className = 'chip'; chip.textContent = 'Packet ' + pk;
+      eb.appendChild(chip);
+    }
+    var right = document.createElement('div');
+    right.className = 'head-right';
+    var mins = s.getAttribute('data-mins');
+    if (mins && !s.hasAttribute('data-timer')) right.textContent = mins;
+    head.appendChild(right);
+  });
+
+  function fmt(s){ if (s < 0) s = 0;
+    var m = Math.floor(s/60), r = s % 60; return m + ':' + (r < 10 ? '0' + r : r); }
+  function paint(){
+    timeEl.textContent = fmt(left);
+    timerEl.classList.toggle('running', running && left > 0);
+    timerEl.classList.toggle('done', total > 0 && left === 0);
+    toggleBtn.textContent = running ? 'pause' : (left === total ? 'start' : 'resume');
+    var name = phases ? phases[pi].name : '';
+    phaseEl.textContent = name;
+    var begun = running || left < total || pi > 0;
+    Array.prototype.forEach.call(slides[idx].querySelectorAll('[data-phase]'), function(el){
+      el.classList.toggle('live', !!phases && begun && el.getAttribute('data-phase') === name);
+    });
+  }
+  function stop(){ if (tick) { clearInterval(tick); tick = null; } running = false; }
+  function beep(){
+    try {
+      var Ctx = window.AudioContext || window.webkitAudioContext; if (!Ctx) return;
+      chime = chime || new Ctx();
+      var o = chime.createOscillator(), g = chime.createGain();
+      o.frequency.value = 660; o.connect(g); g.connect(chime.destination);
+      g.gain.setValueAtTime(0.0001, chime.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.18, chime.currentTime + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, chime.currentTime + 0.9);
+      o.start(); o.stop(chime.currentTime + 0.95);
+    } catch (e) {}
+  }
+  function start(){
+    if (total === 0 || left === 0) return;
+    stop(); running = true;
+    tick = setInterval(function(){
+      left -= 1;
+      if (left <= 0 && phases && pi < phases.length - 1) {
+        beep(); pi += 1; total = left = phases[pi].secs;
+      } else if (left <= 0) { left = 0; stop(); beep(); }
+      paint();
+    }, 1000);
+    paint();
+  }
+  function toggle(){ running ? (stop(), paint()) : start(); }
+  function reset(){
+    stop();
+    if (phases) { pi = 0; total = phases[0].secs; }
+    left = total; timerEl.classList.remove('done'); paint();
+  }
+
+  function loadTimer(slide){
+    stop();
+    var secs = parseInt(slide.getAttribute('data-timer') || '0', 10);
+    total = isNaN(secs) ? 0 : secs;
+    // data-phases="Think|30; A talks|60; B talks|60; Share|90"
+    phases = null; pi = 0;
+    var spec = slide.getAttribute('data-phases');
+    if (spec) {
+      phases = spec.split(';').map(function(p){
+        var bits = p.split('|'); return {name: bits[0].trim(), secs: parseInt(bits[1], 10) || 0};
+      }).filter(function(p){ return p.name && p.secs > 0; });
+      if (phases.length) total = phases[0].secs; else phases = null;
+    }
+    left = total;
+    timerEl.classList.remove('done','running');
+    // Timers never start on their own — the teacher decides when the work begins.
+    if (total > 0){
+      slide.querySelector('.head-right').appendChild(timerEl);
+      timerEl.hidden = false; paint();
+    } else {
+      timerEl.hidden = true;
+    }
+  }
+
+  // data-step items appear one per → press before the deck moves on, so a
+  // prediction can be asked before its answer is on the screen. Coming back
+  // with ← shows the slide whole.
+  function steps(s){
+    return Array.prototype.slice.call(s.querySelectorAll('[data-step]')).sort(function(a, b){
+      return (parseFloat(a.getAttribute('data-step')) || 0) - (parseFloat(b.getAttribute('data-step')) || 0);
+    });
+  }
+  function next(){
+    var hidden = steps(slides[idx]).filter(function(el){ return !el.classList.contains('shown'); });
+    if (hidden.length) { hidden[0].classList.add('shown'); return; }
+    show(idx + 1);
+  }
+  function prev(){ show(idx - 1, true); }
+
+  function show(n, whole){
+    if (n < 0) n = 0;
+    if (n > slides.length - 1) n = slides.length - 1;
+    slides[idx].classList.remove('on');
+    idx = n;
+    var s = slides[idx];
+    steps(s).forEach(function(el){ el.classList.toggle('shown', !!whole); });
+    s.classList.add('on');
+    counter.textContent = (idx + 1) + ' / ' + slides.length;
+    dayTag.textContent = s.getAttribute('data-day') || '';
+    document.body.classList.toggle('on-dark', s.classList.contains('dark'));
+    progress.style.width = ((idx + 1) / slides.length * 100) + '%';
+    loadTimer(s);
+  }
+
+  slides.forEach(function(s, i){
+    var li = document.createElement('li');
+    var num = document.createElement('span'); num.textContent = i + 1;
+    li.appendChild(num);
+    li.appendChild(document.createTextNode(
+      s.getAttribute('data-title') || (s.querySelector('h1,h2') || {}).textContent || 'Slide'));
+    li.addEventListener('click', function(){ jump.classList.remove('show'); show(i); });
+    jumpList.appendChild(li);
+  });
+
+  document.getElementById('next').addEventListener('click', next);
+  document.getElementById('prev').addEventListener('click', prev);
+
+  // A reads the slide aloud: the headline, then each language line in its own
+  // voice, then the direction. Where reading is the barrier, the screen
+  // can carry the question to a student who can't yet carry it off the page.
+  function readAloud(){
+    var synth = window.speechSynthesis;
+    if (!synth) return;
+    if (synth.speaking) { synth.cancel(); return; }
+    var s = slides[idx], voices = synth.getVoices();
+    function say(text, lang){
+      text = (text || '').replace(/\s+/g, ' ').trim();
+      if (!text) return;
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang = lang; u.rate = 0.92;
+      var v = voices.filter(function(x){ return x.lang && x.lang.toLowerCase().indexOf(lang.slice(0, 2)) === 0; })[0];
+      if (lang.slice(0, 2) !== 'en' && !v) return;   // no voice for it: skip rather than mangle it
+      if (v) u.voice = v;
+      synth.speak(u);
+    }
+    function visible(el){ var st = el.closest('[data-step]'); return !st || st.classList.contains('shown'); }
+    Array.prototype.forEach.call(s.querySelectorAll('h1, h2, .es, .instruct'), function(el){
+      if (!visible(el)) return;
+      if (el.classList.contains('es')) say(el.textContent, el.getAttribute('lang') || 'es-US');
+      else say(el.textContent, 'en-US');
+    });
+  }
+  var zoom = document.createElement('div');
+  zoom.className = 'zoom';
+  document.body.appendChild(zoom);
+  document.addEventListener('click', function(e){
+    if (zoom.classList.contains('on')) { zoom.classList.remove('on'); return; }
+    var img = e.target.closest && e.target.closest('.slide img');
+    if (!img || img.closest('.vfacade')) return;
+    var s = slides[idx], q = s.querySelector('h1, h2'), es = s.querySelector('h1 + .es, h2 + .es');
+    zoom.innerHTML = '';
+    var big = document.createElement('img'); big.src = img.currentSrc || img.src; big.alt = img.alt;
+    zoom.appendChild(big);
+    if (q) { var zq = document.createElement('div'); zq.className = 'zq'; zq.textContent = q.textContent; zoom.appendChild(zq); }
+    if (es) { var ze = document.createElement('div'); ze.className = 'zes'; ze.textContent = es.textContent; zoom.appendChild(ze); }
+    zoom.classList.add('on');
+  });
+  toggleBtn.addEventListener('click', function(e){ e.stopPropagation(); toggle(); });
+  resetBtn.addEventListener('click', function(e){ e.stopPropagation(); reset(); });
+  timeEl.addEventListener('click', function(e){ e.stopPropagation(); toggle(); });
+  jump.addEventListener('click', function(e){ if (e.target === jump) jump.classList.remove('show'); });
+
+  document.addEventListener('keydown', function(e){
+    var t = e.target.tagName;
+    if (t === 'INPUT' || t === 'TEXTAREA' || e.target.isContentEditable) return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    switch (e.key) {
+      case 'ArrowRight': case 'PageDown': next(); break;
+      case 'ArrowLeft':  case 'PageUp':   prev(); break;
+      case 'a': case 'A': readAloud(); break;
+      case 'Home': show(0); break;
+      case 'End':  show(slides.length - 1); break;
+      case 'g': case 'G': jump.classList.toggle('show'); break;
+      case 'Escape': jump.classList.remove('show'); zoom.classList.remove('on'); break;
+      case 's': case 'S': if (total > 0) { e.preventDefault(); toggle(); } break;
+      case 'r': case 'R': if (total > 0) { e.preventDefault(); reset(); } break;
+      case ' ': if (total > 0) { e.preventDefault(); toggle(); } break;
+    }
+  });
+
+  show(0);
+})();
+</script>
+
+<!-- Video: swap the poster for the real player on click. autoplay is added
+     here rather than in the markup because it only ever follows a click, and a
+     deck that autoplays on slide change is a deck that talks over you. -->
+<script>
+(function(){
+  document.addEventListener('click', function(e){
+    var f = e.target.closest && e.target.closest('.vfacade');
+    if (!f) return;
+    var wrap = f.closest('.video-wrap');
+    var id = wrap && wrap.getAttribute('data-yt');
+    if (!id) return;
+    var img = f.querySelector('img');
+    var fr = document.createElement('iframe');
+    fr.src = 'https://www.youtube-nocookie.com/embed/' + id + '?rel=0&autoplay=1';
+    fr.setAttribute('allow','accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+    fr.setAttribute('allowfullscreen','');
+    fr.setAttribute('title', img ? img.alt : 'video');
+    wrap.innerHTML = '';
+    wrap.appendChild(fr);
+  });
+})();
+</script>
+
+<!-- Photo fallback. A blocked image must never show a broken icon on a
+     projector: it degrades to a card carrying its alt text, so the slide still
+     says what students were meant to see and the lesson keeps moving. This
+     lives in the template on purpose -- it used to be a paste-in step, and
+     paste-in steps get skipped. Leave it alone. -->
+<script>
+(function(){
+  function miss(im){
+    var target = im.closest('.pinned') || im;
+    var d = document.createElement('div');
+    d.className = 'imgmiss';
+    var k = document.createElement('div'); k.className = 'k'; k.textContent = 'photo did not load';
+    var t = document.createElement('div'); t.className = 'd';
+    t.textContent = im.getAttribute('alt') || 'photo unavailable';
+    d.appendChild(k); d.appendChild(t);
+    if (target.parentNode) target.parentNode.replaceChild(d, target);
+  }
+  Array.prototype.forEach.call(document.images, function(im){
+    im.addEventListener('error', function(){ miss(im); });
+    if (im.complete && im.naturalWidth === 0) miss(im);
+  });
+})();
+</script>
+
+<!-- Chart kit script. Runs last on purpose: it scans the DOM for .dv-*
+     elements at execution time, so every slide must already be in the
+     document by the time it runs. -->
+<script>
+(function(){
+  function num(el, key, dflt){ var v = parseFloat(el.getAttribute(key)); return isNaN(v) ? dflt : v; }
+  function txt(el, key, dflt){ var v = el.getAttribute(key); return v === null ? (dflt||'') : v; }
+  function rows(el){                       // "Label|a|color; Label|a|b|color"
+    return txt(el,'data-rows').split(';').map(function(r){ return r.trim(); })
+      .filter(Boolean).map(function(r){ return r.split('|').map(function(c){ return c.trim(); }); });
+  }
+  function make(tag, cls, parent){
+    var e = document.createElement(tag); if (cls) e.className = cls;
+    if (parent) parent.appendChild(e); return e;
+  }
+  function caption(el){
+    var c = txt(el,'data-caption'); if (!c) return null;
+    var d = make('div','dv-cap', el); d.textContent = c; return d;
+  }
+  function hint(el, dflt){
+    var h = txt(el,'data-hint', dflt); if (!h) return;
+    var d = make('div','dv-hint', el); d.textContent = h;
+  }
+  function fmt(n){ return (Math.round(n*100)/100).toString(); }
+  // Numbers that arrive by counting up read as an event rather than a label. Short,
+  // eased, and always landing exactly on the real value.
+  function countUp(el, target, prefix, suffix, ms){
+    var start = null, dur = ms || 900;
+    function step(ts){
+      if (start === null) start = ts;
+      var t = Math.min(1, (ts - start) / dur);
+      var eased = 1 - Math.pow(1 - t, 3);
+      var v = target * eased;
+      el.textContent = (prefix||'') + (target % 1 ? (Math.round(v*10)/10).toFixed(1) : Math.round(v)) + (suffix||'');
+      if (t < 1) requestAnimationFrame(step);
+      else el.textContent = (prefix||'') + fmt(target) + (suffix||'');
+    }
+    requestAnimationFrame(step);
+  }
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  function svg(tag, attrs, parent){
+    var e = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e); return e;
+  }
+
+  // 1 · icon array -------------------------------------------------------
+  document.querySelectorAll('.dv-icons').forEach(function(el){
+    var total = num(el,'data-total',100), cols = num(el,'data-cols',20),
+        fill = num(el,'data-fill',0), dots = [], i;
+    var grid = make('div','dv-grid', el);
+    grid.style.gridTemplateColumns = 'repeat(' + cols + ', min-content)';
+    for (i = 0; i < total; i++) dots.push(make('div','dot', grid));
+    var count = make('div','dv-count', el);
+    count.textContent = fmt(fill) + (total === 100 ? '%' : ' of ' + total);
+    var cap = caption(el); hint(el,'click to fill');
+    var timer = null, done = false;
+    el.addEventListener('click', function(){
+      if (timer) return;
+      if (done){ dots.forEach(function(d){ d.classList.remove('on'); });
+        count.classList.remove('on'); if (cap) cap.classList.remove('on'); done = false; return; }
+      var n = 0;
+      timer = setInterval(function(){
+        if (n >= fill || n >= total){ clearInterval(timer); timer = null; done = true;
+          count.classList.add('on');
+          countUp(count, fill, '', total === 100 ? '%' : ' of ' + total, 500);
+          if (cap) cap.classList.add('on'); return; }
+        dots[n].classList.add('on'); n++;
+      }, Math.max(8, 900 / Math.max(fill,1)));
+    });
+  });
+
+  // 2 · guess then reveal ------------------------------------------------
+  document.querySelectorAll('.dv-guess').forEach(function(el){
+    var actual = num(el,'data-actual',50), max = num(el,'data-max',100),
+        unit = txt(el,'data-unit','');
+    var ask = txt(el,'data-ask'); if (ask){ var a = make('div','ask', el); a.textContent = ask; }
+    var plot = make('div','plot', el);
+    [0,.25,.5,.75,1].forEach(function(f){
+      var g = make('div','gridline', plot); g.style.bottom = (f*100) + '%';
+      var s = make('span','', g); s.textContent = fmt(max*f) + unit;
+    });
+    var bar = make('div','actual', plot);
+    var reveal = make('b','', bar);
+    var guess = make('div','guess', plot); guess.style.bottom = '40%';
+    var gl = make('b','', guess); gl.textContent = 'our guess: ' + fmt(max*0.4) + unit;
+    var btn = make('button','dv-btn', el); btn.textContent = 'show the real number';
+    var cap = caption(el), dragging = false, shown = false;
+
+    function setGuess(ev){
+      var r = plot.getBoundingClientRect();
+      var y = Math.min(Math.max(ev.clientY - r.top, 0), r.height);
+      var frac = 1 - y / r.height;
+      guess.style.bottom = (frac*100) + '%';
+      gl.textContent = 'our guess: ' + fmt(max*frac) + unit;
+    }
+    plot.addEventListener('pointerdown', function(ev){ dragging = true; setGuess(ev); plot.setPointerCapture(ev.pointerId); });
+    plot.addEventListener('pointermove', function(ev){ if (dragging) setGuess(ev); });
+    plot.addEventListener('pointerup', function(){ dragging = false; });
+    btn.addEventListener('click', function(){
+      shown = !shown;
+      bar.style.height = shown ? (actual/max*100) + '%' : '0';
+      if (shown) countUp(reveal, actual, '', unit, 900); else reveal.textContent = '';
+      if (cap) cap.classList.toggle('on', shown);
+      btn.textContent = shown ? 'hide it again' : 'show the real number';
+    });
+  });
+
+  // 3 · live dot plot ----------------------------------------------------
+  document.querySelectorAll('.dv-dots').forEach(function(el){
+    var bins = txt(el,'data-bins','0-4|5-9|10-14').split('|');
+    var ask = txt(el,'data-ask'); if (ask){ var a = make('div','ask', el); a.textContent = ask; }
+    var cols = 'repeat(' + bins.length + ', 1fr)';
+    var wrap = make('div','cols', el); wrap.style.gridTemplateColumns = cols;
+    var labs = make('div','binlabs', el); labs.style.gridTemplateColumns = cols;
+    bins.forEach(function(b){
+      var col = make('div','col', wrap);
+      var n = make('div','n', col);
+      var stack = make('div','stack', col);
+      col.addEventListener('click', function(e){
+        if (e.shiftKey){ if (stack.lastChild) stack.removeChild(stack.lastChild); }
+        else make('div','pt', stack);
+        n.textContent = stack.children.length || '';
+      });
+      var lab = make('div','binlab', labs); lab.textContent = b;
+    });
+    caption(el); hint(el,'click a column to add · shift-click to remove');
+  });
+
+  // 4 · progressive bars --------------------------------------------------
+  document.querySelectorAll('.dv-bars').forEach(function(el){
+    var rs = rows(el), unit = txt(el,'data-unit',''), pre = txt(el,'data-prefix',''), i = 0;
+    var max = Math.max.apply(null, rs.map(function(r){ return parseFloat(r[1]); }));
+    var made = rs.map(function(r){                    // label | value | color | note
+      var row = make('div','row', el);
+      var lab = make('div','lab', row); lab.textContent = r[0];
+      var track = make('div','track', row);
+      var fill = make('div','fill', track); if (r[2]) fill.style.setProperty('--c', r[2]);
+      var val = make('div','val', row);
+      var note = null;
+      if (r[3]){ note = make('div','rownote', row); note.textContent = r[3]; }
+      return {row: row, fill: fill, val: val, note: note, v: parseFloat(r[1])};
+    });
+    var ratioText = txt(el,'data-ratio');
+    var ratio = null;
+    if (ratioText){ ratio = make('div','dv-ratio', el); ratio.textContent = ratioText; }
+    var cap = caption(el); hint(el,'click to reveal');
+    el.addEventListener('click', function(){
+      if (i >= made.length){
+        made.forEach(function(m){ m.fill.style.width = '0'; m.row.classList.remove('on');
+          m.val.textContent = ''; if (m.note) m.note.classList.remove('on'); });
+        if (ratio) ratio.classList.remove('on');
+        if (cap) cap.classList.remove('on'); i = 0; return;
+      }
+      var m = made[i];
+      m.fill.style.width = (m.v / max * 100) + '%';
+      m.row.classList.add('on');
+      countUp(m.val, m.v, pre, unit, 1000);
+      if (m.note) setTimeout(function(){ m.note.classList.add('on'); }, 700);
+      i++;
+      if (i === made.length){
+        if (ratio) setTimeout(function(){ ratio.classList.add('on'); }, 900);
+        if (cap) cap.classList.add('on');
+      }
+    });
+  });
+
+  // 5 · gauge -------------------------------------------------------------
+  document.querySelectorAll('.dv-gauge').forEach(function(el){
+    var v = num(el,'data-value',0), min = num(el,'data-min',0), max = num(el,'data-max',100),
+        lo = num(el,'data-lo',min), hi = num(el,'data-hi',max), unit = txt(el,'data-unit','');
+    function pct(x){ return (x - min) / (max - min) * 100; }
+    var track = make('div','track', el);
+    var band = make('div','band', track);
+    band.style.left = pct(lo) + '%'; band.style.width = (pct(hi) - pct(lo)) + '%';
+    var bl = make('span','', band); bl.textContent = txt(el,'data-band-label', fmt(lo) + '–' + fmt(hi) + unit);
+    var needle = make('div','needle', track);
+    var nb = make('b','', needle); nb.textContent = fmt(v) + unit;
+    var ends = make('div','ends', el);
+    var e1 = make('span','', ends); e1.textContent = fmt(min) + unit;
+    var e2 = make('span','', ends); e2.textContent = fmt(max) + unit;
+    var cap = caption(el); hint(el,'click to place the needle');
+    var placed = false;
+    el.addEventListener('click', function(){
+      placed = !placed;
+      needle.style.left = placed ? pct(v) + '%' : '0%';
+      if (placed) countUp(nb, v, '', unit, 900); else nb.textContent = '';
+      if (cap) cap.classList.toggle('on', placed);
+    });
+  });
+
+  // 6 · percent change ---------------------------------------------------
+  document.querySelectorAll('.dv-percent').forEach(function(el){
+    var base = num(el,'data-base',100), pct = num(el,'data-pct',10),
+        down = txt(el,'data-dir','up') === 'down', unit = txt(el,'data-unit','');
+    var change = base * pct / 100, result = down ? base - change : base + change;
+    var span = Math.max(base, result) * 1.14;      // headroom for the value label
+    function P(v){ return v / span * 100; }
+    function row(label){
+      var r = make('div','prow', el);
+      var l = make('div','rlab', r); l.textContent = label;
+      return make('div','track', r);
+    }
+    var t1 = row(txt(el,'data-before-label','before'));
+    var f1 = make('div','fill', t1);
+    var lab1 = make('div','endlab', t1); lab1.textContent = unit + fmt(base);
+    var chunk = make('div','chunk', t1);
+    var clab = make('div','chunklab', chunk);
+    clab.textContent = fmt(pct) + '% of ' + unit + fmt(base) + ' = ' + unit + fmt(change);
+    var t2 = row(txt(el,'data-after-label','after'));
+    var f2 = make('div','fill', t2);
+    f2.style.background = down ? 'var(--dv-warn)' : 'var(--dv-b)';
+    var lab2 = make('div','endlab', t2); lab2.textContent = unit + fmt(result);
+    var cap = caption(el); hint(el,'click through it');
+
+    // the before bar is there from the start — it is the thing the percent is "of"
+    f1.style.width = P(base) + '%'; lab1.style.left = P(base) + '%';
+    setTimeout(function(){ lab1.classList.add('on'); }, 60);
+    chunk.style.left = (down ? P(base - change) : P(base)) + '%';
+    chunk.style.width = P(change) + '%';
+    lab2.style.left = P(result) + '%';
+
+    var step = 0;
+    el.addEventListener('click', function(){
+      step = (step + 1) % 3;
+      chunk.classList.toggle('on', step >= 1);
+      f2.style.width = step >= 2 ? P(result) + '%' : '0';
+      lab2.classList.toggle('on', step >= 2);
+      if (cap) cap.classList.toggle('on', step >= 2);
+    });
+  });
+
+})();
+</script>
+<!-- Talk kit script: the vote, the pair picker, and the "what we heard" board.
+     Configured entirely by data- attributes, like the chart kit. Don't edit it;
+     see "Talk slides" in references/deck.md. -->
+<script>
+(function(){
+  function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls;
+    if (text != null) e.textContent = text; return e; }
+
+  // vote, talk, revote: data-options="A|B|C", data-rounds="Before we talk|After we talk"
+  Array.prototype.forEach.call(document.querySelectorAll('.vote'), function(v){
+    var opts = (v.getAttribute('data-options') || '').split('|').map(function(x){ return x.trim(); }).filter(Boolean);
+    var names = (v.getAttribute('data-rounds') || 'Before we talk|After we talk').split('|');
+    var two = names.length > 1, round = 0;
+    var counts = opts.map(function(){ return [0, 0]; });
+    var bar = el('div', 'rounds'), rows = [];
+    var btns = names.slice(0, 2).map(function(n, r){
+      var b = el('button', r === 0 ? 'on' : '', 'Round ' + (r + 1) + ': ' + n);
+      b.type = 'button';
+      b.addEventListener('click', function(){ round = r; btns.forEach(function(x, i){ x.classList.toggle('on', i === r); }); });
+      bar.appendChild(b); return b;
+    });
+    if (two) v.appendChild(bar);
+    function paint(){
+      var max = 1; counts.forEach(function(c){ max = Math.max(max, c[0], c[1]); });
+      rows.forEach(function(r, i){
+        r.b1.style.width = (counts[i][0] / max * 100) + '%';
+        if (r.b2) r.b2.style.width = (counts[i][1] / max * 100) + '%';
+        r.n.innerHTML = '';
+        r.n.appendChild(document.createTextNode(counts[i][0]));
+        if (two) { r.n.appendChild(el('span', 'arrow', '→')); r.n.appendChild(document.createTextNode(counts[i][1])); }
+      });
+    }
+    opts.forEach(function(o, i){
+      var row = el('div', 'vrow'), bars = el('div', 'vbars');
+      var t1 = el('div', 'vbar r1'), b1 = el('i'); t1.appendChild(b1); bars.appendChild(t1);
+      var b2 = null;
+      if (two) { var t2 = el('div', 'vbar r2'); b2 = el('i'); t2.appendChild(b2); bars.appendChild(t2); }
+      var n = el('div', 'vn'), ctl = el('div', 'vctl');
+      [['−', -1], ['+', 1]].forEach(function(d){
+        var b = el('button', '', d[0]); b.type = 'button';
+        b.setAttribute('aria-label', (d[1] > 0 ? 'Add a vote for ' : 'Remove a vote for ') + o);
+        b.addEventListener('click', function(){ counts[i][round] = Math.max(0, counts[i][round] + d[1]); paint(); });
+        ctl.appendChild(b);
+      });
+      row.appendChild(el('div', 'vlab', o)); row.appendChild(bars); row.appendChild(n); row.appendChild(ctl);
+      v.appendChild(row); rows.push({b1: b1, b2: b2, n: n});
+    });
+    if (two) {
+      var key = el('div', 'key');
+      key.innerHTML = '<b style="background:var(--blue)"></b>' + names[0] + '<b style="background:var(--accent-deep)"></b>' + names[1];
+      v.appendChild(key);
+    }
+    paint();
+  });
+
+  // pair picker: data-count="8", data-label="Pair". Random, no repeats until
+  // every pair has been called. P picks on the current slide.
+  Array.prototype.forEach.call(document.querySelectorAll('.picker'), function(p){
+    var n = parseInt(p.getAttribute('data-count'), 10) || 6;
+    var label = p.getAttribute('data-label') || 'Pair';
+    var left = [], chips = [];
+    var now = el('div', 'pick-now', '–'), side = el('div'), btn = el('button', '', 'Pick a ' + label.toLowerCase() + ' (P)');
+    btn.type = 'button';
+    var called = el('div', 'called');
+    for (var i = 1; i <= n; i++) { var c = el('span', '', i); chips.push(c); called.appendChild(c); }
+    function refill(){ left = []; for (var i = 1; i <= n; i++) left.push(i);
+      chips.forEach(function(c){ c.classList.remove('done'); }); }
+    function pick(){
+      if (!left.length) refill();
+      var k = left.splice(Math.floor(Math.random() * left.length), 1)[0];
+      now.textContent = k; chips[k - 1].classList.add('done');
+    }
+    refill();
+    btn.addEventListener('click', pick);
+    p.pick = pick;
+    side.appendChild(el('div', 'pick-label', label)); side.appendChild(btn); side.appendChild(called);
+    p.appendChild(now); p.appendChild(side);
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key !== 'p' && e.key !== 'P') return;
+    var t = e.target.tagName;
+    if (t === 'INPUT' || t === 'TEXTAREA' || e.metaKey || e.ctrlKey) return;
+    var slide = document.querySelector('.slide.on');
+    var p = slide && slide.querySelector('.picker');
+    if (p && p.pick) p.pick();
+  });
+
+  // what we heard: data-key names the board, so it keeps what was typed on
+  // this computer through a reload. One idea per line, credited to a pair.
+  Array.prototype.forEach.call(document.querySelectorAll('.heard'), function(h){
+    var key = 'heard:' + (h.getAttribute('data-key') || location.pathname);
+    h.appendChild(el('div', 'hlabel', h.getAttribute('data-label') || 'What we heard'));
+    var ta = el('textarea');
+    ta.setAttribute('aria-label', 'Ideas from the class');
+    ta.placeholder = 'Pair 3: the pump needs power all day…';
+    try { ta.value = localStorage.getItem(key) || ''; } catch (err) {}
+    ta.addEventListener('input', function(){ try { localStorage.setItem(key, ta.value); } catch (err) {} });
+    h.appendChild(ta);
+  });
+})();
+</script>
+
+<!-- Key words and games. Key words come from body data-vocab and are marked once
+     per slide, where each first appears, never in a language line. Teams come from
+     body data-teams, only when the deck was built with them; their scores live in
+     this computer's storage, keyed by the deck's title. -->
+<script>
+(function(){
+  function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls;
+    if (text != null) e.textContent = text; return e; }
+  function list(v){ return (v || '').split('|').map(function(x){ return x.trim(); }).filter(Boolean); }
+  function slideOf(node){ return node.closest('.slide'); }
+  function current(sel){ var s = document.querySelector('.slide.on'); return s && s.querySelector(sel); }
+
+  // ---------- key words: each one marked once per slide, where it first appears
+  var words = list(document.body.getAttribute('data-vocab'));
+  if (words.length) {
+    var alts = words.sort(function(a, b){ return b.length - a.length; }).map(function(w){
+      return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+'); }).join('|');
+    var re = new RegExp('(^|[^\\w-])((' + alts + ')(?:s|es|ed|ing)?)(?![\\w-])', 'gi');
+    var skip = 'script,style,svg,textarea,button,input,mark,.es,.cred,.eyebrow,.vfacade,.zoom,' +
+               '.vc.word,[data-no-kw]';
+    Array.prototype.forEach.call(document.querySelectorAll('.slide'), function(slide){
+      var seen = {}, walker = document.createTreeWalker(slide, NodeFilter.SHOW_TEXT, null), nodes = [], n;
+      while ((n = walker.nextNode())) {
+        if (n.nodeValue.trim() && !(n.parentElement && n.parentElement.closest(skip))) nodes.push(n);
+      }
+      nodes.forEach(function(node){
+        var text = node.nodeValue, frag = null, last = 0, m;
+        re.lastIndex = 0;
+        while ((m = re.exec(text))) {
+          var key = m[3].toLowerCase().replace(/\s+/g, ' ');
+          if (seen[key]) continue;
+          seen[key] = true;
+          frag = frag || document.createDocumentFragment();
+          var start = m.index + m[1].length;
+          frag.appendChild(document.createTextNode(text.slice(last, start)));
+          frag.appendChild(el('mark', 'kw', m[2]));
+          last = start + m[2].length;
+        }
+        if (!frag) return;
+        frag.appendChild(document.createTextNode(text.slice(last)));
+        node.parentNode.replaceChild(frag, node);
+      });
+    });
+  }
+
+  // ---------- teams: only in a deck built with them (body data-teams). Then one
+  // scoreboard sits in the footer of every slide and keeps the period's running
+  // total: it survives a reload, starts fresh on a new day or after two hours with
+  // no points, and "New period" clears it by hand between back-to-back classes.
+  var teams = list(document.body.getAttribute('data-teams')).slice(0, 6);
+  var scores = teams.map(function(){ return 0; });
+  var store = 'teams:' + (document.title || location.pathname);
+  var QUIET = 2 * 60 * 60 * 1000;
+  function today(){ var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+  if (teams.length) {
+    try { var saved = JSON.parse(localStorage.getItem(store) || 'null');
+      if (saved && saved.teams && saved.teams.join('|') === teams.join('|') && saved.day === today()
+          && Date.now() - (saved.at || 0) < QUIET) scores = saved.scores; } catch (e) {}
+  }
+  function save(){ try { localStorage.setItem(store, JSON.stringify(
+    {teams: teams, scores: scores, day: today(), at: Date.now()})); } catch (e) {} }
+  var board = [];
+  function paint(flash){
+    board.forEach(function(t, i){
+      t.n.textContent = scores[i];
+      if (flash && flash.indexOf(i) >= 0) { t.box.classList.add('up');
+        setTimeout(function(){ t.box.classList.remove('up'); }, 1400); }
+    });
+  }
+  function award(i, pts){ scores[i] = Math.max(0, scores[i] + pts); save(); paint(pts > 0 ? [i] : []); }
+  function step(){ var g = current('.game, .sort'); return parseInt(g && g.getAttribute('data-points'), 10) || 100; }
+  if (teams.length) {
+    var bar = el('div', 'scoreboard');
+    bar.setAttribute('aria-label', 'Team scores for this period');
+    teams.forEach(function(name, i){
+      var box = el('div', 'team'), num = el('b', '', '0');
+      var minus = el('button', '', '−'), plus = el('button', '', '+');
+      minus.type = plus.type = 'button';
+      minus.setAttribute('aria-label', 'Take points from ' + name);
+      plus.setAttribute('aria-label', 'Give points to ' + name);
+      minus.addEventListener('click', function(e){ e.stopPropagation(); award(i, -step()); });
+      plus.addEventListener('click', function(e){ e.stopPropagation(); award(i, step()); });
+      box.appendChild(el('span', 'tn', name)); box.appendChild(num); box.appendChild(minus); box.appendChild(plus);
+      bar.appendChild(box); board.push({box: box, n: num});
+    });
+    var reset = el('button', 'sreset', 'New period'), armed = false;
+    reset.type = 'button';
+    reset.addEventListener('click', function(e){
+      e.stopPropagation();
+      if (!armed) { armed = true; reset.textContent = 'Click again: all to 0';
+        setTimeout(function(){ armed = false; reset.textContent = 'New period'; }, 2500); return; }
+      scores = teams.map(function(){ return 0; }); save(); paint(); armed = false; reset.textContent = 'New period';
+    });
+    bar.appendChild(reset);
+    var foot = document.querySelector('.footer'), hintEl = foot && foot.querySelector('.hint');
+    if (hintEl) foot.replaceChild(bar, hintEl); else if (foot) foot.insertBefore(bar, foot.lastElementChild);
+    paint();   // the period's scores, kept from before a reload
+  }
+
+  // ---------- fair guess: data-options, data-answer (from 1), data-why, data-points
+  var LETTERS = 'ABCDEF';
+  Array.prototype.forEach.call(document.querySelectorAll('.game'), function(g){
+    var opts = list(g.getAttribute('data-options')).slice(0, 6);
+    var answer = (parseInt(g.getAttribute('data-answer'), 10) || 1) - 1;
+    var pts = parseInt(g.getAttribute('data-points'), 10) || 100;
+    var locked = teams.map(function(){ return -1; }), awarded = [], lockBtns = [];
+    var grid = el('div', 'opts');
+    opts.forEach(function(o, i){
+      var c = el('div', 'opt' + (i === answer ? ' right' : ''));
+      c.appendChild(el('span', 'L', LETTERS[i])); c.appendChild(el('span', 't', o));
+      grid.appendChild(c);
+    });
+    g.appendChild(grid);
+    if (teams.length) {
+      var lock = el('div', 'lock');
+      teams.forEach(function(name, t){
+        var row = el('div', 'lt'); row.appendChild(el('span', '', name));
+        lockBtns[t] = opts.map(function(_, i){
+          var b = el('button', '', LETTERS[i]); b.type = 'button';
+          b.setAttribute('aria-label', name + ' locks in ' + LETTERS[i]);
+          b.addEventListener('click', function(e){
+            e.stopPropagation();
+            if (g.classList.contains('revealed')) return;
+            locked[t] = locked[t] === i ? -1 : i;
+            lockBtns[t].forEach(function(x, k){ x.classList.toggle('on', k === locked[t]); });
+          });
+          row.appendChild(b); return b;
+        });
+        lock.appendChild(row);
+      });
+      g.appendChild(lock);
+    }
+    var ctl = el('div', 'gctl'), btn = el('button', '', 'Reveal (V)');
+    btn.type = 'button';
+    ctl.appendChild(btn);
+    g.appendChild(ctl);
+    g.appendChild(el('div', 'why', g.getAttribute('data-why') || ''));
+    function reveal(){
+      var open = !g.classList.contains('revealed');
+      g.classList.toggle('revealed', open);
+      btn.textContent = open ? 'Hide answer (V)' : 'Reveal (V)';
+      if (!teams.length) return;
+      if (open) {
+        awarded = [];
+        locked.forEach(function(k, t){ if (k === answer) { awarded.push(t); scores[t] += pts;
+          lockBtns[t][k].classList.add('hit'); } });
+        if (awarded.length) { save(); paint(awarded); }
+      } else {
+        awarded.forEach(function(t){ scores[t] = Math.max(0, scores[t] - pts); });
+        lockBtns.forEach(function(r){ r.forEach(function(b){ b.classList.remove('hit'); }); });
+        if (awarded.length) { save(); paint(); }
+        awarded = [];
+      }
+    }
+    btn.addEventListener('click', function(e){ e.stopPropagation(); reveal(); });
+    g.reveal = reveal;
+  });
+
+  // ---------- sort: data-bins, data-items "card=bin" (bins from 1), data-why
+  Array.prototype.forEach.call(document.querySelectorAll('.sort'), function(srt){
+    var bins = list(srt.getAttribute('data-bins'));
+    var items = list(srt.getAttribute('data-items')).map(function(x){
+      var k = x.lastIndexOf('='); return {label: x.slice(0, k).trim(), bin: parseInt(x.slice(k + 1), 10) - 1}; });
+    var tray = el('div', 'tray'), binWrap = el('div', 'bins'), zones = [], selected = null;
+    // shuffle so the order on the screen gives nothing away
+    var order = items.map(function(_, i){ return i; });
+    for (var i = order.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1));
+      var t = order[i]; order[i] = order[j]; order[j] = t; }
+    bins.forEach(function(name, b){
+      var z = el('div', 'bin'); z.appendChild(el('div', 'bn', name)); z.binIndex = b;
+      z.addEventListener('click', function(){ if (selected) { place(selected, z); select(null); } });
+      binWrap.appendChild(z); zones.push(z);
+    });
+    var cards = order.map(function(i){
+      var c = el('div', 'card', items[i].label); c.item = items[i]; tray.appendChild(c); return c; });
+    tray.addEventListener('click', function(e){ if (selected && e.target === tray) { place(selected, tray); select(null); } });
+    function select(c){ cards.forEach(function(x){ x.classList.toggle('sel', x === c); }); selected = c; }
+    function place(c, where){ where.appendChild(c); srt.classList.remove('checked'); tally.textContent = ''; }
+    cards.forEach(function(c){
+      var sx, sy, moved = false, dragging = false;
+      c.addEventListener('pointerdown', function(e){
+        sx = e.clientX; sy = e.clientY; moved = false; dragging = true;
+        c.setPointerCapture(e.pointerId); c.classList.add('drag');
+      });
+      c.addEventListener('pointermove', function(e){
+        if (!dragging) return;
+        var dx = e.clientX - sx, dy = e.clientY - sy;
+        if (Math.abs(dx) + Math.abs(dy) > 6) moved = true;
+        c.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+        zones.forEach(function(z){ var r = z.getBoundingClientRect();
+          z.classList.toggle('over', e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom); });
+      });
+      c.addEventListener('pointerup', function(e){
+        if (!dragging) return;
+        dragging = false; c.classList.remove('drag'); c.style.transform = '';
+        zones.forEach(function(z){ z.classList.remove('over'); });
+        if (!moved) {
+          // a card already chosen goes where the next tap lands, even onto a card
+          if (selected && selected !== c) { place(selected, c.parentNode); select(null); }
+          else select(selected === c ? null : c);
+          return;
+        }
+        var target = null;
+        zones.concat([tray]).forEach(function(z){ var r = z.getBoundingClientRect();
+          if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) target = z; });
+        if (target) place(c, target);
+        select(null);
+      });
+      c.addEventListener('click', function(e){ e.stopPropagation(); });
+    });
+    var ctl = el('div', 'sctl'), check = el('button', '', 'Check (C)'), again = el('button', '', 'Start over');
+    check.type = again.type = 'button';
+    var tally = el('span', 'tally');
+    ctl.appendChild(check); ctl.appendChild(again); ctl.appendChild(tally);
+    var why = el('div', 'why', srt.getAttribute('data-why') || '');
+    function run(){
+      var right = 0;
+      cards.forEach(function(c){
+        var z = c.parentNode, ok = z.binIndex === c.item.bin;
+        c.classList.toggle('ok', ok); c.classList.toggle('no', !ok); if (ok) right++; });
+      srt.classList.add('checked');
+      tally.textContent = right + ' of ' + cards.length + ' in the right place';
+    }
+    check.addEventListener('click', function(e){ e.stopPropagation(); run(); });
+    again.addEventListener('click', function(e){ e.stopPropagation();
+      cards.forEach(function(c){ tray.appendChild(c); c.classList.remove('ok', 'no'); });
+      srt.classList.remove('checked'); tally.textContent = ''; select(null); });
+    srt.appendChild(tray); srt.appendChild(binWrap); srt.appendChild(ctl); srt.appendChild(why);
+    srt.check = run;
+  });
+
+  document.addEventListener('keydown', function(e){
+    var t = e.target.tagName;
+    if (t === 'INPUT' || t === 'TEXTAREA' || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === 'v' || e.key === 'V') { var g = current('.game'); if (g && g.reveal) g.reveal(); }
+    if (e.key === 'c' || e.key === 'C') { var s = current('.sort'); if (s && s.check) s.check(); }
+  });
+})();
+</script>
+
+</body>
+</html>
