@@ -2,8 +2,8 @@
 // projector, a 4:3 projector, 16:9 projectors, a laptop presenting in a browser window)
 // and visits every slide twice: as it opens, and played (charts revealed, games answered,
 // cards placed). It fails on anything that runs under the footer, spills off the side or
-// overflows its body. A slide that fell back to scrolling, and type under 15px, are
-// reported as warnings.
+// overflows its body, and on a slide that fell back to scrolling at 1024x768 or larger
+// (rubric row O-D8). Scrolling at 800x600, and type under 15px, are warnings.
 //   node layout_audit.js deck.html [--only 1366x657,1024x768] [--shots dir]
 const path = require('path');
 const fs = require('fs');
@@ -44,7 +44,9 @@ async function measure(page) {
     const foot = document.querySelector('.footer').getBoundingClientRect();
     const W = window.innerWidth, out = [], warn = [];
     const name = el => (typeof el.className === 'string' && el.className.trim() ? '.' + el.className.trim().split(/\s+/).join('.') : el.tagName.toLowerCase());
-    if (s.classList.contains('tall')) warn.push('scrolls: the type reached its floor (too much on one slide for this screen)');
+    // Scrolling is the deck's last resort, fair on an 800x600 projector; from 1024x768 up
+    // it means the slide carries too much, and the rubric's O-D8 fails it.
+    if (s.classList.contains('tall')) (window.innerWidth < 1024 ? warn : out).push('scrolls: the type reached its floor (too much on one slide for this screen)');
     let bottom = 0, bottomEl = null, right = 0, rightEl = null;
     s.querySelectorAll('*').forEach(el => {
       const cs = getComputedStyle(el);

@@ -209,6 +209,12 @@ def check_photos(html: str, sl: list, minutes: int, rep: Report) -> None:
             "produced a 1.9 MB deck that is slow to open in front of a class."
         )
 
+    local = [attr(t, "src") or "" for t in all_imgs
+             if not re.match(r"(https?:)?//", attr(t, "src") or "") and not (attr(t, "src") or "").startswith("data:")]
+    if local:
+        rep.warn(f"{len(local)} photograph(s) point at a local file ({local[0][:50]}). The deck is opened "
+                 "on another computer, where that file is not; link each photo by its URL.")
+
     for t in all_imgs:
         src = attr(t, "src") or ""
         alt = attr(t, "alt")
@@ -351,33 +357,44 @@ def check_language_access(html: str, sl: list, rep: Report, langs=()) -> None:
         else:
             rep.note(f"{n} '{code}' support line(s).")
 
+    es_next = re.compile(r'\s*<(p|div)\b[^>]*\bclass="[^"]*\bes\b', re.I)
     for i, (a, body) in enumerate(sl, 1):
         title = attr(a, "data-title") or f"slide {i}"
         has_es = bool(ES_CLASS.search(body))
+        game = any(set(classes(t)) & set(COMPONENTS) or ("pinned" in classes(t) and re.search(r"\sdata-quiz\b", t))
+                   for _, t, _ in tags(body))
 
-        headline = ""
+        # each question and each direction has its own line straight under it: the
+        # headline when it asks something or runs a game, every .instruct, every word cell
+        missing = []
         m = re.search(r"<(h1|h2)\b[^>]*>(.*?)</\1>", body, re.S | re.I)
-        if m:
-            headline = text_of(m.group(2))
-        asks = headline.endswith("?") or bool(re.search(r'<p[^>]*class="[^"]*\binstruct\b', body))
-        writes = bool(attr(a, "data-packet"))
-
-        if not has_es and (asks or writes):
-            why = "asks a question" if asks else "sends students to the packet"
+        if m and ("?" in text_of(m.group(2)) or game) and not es_next.match(body, m.end()):
+            missing.append("the headline")
+        for im in re.finditer(r'<p\b[^>]*class="[^"]*\binstruct\b[^"]*"[^>]*>.*?</p>', body, re.S | re.I):
+            if not es_next.match(body, im.end()):
+                missing.append(f"the direction \"{text_of(im.group(0))[:40]}\"")
+        for _, t, start in tags(body):
+            c = classes(t)
+            if "vc" in c and "word" in c and not ES_CLASS.search(block(body, start)):
+                missing.append("the word cell")
+        if missing:
+            rep.warn(f"Slide {i} ({title}): no language line under {', '.join(dict.fromkeys(missing))}. "
+                     "Each question and direction carries its own, straight under it.")
+        elif not has_es and attr(a, "data-packet"):
             rep.warn(
-                f"Slide {i} ({title}) {why} but carries no language line. If the slide "
-                "only points at a page, that is fine -- say so and move on."
+                f"Slide {i} ({title}) sends students to the packet but carries no language line. "
+                "If the slide only points at a page, that is fine -- say so and move on."
             )
 
         # Abbreviated means shorter. Most languages run 15-20% longer than English for
         # the same content, so only a real overshoot means the framing got translated too.
         prev = ""
         for el in TEXT_EL.finditer(body):
-            classes = set((attr(el.group(2), "class") or "").split())
+            cls = set((attr(el.group(2), "class") or "").split())
             body_text = text_of(el.group(3))
             if not body_text:
                 continue
-            if "es" in classes:
+            if "es" in cls:
                 code = (attr(el.group(2), "lang") or "es").split("-")[0]
                 if code in UNSPACED:
                     continue
@@ -395,7 +412,7 @@ def check_language_access(html: str, sl: list, rep: Report, langs=()) -> None:
                         f"above it ({len(body_text.split())} words to {len(prev.split())}). "
                         "It carries the task, not the framing -- cut it back."
                     )
-            elif el.group(1).lower() in ("h1", "h2") or "instruct" in classes:
+            elif el.group(1).lower() in ("h1", "h2") or "instruct" in cls:
                 prev = body_text
 
 
@@ -406,7 +423,7 @@ COMPONENTS = GAMES + ["zoomin"]
 NAMES = {"game": "a game round", "sort": "a sort", "hinge": "a hinge question", "order": "an order-it",
          "line": "a number line", "estimate": "an estimate", "wodb": "a which-one-doesn't-belong",
          "mistake": "a find-the-mistake", "tf": "a true-or-false", "match": "a match", "whatif": "a what-if",
-         "zoomin": "a zoom-in"}
+         "zoomin": "a zoom-in", "quiz": "a label-the-photo"}
 LETTERS = "ABCDEF"
 VOID = {"img", "br", "hr", "input", "source", "wbr", "meta", "link"}
 # An opening tag, read the way a browser reads it: a ">" or quotes inside a quoted
@@ -645,7 +662,7 @@ def check_whatif(i: int, title: str, blob: str, rep: Report) -> None:
             outs.append(float(f(list(vals) + [0.0] * (3 - len(vals)))))
     except (ValueError, ZeroDivisionError, OverflowError, TypeError) as e:
         rep.error(f"Slide {i} ({title}): data-formula {formula!r} doesn't work: {e}. It may use "
-                  "a, b, c, numbers, + - * / ^ ( ) and round, floor, ceil, min, max, abs, sqrt, pow, PI, "
+                  "a, b, c, numbers, + - * / % ^ ( ) and round, floor, ceil, min, max, abs, sqrt, pow, PI, "
                   "with * written out (2*a, not 2a).")
         return
     if not all(math.isfinite(o) for o in outs):
@@ -728,6 +745,10 @@ def check_games(sl: list, rep: Report, langs=()) -> int:
                 if len(bins) < 2 or len(items) < 3:
                     rep.error(f"Slide {i} ({title}): a sort needs two or more data-bins and "
                               'three or more data-items, "Card=1|Card=2".')
+                elif len(bins) > 3 or len(items) > 8:
+                    rep.warn(f"Slide {i} ({title}): a sort of {len(items)} cards into {len(bins)} bins. "
+                             "Two or three bins and three to eight cards fit a wall and a period; "
+                             "split a bigger sort in two.")
                 for x in items:
                     k = x.rsplit("=", 1)
                     if len(k) != 2 or not k[1].strip().isdigit() or \
@@ -763,6 +784,10 @@ def check_games(sl: list, rep: Report, langs=()) -> int:
                     if ans is None or not numbers(ans) or not lo <= value(ans) <= hi:
                         rep.error(f"Slide {i} ({title}): data-answer must be a number between "
                                   f"{lo:g} and {hi:g}.")
+                    elif abs(value(ans) - (lo + hi) / 2) < 0.1 * (hi - lo):
+                        rep.warn(f"Slide {i} ({title}): the answer {value(ans):g} sits near the middle "
+                                 f"of {lo:g} to {hi:g}, where the Just right marker waits. Set the "
+                                 "range so the answer is off-centre, or the line hints at it.")
                     if not attr(blob, "data-unit"):
                         rep.warn(f"Slide {i} ({title}): an estimate with no data-unit. '263' is a "
                                  "number; '263 seeds' is a thing a student can picture.")
@@ -829,16 +854,21 @@ def check_games(sl: list, rep: Report, langs=()) -> int:
                     rep.warn(f"Slide {i} ({title}): a card in {NAMES[kind]} runs {words(k)} words. Cards are "
                              "read from across the room; keep each to a phrase.")
             if needs_why and len(why.split()) < 6:
-                rep.error(f"Slide {i} ({title}): {NAMES[kind]} has no real data-why. The reveal "
-                          "explains the answer in a sentence a student could repeat; it never "
-                          "just marks it right.")
+                rep.error(f"Slide {i} ({title}): {NAMES[kind]} has no real data-why"
+                          + (f" (it is {len(why.split())} words; write a sentence of six or more)" if why else "")
+                          + ". The reveal explains the answer in a sentence a student could repeat; "
+                          "it never just marks it right.")
         games = [k for k in found if k in GAMES]
-        if len(games) > 1:
-            rep.warn(f"Slide {i} ({title}): {len(games)} games on one slide ({', '.join(NAMES[g] for g in games)}). "
+        quizzes = sum(1 for _, t, _ in tags(body) if "pinned" in classes(t) and re.search(r"\sdata-quiz\b", t))
+        on_slide = [k for k in found if k in GAMES or k == "zoomin"] + ["quiz"] * quizzes
+        if len(on_slide) > 1:
+            rep.warn(f"Slide {i} ({title}): {len(on_slide)} games on one slide ({', '.join(NAMES[g] for g in on_slide)}). "
                      "V and C act on the first; one game per slide.")
         if games:
             if attr(a, "data-timer"):
-                as_talk += 1
+                # a slide with data-phases is a talk slide already, and check_talk counts it
+                if not attr(a, "data-phases"):
+                    as_talk += 1
             elif "whatif" not in games:
                 rep.warn(f"Slide {i} ({title}): {NAMES[games[0]]} with no data-timer. Give partners "
                          "a timed minute to agree before anyone answers; that is what makes "
@@ -850,6 +880,23 @@ def check_games(sl: list, rep: Report, langs=()) -> int:
     if as_talk:
         rep.note(f"{as_talk} game slide(s) run as talk.")
     return as_talk
+
+
+def check_density(sl: list, minutes: int, rep: Report) -> None:
+    """The caps the docs set on a whole deck: games earn their place (two to four in an
+    hour, one per slide), and the dark checkpoint is rare enough to stop the room."""
+    def has_game(body):
+        return any(set(classes(t)) & set(COMPONENTS) or ("pinned" in classes(t) and re.search(r"\sdata-quiz\b", t))
+                   for _, t, _ in tags(body))
+    n = sum(1 for _, body in sl if has_game(body))
+    cap = max(4, round(4 * minutes / 60))
+    if n > cap:
+        rep.warn(f"{n} game slides for a {minutes}-minute period. A game earns its place where the "
+                 f"lesson's verb calls for one: two to four an hour, about {cap} at most here.")
+    dark = sum(1 for a, _ in sl if "dark" in classes(a))
+    if dark > 2:
+        rep.warn(f"{dark} dark slides. The dark checkpoint stops the room because it is rare: "
+                 "two in a period at most.")
 
 
 def check_vocab(html: str, words: list, rep: Report) -> None:
@@ -1035,9 +1082,16 @@ def check_teaching(raw: str, html: str, sl: list, rep: Report) -> None:
 
     for i, (a, body) in enumerate(sl, 1):
         title = attr(a, "data-title") or f"slide {i}"
-        writes = bool(re.search(r'class="frames|class="blank', body))
+        # a talk slide's "Say it" stem is spoken, not written; a frame anywhere else is a
+        # sentence students write down
+        writes = bool(re.search(r'class="frames|class="blank', body)) and not attr(a, "data-phases")
         if writes and not attr(a, "data-packet"):
             rep.warn(f"Slide {i} ({title}) asks students to write but has no data-packet.")
+        for _, t, start in tags(body):
+            if "frames" in classes(t) and not any("frame" in classes(x) for _, x, _ in tags(block(body, start))):
+                rep.warn(f'Slide {i} ({title}): a .frames with no .frame inside. Each stem is '
+                         '<div class="frame">I think <span class="blank"></span> because…</div>, '
+                         'under <div class="frames-label">Say it</div>.')
 
         timer = attr(a, "data-timer")
         if timer and timer.isdigit() and int(timer) > 1800:
@@ -1168,6 +1222,7 @@ def main() -> int:
     check_talk(sl, rep, games)
     check_vocab(html, [w.strip() for w in args.vocab.split(",") if w.strip()], rep)
     check_language_access(html, sl, rep, langs)
+    check_density(sl, args.minutes, rep)
 
     size_mb = len(html.encode()) / 1e6
     if size_mb > 1.0:

@@ -45,8 +45,8 @@ from screen to paper. Once, because yellow everywhere marks nothing.
 of their seats to the board; partners agree first, so it is talk, not a quiz. Points and teams only
 when the teacher asks for them, and a hinge question never.
 
-**The prediction comes first.** Every reveal waits for a guess, and a clicker's → reveals a game's
-answer before it turns the slide, so the answer can never arrive ahead of the thinking.
+**The prediction comes first.** Every reveal waits for a guess, and a clicker's → reveals a game's or
+a chart's answer before it turns the slide, so the answer can never arrive ahead of the thinking.
 
 **Nothing jumps.** Answers and reasons hold their space before they appear. A student who reads
 slowly keeps their place on the screen when the answer lands.

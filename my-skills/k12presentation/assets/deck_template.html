@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LESSON TITLE — Grade 9</title>
+<title>LESSON TITLE</title>
 <!--
   DECK TEMPLATE — copy this file, keep <head> and the <script> at the bottom untouched,
   replace the slides between <div class="stage"> and </div>.
@@ -22,17 +22,20 @@
   <p class="instruct">, and only when students need a direction they cannot get from the
   body itself ("hand it to me at the door", "one person per corner").
 
-  EVERY QUESTION AND EVERY DIRECTION CARRIES A SPANISH LINE — <p class="es">, straight
-  under the headline or the .instruct it supports, and the same wording that is on
-  that question in the packet. Abbreviated: the task, not the framing. Headlines,
-  captions, card bodies and chart labels stay English.
+  WHEN THE CLASS HAS HOME LANGUAGES, every question and every direction carries one
+  line in each — <p class="es" lang="vi">, straight under the headline or the .instruct
+  it supports, and the same wording that is on that question in the packet. Abbreviated:
+  the task, not the framing. Headlines, captions, card bodies and chart labels stay in
+  the language of instruction. With no home languages there are no lines at all. The
+  example slides below carry Spanish lines as an example only.
 
   The head's right side is filled automatically: the live countdown when the slide has
   data-timer, otherwise the plain duration from data-mins. The packet chip is injected
   into the head from data-packet. Never place either by hand — that is what used to collide.
 
-  Keys: ← → slides (→ takes a slide's game and data-step items forward first, so a
-  presentation clicker runs everything) · S start/pause timer · R reset · G jump menu ·
+  Keys: ← → slides (→ takes a slide's data-step items, then its game's or chart's reveal,
+  forward first, so a presentation clicker runs every reveal; an arranged game waits for C)
+  · S start/pause timer · R reset · G jump menu ·
   A read the slide aloud · P pick a pair · V reveal a game's answer · C check an arrangement ·
   click a photo to look closer. The games beyond the game round and the sort are in
   references/interactives.md.
@@ -77,6 +80,10 @@
   .slide.tall{overflow-y:auto;bottom:8.5vh;padding-bottom:1.5vh}
   body.on-dark{background:var(--caviar)}
   .slide.tall > .body{flex:none}
+  /* on a slide that scrolls, the clock stays where the room looks for it */
+  .slide.tall .head-right{position:fixed;top:5.5vh;right:5.5vw;z-index:31;background:var(--bg);
+    padding:.2em .5em;border-radius:4px}
+  .slide.dark.tall .head-right{background:var(--caviar)}
   .slide.dark{background:var(--caviar);color:#F7F8FA}
   .slide.dark .stand{color:#C9CDD3}
   .slide.dark .card,.slide.dark .panel,.slide.dark .frame,.slide.dark .stat,
@@ -123,9 +130,10 @@
   h1 + .es,h2 + .es{margin-top:1.6vh}
   /* a second home language stacks tight under the first; right-to-left scripts mirror the rule */
   .es + .es{margin-top:.4vh}
-  .es[dir=rtl]{border-left:0;border-right:2px solid var(--accent-soft);padding-left:0;padding-right:.75em;text-align:right}
+  .es[dir=rtl]{border-left:0;border-right:2px solid var(--accent-soft);padding-left:0;padding-right:.75em;text-align:right;
+    width:fit-content}
   .instruct + .es{margin-top:.9vh}
-  .slide.dark .es{color:#C9CDD3;border-left-color:var(--caviar-line)}
+  .slide.dark .es{color:#C9CDD3;border-left-color:var(--caviar-line);border-right-color:var(--caviar-line)}
 
   ul.beats{list-style:none;max-width:min(100%, calc(50 * var(--k)))}
   ul.beats li{font-size:clamp(15px,calc(1.68*var(--k)),25px);line-height:1.35;
@@ -196,7 +204,7 @@
   .vc .w{font-family:var(--serif);font-weight:400;font-size:clamp(22px,calc(3.1*var(--k)),46px);line-height:1.05}
   .vc .say{font-size:clamp(11px,calc(1.15*var(--k)),16px);color:#9AA1A9;margin-top:.9vh;letter-spacing:.04em}
   /* the word's translation sits with the word, not in a line of its own */
-  .vc .es{font-size:clamp(14px,calc(1.4*var(--k)),19px);margin-top:1.1vh;border-left-color:var(--accent-deep)}
+  .vc .es{font-size:clamp(16px,calc(1.4*var(--k)),19px);margin-top:1.1vh;border-left-color:var(--accent-deep)}
   .vc.word .es{color:#C9CDD3;border-left-color:var(--accent)}
   .vc .d,.vc .ex{font-size:clamp(16px,calc(1.8*var(--k)),26px);line-height:1.4;color:var(--ink-2)}
   .term{border-bottom:2px solid var(--accent);padding-bottom:.04em}
@@ -339,6 +347,13 @@
       border-bottom:1px solid var(--rule);padding:6vh 6vw}
     .footer,.progress,.jump{display:none !important}
     body{overflow:visible}
+    .vc.word{background:none !important}
+    .vc.word,.vc.word *{color:var(--ink) !important}
+  }
+  /* a student whose supports ask for less motion gets every answer at once, unanimated */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{transition-duration:0s !important;transition-delay:0s !important;
+      animation-duration:0s !important;animation-delay:0s !important;animation-iteration-count:1 !important}
   }
 
   /* ---- photographs ------------------------------------------------------- */
@@ -426,6 +441,19 @@
   .role.live .k{color:var(--accent-deep)}
   .role.live .k::after{content:" · now"}
   .roles + .frames{margin-top:2.2vh}
+  /* snug: what fit() reaches for when the smallest type still overflows (see fit) */
+  .slide.snug h1,.slide.snug h2,.slide.snug .stand,.slide.snug .instruct{max-width:none}
+  .slide.snug .body{margin:1.4vh 0 1vh}
+  .slide.snug .talk{grid-template-columns:1fr 1fr;gap:1.8vw}
+  .slide.snug .talk-side{gap:1vh}
+  .slide.snug .talk-side .roles{grid-template-columns:1fr 1fr;gap:.8vh .8vw}
+  .slide.snug .talk-side .role{padding:.9vh .9em}
+  .slide.snug .role .k{margin-bottom:.4vh}
+  .slide.snug .roles + .frames,.slide.snug .talk-side .frames{margin-top:.4vh}
+  .slide.snug .frame{padding:.8vh 1em;margin-bottom:.6vh;line-height:1.4}
+  .slide.snug .picker{gap:1.2vw}
+  .slide.snug .picker .pick-now{font-size:clamp(28px,calc(4.6*var(--k)),80px)}
+  .slide.snug .picker .called{margin-top:.4vh}
 
   .js-steps [data-step]{transition:opacity .35s}
   .js-steps [data-step]:not(.shown){opacity:0;visibility:hidden}
@@ -565,8 +593,30 @@
   .sort .card.drag{cursor:grabbing;position:relative;z-index:30;box-shadow:0 8px 24px rgba(0,0,0,.18)}
   .sort.checked .card.ok{border-top-color:var(--mint-deep);background:#E3F3EB}
   .sort.checked .card.no{border-top-color:var(--peach-deep);background:#FBE7E2}
+  /* right and wrong say so in a mark as well as a colour: for a student who can't tell
+     the two apart, and for a projector that washes both out */
+  .sort .card,.match .mcard{position:relative}
+  .sort.checked .card.ok::after,.line.checked .lcard.ok::after,.match.checked .mcard.ok::after,
+  .sort.checked .card.no::after,.line.checked .lcard.no::after,.match.checked .mcard.no::after{
+    position:absolute;top:.15em;right:.3em;font-family:var(--sans,inherit);font-weight:700;font-size:.8em;line-height:1}
+  .sort.checked .card.ok::after,.line.checked .lcard.ok::after,.match.checked .mcard.ok::after{content:"✓";color:var(--mint-deep)}
+  .sort.checked .card.no::after,.line.checked .lcard.no::after,.match.checked .mcard.no::after{content:"✗";color:var(--peach-deep)}
   .sort .tally{font-size:clamp(13px,calc(1.3*var(--k)),19px);color:var(--ink-2)}
   @media print{ .game .opt{opacity:1 !important} .sort .why,.game .why{visibility:visible} }
+  .game.revealed .lock button.on.hit{box-shadow:inset 0 -3px 0 #fff}
+  .game.revealed .lock button.on:not(.hit){opacity:.55;text-decoration:line-through}
+  /* a game round and a sort on a dark slide */
+  .slide.dark .game .opt,.slide.dark .sort .tray{background:var(--caviar-soft)}
+  .slide.dark .game .opt .t,.slide.dark .game .why,.slide.dark .sort .why,.slide.dark .sort .card{color:#F7F8FA}
+  .slide.dark .game .opt .L{color:var(--accent)}
+  .slide.dark .game.revealed .opt.right{background:var(--ok-bg)}
+  .slide.dark .game.revealed .opt.right .t{color:var(--ink)}
+  .slide.dark .sort .card{background:var(--caviar);border-color:var(--caviar-line)}
+  .slide.dark .sort.checked .card.ok,.slide.dark .sort.checked .card.no{color:var(--ink)}
+  .slide.dark .sort .bin{border-color:var(--caviar-line)}
+  .slide.dark .sort .bin .bn,.slide.dark .sort .tally{color:#C9CDD3}
+  .slide.dark .game .lock button,.slide.dark .game .gctl button,.slide.dark .sort .sctl button{
+    background:var(--caviar);border-color:var(--caviar-line);color:#C9CDD3}
 
   /* ===== INTERACTIVES =====================================================
      More ways for every student's thinking to land on the wall at once. Each one
@@ -578,6 +628,7 @@
      when the answer arrives. See references/interactives.md. */
   :root{--ok-bg:#E3F3EB; --no-bg:#FBE7E2}
   .ixctl{display:flex;gap:.6em;align-items:center;margin-top:1.6vh;flex-wrap:wrap}
+  .ixctl button:first-child{min-width:10.5em}
   .ixctl button{font:inherit;font-size:clamp(11px,calc(1.05*var(--k)),15px);letter-spacing:.1em;
     text-transform:uppercase;padding:.55em 1.1em;cursor:pointer;border:1px solid var(--rule);
     background:var(--bg);color:var(--ink-2)}
@@ -682,6 +733,8 @@
   .estimate .eflag.low,.estimate .eflag.high{bottom:calc(3.9em + 3em)}
   .estimate .eflag.mid{bottom:calc(3.9em + 5.6em)}
   .estimate .eflag.sel{background:var(--accent-soft)}
+  .estimate .eflag.unset,.estimate .epost.unset{opacity:.55}
+  .estimate .eflag.unset{border-style:dashed}
   .estimate .eans{position:absolute;bottom:0;width:0;left:0;opacity:0;
     transition:left 1.1s cubic-bezier(.16,.84,.28,1),opacity .3s}
   .estimate .eans i{position:absolute;left:-.6em;bottom:calc(3.9em - .2em);border:.6em solid transparent;
@@ -711,6 +764,11 @@
     border-top:2px solid var(--accent-deep);font-family:var(--sans);font-size:clamp(15px,calc(1.6*var(--k)),23px);
     line-height:1.3;padding:.55em .9em;text-align:left;visibility:hidden;color:var(--ink)}
   .wodb .odd.open .owhy,.wodb.revealed .owhy{visibility:visible}
+  /* the reason rises over the foot of the tile, so the tile's own name moves out of its
+     way: a word to the top of its tile, a photo's caption to the top of the photo */
+  .wodb.revealed > .odd:not(figure),.wodb > .odd.open:not(figure){justify-content:flex-start;align-items:flex-start;
+    padding-top:calc(clamp(18px,calc(2.2*var(--k)),32px) + 1.2vh);padding-left:2.2em;text-align:left}
+  .wodb.revealed > figure.odd figcaption,.wodb > figure.odd.open figcaption{bottom:auto;top:0;padding-left:2.4em}
 
   /* find the mistake: one step in someone's work went wrong */
   .mistake{width:100%;max-width:min(100%, calc(70 * var(--k)))}
@@ -786,6 +844,9 @@
   .whatif input[type=range]::-moz-range-progress{height:.55em;background:var(--accent)}
   .whatif input[type=range]::-moz-range-thumb{width:1.4em;height:1.4em;border-radius:0;background:var(--accent-deep);border:3px solid #fff}
   .whatif input[type=range]:focus{outline:none}
+  .whatif input[type=range]:focus-visible{outline:3px solid var(--accent-deep);outline-offset:4px}
+  /* a card, tile or marker reached with Tab shows where the keyboard is */
+  .slide [role=button]:focus-visible,.slide [role=slider]:focus-visible{outline:3px solid var(--accent-deep);outline-offset:2px}
   .whatif .wiout{border-top:1px solid var(--rule);margin-top:1vh;padding-top:1.4vh}
   .whatif .wihead{display:flex;align-items:baseline;gap:.8em;flex-wrap:wrap}
   .whatif .wival{font-family:var(--serif);font-size:2.5em;line-height:1;font-variant-numeric:tabular-nums;min-width:3ch}
@@ -899,7 +960,7 @@
      charts at all, so it lives here now. Don't edit it -- see
      references/dataviz.md for how to configure a chart. ================= -->
 <style>
-  .dv{font-size:clamp(14px,calc(1.5*var(--k)),22px);width:100%;max-width:96ch;margin-top:1.6em;
+  .dv{font-size:clamp(12px,calc(1.5*var(--k)),22px);width:100%;max-width:96ch;margin-top:1.6em;
     /* pastels fill shapes; -deep siblings carry text, numbers and thin lines */
     --dv-a:var(--accent,#B6A2E0);   --dv-a-deep:var(--accent-deep,#6B54A8);
     --dv-b:var(--mint,#8FCBB0);     --dv-b-deep:var(--mint-deep,#3C8368);
@@ -1019,7 +1080,7 @@
 
   <!-- ============ COVER — three cards carry the shape of the period ======= -->
   <section class="slide" data-day="Day 1" data-title="Cover" data-mins="60 min">
-    <header class="head"><div class="eyebrow">Grade 9 Science · STANDARD CODE</div></header>
+    <header class="head"><div class="eyebrow">GRADE · SUBJECT · STANDARD CODE</div></header>
     <h1>The question this lesson answers.</h1>
     <div class="body">
       <div class="cards">
@@ -1304,6 +1365,11 @@
 
 <script>
 (function(){
+  // a line in a right-to-left language reads right to left even when its author forgot
+  // to say so: the language tag is enough
+  Array.prototype.forEach.call(document.querySelectorAll('[lang]'), function(el){
+    if (!el.hasAttribute('dir') && /^(ar|fa|ur|he|ps|yi|ckb|dv)(-|$)/i.test(el.getAttribute('lang'))) el.setAttribute('dir', 'rtl');
+  });
   var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
   var idx = 0;
   var counter = document.getElementById('counter');
@@ -1454,7 +1520,7 @@
   // something on it grows (a reason appearing, a card landing in a bin), its type steps
   // down until it fits, never below 70%. It never grows back mid-slide: a slide that
   // jumps while students read it is worse than one a size smaller.
-  var FIT_MIN = 0.7, fitObs = null, fitBusy = false;
+  var FIT_MIN = 0.7, SNUG_MIN = 0.55, fitObs = null, fitBusy = false;
   function overflows(s){
     var limit = s.getBoundingClientRect().bottom - parseFloat(getComputedStyle(s).paddingBottom) + 1;
     var body = s.querySelector('.body');
@@ -1473,10 +1539,27 @@
     fitBusy = true;
     var f = fresh ? 1 : (parseFloat(s.style.getPropertyValue('--fit')) || 1);
     if (fresh) s.style.removeProperty('--fit');
+    if (fresh) s.classList.remove('snug');
     s.classList.remove('tall');
-    while (f > FIT_MIN && overflows(s)) {
-      f = Math.max(FIT_MIN, Math.round((f - 0.05) * 100) / 100);
-      s.style.setProperty('--fit', f);
+    function shrink(){
+      var floor = s.classList.contains('snug') ? SNUG_MIN : FIT_MIN;
+      while (f > floor && overflows(s)) {
+        f = Math.max(floor, Math.round((f - 0.05) * 100) / 100);
+        s.style.setProperty('--fit', f);
+      }
+    }
+    shrink();
+    // Still too much at the smallest type: before it scrolls, the slide packs tighter.
+    // The headline takes the full width, the turns on a talk slide go two by two, the
+    // gaps close up, and the type gets another chance at a larger size. A talk slide
+    // carrying the packet's own question, a language line, four turns, a stem and a
+    // picker fits a laptop screen this way. Packed, the type may go a step smaller
+    // still: every size has a readable floor in pixels of its own (the clamp minimums),
+    // so the extra step only bites on a big screen, where the type has room to give.
+    if (overflows(s) && !s.classList.contains('snug')) {
+      s.classList.add('snug');
+      f = 1; s.style.removeProperty('--fit');
+      shrink();
     }
     // The type has reached its smallest readable size (an 800 x 600 projector, a
     // very dense slide). Overlapping text is the one thing worse than a scroll bar,
@@ -1495,13 +1578,16 @@
       revealObs = new MutationObserver(function(ms){
         if (ms.some(function(m){
           var t = m.target;
-          if (t.closest && t.closest('.timer, .picker, .scoreboard, .head')) return false;
+          // the picker's own build step counts (it is what was just revealed); its
+          // calls once it is up do not
+          if (t.closest && (t.closest('.timer, .scoreboard, .head') ||
+              (t.closest('.picker') && !t.hasAttribute('data-step')))) return false;
           return /\b(revealed|checked|shown|open|done)\b/.test(typeof t.className === 'string' ? t.className : '');
         }))
           // after the refit the reveal sets off has settled: the slide may only now have
           // become one that scrolls
           setTimeout(function(){
-            if (s.classList.contains('on') && s.classList.contains('tall')) s.scrollTo({top: s.scrollHeight, behavior: 'smooth'});
+            if (s.classList.contains('on') && s.classList.contains('tall')) s.scrollTo({top: s.scrollHeight, behavior: window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
           }, 150);
       });
       revealObs.observe(s, {attributes: true, attributeFilter: ['class'], subtree: true});
@@ -1516,7 +1602,14 @@
   }
   window.addEventListener('resize', function(){ fit(slides[idx], true); });
   window.deckRefit = function(slide){ if (slide === slides[idx]) fit(slide, true); };
-  function prev(){ show(idx - 1, true); }
+  // ← mirrors →: a staged game on the slide steps back one stage (the claim before, the
+  // zoom before) before the deck goes back a slide, so a clicker that went one press too
+  // far can undo it
+  function prev(){
+    var adv = advancers(slides[idx]);
+    for (var i = adv.length - 1; i >= 0; i--) if (adv[i].deckPrev && adv[i].deckPrev()) return;
+    show(idx - 1, true);
+  }
 
   function show(n, whole){
     if (n < 0) n = 0;
@@ -1560,18 +1653,29 @@
   // A reads the slide aloud: the headline, then each language line in its own
   // voice, then the direction. Where reading is the barrier, the screen
   // can carry the question to a student who can't yet carry it off the page.
+  // Chrome hands over its voices a moment after the page loads, so they are asked for
+  // now and again when they arrive, not only when A is first pressed
+  var voiceList = [];
+  function loadVoices(){ try { voiceList = window.speechSynthesis.getVoices() || []; } catch (e) {} }
+  if (window.speechSynthesis) {
+    loadVoices();
+    if (window.speechSynthesis.addEventListener) window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
+  }
   function readAloud(){
     var synth = window.speechSynthesis;
     if (!synth) return;
     if (synth.speaking) { synth.cancel(); return; }
     var s = slides[idx], voices = synth.getVoices();
+    if (!voices.length) voices = voiceList;
     function say(text, lang){
       text = (text || '').replace(/\s+/g, ' ').trim();
       if (!text) return;
       var u = new SpeechSynthesisUtterance(text);
       u.lang = lang; u.rate = 0.92;
       var v = voices.filter(function(x){ return x.lang && x.lang.toLowerCase().indexOf(lang.slice(0, 2)) === 0; })[0];
-      if (lang.slice(0, 2) !== 'en' && !v) return;   // no voice for it: skip rather than mangle it
+      // no voice for it among the voices the browser listed: skip rather than mangle it. With
+      // no list yet, the line still goes, tagged with its language, for the browser to voice.
+      if (lang.slice(0, 2) !== 'en' && !v && voices.length) return;
       if (v) u.voice = v;
       synth.speak(u);
     }
@@ -1588,10 +1692,13 @@
       Array.prototype.forEach.call(c.querySelectorAll('.es, .tfprint'), function(x){ x.remove(); });
       return c.textContent;
     }
-    Array.prototype.forEach.call(s.querySelectorAll('h1, h2, .es, .instruct, .tf .claim'), function(el){
+    // a talk slide's turns are directions too: each is read, label first, before its lines
+    Array.prototype.forEach.call(s.querySelectorAll('h1, h2, .es, .instruct, .tf .claim, .role'), function(el){
       if (!visible(el)) return;
       if (el.classList.contains('es')) say(el.textContent, el.getAttribute('lang') || 'es-US');
       else if (el.classList.contains('claim')) say(own(el), 'en-US');
+      else if (el.classList.contains('role')) say(Array.prototype.filter.call(el.children, function(c){
+        return !c.classList.contains('es'); }).map(function(c){ return c.textContent; }).join('. '), 'en-US');
       else say(el.textContent, 'en-US');
     });
   }
@@ -1605,12 +1712,18 @@
     // a photo that is itself the puzzle opens only once the puzzle is over: a zoom-in
     // still zooming, a card still to be matched, a tile still to be argued about
     if (img.closest('.match, .wodb, .order') || (img.closest('.zoomin') && !img.closest('.zoomin.done'))) return;
-    var s = slides[idx], q = s.querySelector('h1, h2'), es = s.querySelector('h1 + .es, h2 + .es');
+    var s = slides[idx], q = s.querySelector('h1, h2');
     zoom.innerHTML = '';
     var big = document.createElement('img'); big.src = img.currentSrc || img.src; big.alt = img.alt;
     zoom.appendChild(big);
     if (q) { var zq = document.createElement('div'); zq.className = 'zq'; zq.textContent = q.textContent; zoom.appendChild(zq); }
-    if (es) { var ze = document.createElement('div'); ze.className = 'zes'; ze.textContent = es.textContent; zoom.appendChild(ze); }
+    // every home-language line of the question comes along, each in its own language and direction
+    for (var n = q && q.nextElementSibling; n && n.classList.contains('es'); n = n.nextElementSibling) {
+      var ze = document.createElement('div'); ze.className = 'zes'; ze.textContent = n.textContent;
+      if (n.getAttribute('lang')) ze.setAttribute('lang', n.getAttribute('lang'));
+      if (n.getAttribute('dir')) ze.setAttribute('dir', n.getAttribute('dir'));
+      zoom.appendChild(ze);
+    }
     zoom.classList.add('on');
   });
   toggleBtn.addEventListener('click', function(e){ e.stopPropagation(); toggle(); });
@@ -1623,15 +1736,14 @@
   // to the deck as soon as a control has done its job.
   // Capture phase, because most controls stop their click from bubbling.
   document.addEventListener('click', function(e){
-    var b = e.target.closest && e.target.closest('.slide button, .footer button');
+    var b = e.target.closest && e.target.closest('.slide button, .footer button, .slide [role=button], .slide [role=slider]');
     if (b && e.detail > 0) b.blur();                  // a mouse click, not keyboard activation
   }, true);
-  // a slider gives the keys back when the pointer lifts, moved or not
-  ['change', 'pointerup'].forEach(function(type){
-    document.addEventListener(type, function(e){
-      if (e.target.matches && e.target.matches('.slide input[type=range]')) e.target.blur();
-    }, true);
-  });
+  // a slider dragged with the pointer gives the keys back when the pointer lifts; one
+  // reached with Tab keeps them, so its arrows step it, until Escape or Tab moves on
+  document.addEventListener('pointerup', function(e){
+    if (e.target.matches && e.target.matches('.slide input[type=range]')) e.target.blur();
+  }, true);
   // Components finish building after this script runs, and images arrive later still,
   // so the first slide is laid out and fitted again once everything is in.
   window.addEventListener('load', function(){
@@ -1642,8 +1754,12 @@
 
   document.addEventListener('keydown', function(e){
     var t = e.target.tagName;
+    if (t === 'INPUT' && e.key === 'Escape') { e.target.blur(); return; }
     if (t === 'INPUT' || t === 'TEXTAREA' || e.target.isContentEditable) return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
+    // Space and Enter on a focused control press that control (a keyboard user Tabbed to
+    // it), never the slide's timer
+    if ((e.key === ' ' || e.key === 'Enter') && e.target.closest && e.target.closest('button, [role=button]')) return;
     switch (e.key) {
       case 'ArrowRight': case 'PageDown': next(); break;
       case 'ArrowLeft':  case 'PageUp':   prev(); break;
@@ -1742,6 +1858,7 @@
   // eased, and always landing exactly on the real value.
   function countUp(el, target, prefix, suffix, ms){
     var start = null, dur = ms || 900;
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) dur = 1;
     function step(ts){
       if (start === null) start = ts;
       var t = Math.min(1, (ts - start) / dur);
@@ -1752,6 +1869,12 @@
       else el.textContent = (prefix||'') + fmt(target) + (suffix||'');
     }
     requestAnimationFrame(step);
+  }
+  // A chart's reveal is a stage of the slide, like a game's: → takes it before the deck
+  // moves on (one bar at a time, so the room can guess before each), and V reveals it, so
+  // a presentation clicker runs the predict-then-reveal moment too.
+  function stage(el, next, reveal){
+    el.setAttribute('data-advances', ''); el.deckNext = next; el.reveal = reveal;
   }
   var SVGNS = 'http://www.w3.org/2000/svg';
   function svg(tag, attrs, parent){
@@ -1784,6 +1907,8 @@
         dots[n].classList.add('on'); n++;
       }, Math.max(8, 900 / Math.max(fill,1)));
     });
+    stage(el, function(){ if (timer) return true; if (done) return false; el.click(); return true; },
+      function(){ el.click(); });
   });
 
   // 2 · guess then reveal ------------------------------------------------
@@ -1820,6 +1945,7 @@
       if (cap) cap.classList.toggle('on', shown);
       btn.textContent = shown ? 'hide it again' : 'show the real number';
     });
+    stage(el, function(){ if (shown) return false; btn.click(); return true; }, function(){ btn.click(); });
   });
 
   // 3 · live dot plot ----------------------------------------------------
@@ -1879,6 +2005,8 @@
         if (cap) cap.classList.add('on');
       }
     });
+    stage(el, function(){ if (i >= made.length) return false; el.click(); return true; },
+      function(){ el.click(); });
   });
 
   // 5 · gauge -------------------------------------------------------------
@@ -1903,6 +2031,7 @@
       if (placed) countUp(nb, v, '', unit, 900); else nb.textContent = '';
       if (cap) cap.classList.toggle('on', placed);
     });
+    stage(el, function(){ if (placed) return false; el.click(); return true; }, function(){ el.click(); });
   });
 
   // 6 · percent change ---------------------------------------------------
@@ -1944,6 +2073,7 @@
       lab2.classList.toggle('on', step >= 2);
       if (cap) cap.classList.toggle('on', step >= 2);
     });
+    stage(el, function(){ if (step >= 2) return false; el.click(); return true; }, function(){ el.click(); });
   });
 
 })();
@@ -2111,6 +2241,7 @@
   }
   function countUp(node, from, to, render, ms){
     var t0 = null, dur = ms || 900;
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) dur = 1;
     function stepper(ts){
       if (t0 === null) t0 = ts;
       var t = Math.min(1, (ts - t0) / dur), e = 1 - Math.pow(1 - t, 3);
@@ -2123,7 +2254,29 @@
     return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom; }
   // a card that can be dragged, or tapped (tap one, then tap where it goes: the
   // way it works on a touch board, and from the laptop when nobody is at the board)
+  // Everything a student can tap can also be reached with Tab and pressed with Enter or
+  // Space, for a student who works the deck from a keyboard or a switch; the cards that
+  // sit on a line move along it with the arrow keys (Shift for bigger steps).
+  function keyable(node, act){
+    node.tabIndex = 0;
+    if (!node.getAttribute('role')) node.setAttribute('role', 'button');
+    node.addEventListener('keydown', function(e){
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault(); e.stopPropagation(); act(e);
+    });
+  }
+  function arrows(node, nudge){                     // nudge(+1 or -1, big) returns true if it moved
+    node.setAttribute('role', 'slider');
+    node.addEventListener('keydown', function(e){
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      if (nudge(e.key === 'ArrowRight' ? 1 : -1, e.shiftKey)) { e.preventDefault(); e.stopPropagation(); }
+    });
+  }
+  function press(node){                              // a keyboard press is the same click, Shift and all
+    return function(e){ node.dispatchEvent(new MouseEvent('click', {bubbles: true, shiftKey: !!e.shiftKey})); };
+  }
   function draggable(card, h){
+    keyable(card, function(e){ if (h.tap) h.tap(e); });
     var sx = 0, sy = 0, moved = false, on = false;
     card.addEventListener('pointerdown', function(e){
       if (e.button > 0 || card.classList.contains('ghost')) return;
@@ -2156,10 +2309,11 @@
     if (window.ResizeObserver) { var q = false; new ResizeObserver(function(){
       if (q) return; q = true; requestAnimationFrame(function(){ q = false; fn(); }); }).observe(node); }
   }
-  function staged(node, next, reset){
+  function staged(node, next, reset, back){
     node.setAttribute('data-advances', '');
     node.deckNext = next;
     if (reset) node.deckReset = reset;
+    if (back) node.deckPrev = back;
   }
   function revealOnce(node){        // → reveals first, then lets the deck move on
     staged(node, function(){ if (node.classList.contains('revealed')) return false; node.reveal(); return true; });
@@ -2182,6 +2336,7 @@
       var hc = el('span', 'hc', ''); c.appendChild(hc);
       c.title = 'Click once for each hand showing ' + LETTERS[i] + ' (shift-click takes one away)';
       c.addEventListener('click', function(e){ counts[i] = Math.max(0, counts[i] + (e.shiftKey ? -1 : 1)); paint(); });
+      keyable(c, press(c));
       c.addEventListener('contextmenu', function(e){ e.preventDefault(); counts[i] = Math.max(0, counts[i] - 1); paint(); });
       grid.appendChild(c); tiles.push(hc);
     });
@@ -2364,6 +2519,12 @@
         tap: function(){ select(selected === c ? null : c); }
       });
     });
+    cards.forEach(function(c){
+      arrows(c, function(d, big){
+        var st = (max - min) / (big ? 10 : 50), v = c.val === null ? (min + max) / 2 : c.val + d * st;
+        place(c, clamp(Math.round(v / (st / 5)) * (st / 5), min, max)); c.focus(); return true;
+      });
+    });
     zone.addEventListener('click', function(e){ if (selected) { place(selected, valAt(e.clientX)); select(null); } });
     tray.addEventListener('click', function(){ if (selected) { toTray(selected); select(null); } });
     o.check = check; o.solve = solve;
@@ -2390,7 +2551,9 @@
       var post = el('div', 'epost ' + k), flag = el('div', 'eflag ' + k);
       flag.appendChild(el('b', '', names[i])); var v = el('span'); flag.appendChild(v);
       zone.appendChild(post); zone.appendChild(flag);
-      return {k: k, i: i, post: post, flag: flag, txt: v, v: snapV(min + start[i] * (max - min))};
+      // a marker says nothing until the class sets it: it waits near its end of the line
+      // (just right at the middle) reading "?", so no number is on the wall before the room's
+      return {k: k, i: i, post: post, flag: flag, txt: v, v: snapV(min + start[i] * (max - min)), set: false};
     });
     var ansM = el('div', 'eans'); ansM.appendChild(el('i')); zone.appendChild(ansM);
     var ansL = el('div', 'eanslab'); zone.appendChild(ansL);
@@ -2399,7 +2562,7 @@
     var rv = button('Reveal (V)', function(){ reveal(); });
     var ctl = el('div', 'ixctl'); ctl.appendChild(rv);
     ctl.appendChild(button('Start over', function(){
-      marks.forEach(function(m){ m.v = snapV(min + start[m.i] * (max - min)); });
+      marks.forEach(function(m){ m.v = snapV(min + start[m.i] * (max - min)); m.set = false; });
       if (o.classList.contains('revealed')) reveal(); paint(); }));
     o.appendChild(zone); o.appendChild(result); o.appendChild(ctl); o.appendChild(why(o));
     function place(node, x, align){       // keep a label inside the line's width
@@ -2410,7 +2573,8 @@
     function paint(){
       var W = zone.clientWidth;
       marks.forEach(function(m){
-        m.post.style.left = pct(m.v) + '%'; m.txt.textContent = show(m.v);
+        m.post.style.left = pct(m.v) + '%'; m.txt.textContent = m.set ? show(m.v) : '?';
+        m.flag.classList.toggle('unset', !m.set); m.post.classList.toggle('unset', !m.set);
         if (W) place(m.flag, pct(m.v) / 100 * W, m.k === 'low' ? 'end' : m.k === 'high' ? 'start' : 'mid');
       });
       if (W) {                                   // pushed together at an end, the two share a row: keep them apart
@@ -2425,7 +2589,7 @@
     }
     function setV(m, v){
       var lo = m.i > 0 ? marks[m.i - 1].v : min, hi = m.i < 2 ? marks[m.i + 1].v : max;
-      m.v = clamp(snapV(v), lo, hi);
+      m.v = clamp(snapV(v), lo, hi); m.set = true;
       if (o.classList.contains('revealed')) verdict();
       paint();
     }
@@ -2439,6 +2603,10 @@
         });
       });
     });
+    marks.forEach(function(m){
+      m.post.tabIndex = -1;
+      arrows(m.flag, function(d, big){ setV(m, m.v + d * snap * (big ? 10 : 1)); return true; });
+    });
     zone.addEventListener('click', function(e){
       var v = valAt(e.clientX), m = selected;
       if (!m) m = marks.slice().sort(function(a, b){ return Math.abs(a.v - v) - Math.abs(b.v - v); })[0];
@@ -2446,10 +2614,14 @@
     });
     function verdict(){
       var lo = marks[0].v, mid = marks[1].v, hi = marks[2].v, off = Math.abs(mid - ans);
-      var range = lo <= ans && ans <= hi ? 'Inside our range.' :
-        ans < lo ? 'Below our range: ' + show(lo - ans) + ' under our too-low.' :
-                   'Above our range: ' + show(ans - hi) + ' over our too-high.';
-      result.textContent = range + ' ' + names[1] + ' was ' + (off < snap / 2 ? 'spot on.' : show(off) + ' off.');
+      // a marker the class never set has no claim to judge
+      var range = !(marks[0].set && marks[2].set) ? '' :
+        lo <= ans && ans <= hi ? 'Inside our range. ' :
+        ans < lo ? 'Below our range: ' + show(lo - ans) + ' under our too-low. ' :
+                   'Above our range: ' + show(ans - hi) + ' over our too-high. ';
+      result.textContent = range + (marks[1].set ?
+        names[1] + ' was ' + (off < snap / 2 ? 'spot on.' : show(off) + ' off.') : '');
+      if (!result.textContent) result.textContent = ' ';
     }
     function reveal(){
       var open = !o.classList.contains('revealed');
@@ -2481,6 +2653,7 @@
       t.insertBefore(el('span', 'oL', LETTERS[i]), t.firstChild);
       t.appendChild(el('div', 'owhy', t.getAttribute('data-why') || ''));
       t.addEventListener('click', function(e){ e.stopPropagation(); t.classList.toggle('open'); });
+      keyable(t, press(t));
     });
     o.reveal = function(){
       var open = !o.classList.contains('revealed');
@@ -2502,6 +2675,7 @@
       var tx = el('div', 'mst'); tx.appendChild(k); r.appendChild(tx);
       r.tag = el('span', 'mtag', ''); r.appendChild(r.tag);
       r.addEventListener('click', function(e){ e.stopPropagation(); pick = pick === r ? null : r; paint(); });
+      keyable(r, press(r));
       if (r.wrongStep && !wrong) wrong = r;
       box.appendChild(r); return r;
     });
@@ -2562,7 +2736,9 @@
     function go(d){ var n = clamp(i + d, 0, claims.length - 1); if (n === i) return false; i = n; open = false; paint(); return true; }
     o.reveal = function(){ open = !open; paint(); };
     staged(o, function(){ if (!open) { open = true; paint(); return true; } return go(1); },
-      function(whole){ i = whole ? claims.length - 1 : 0; open = !!whole; paint(); });
+      function(whole){ i = whole ? claims.length - 1 : 0; open = !!whole; paint(); },
+      function(){ if (open) { open = false; paint(); return true; }
+        if (i === 0) return false; i--; open = true; paint(); return true; });
     paint();
   });
 
@@ -2838,8 +3014,10 @@
       hint.textContent = '→ step back · ' + (i + 1) + ' of ' + levels.length;
     }
     frame.addEventListener('click', function(e){ if (i < levels.length - 1) { e.stopPropagation(); i++; paint(); } });
+    keyable(frame, press(frame));
     staged(o, function(){ if (i >= levels.length - 1) return false; i++; paint(); return true; },
-      function(whole){ i = whole ? levels.length - 1 : 0; paint(); });
+      function(whole){ i = whole ? levels.length - 1 : 0; paint(); },
+      function(){ if (i === 0) return false; i--; paint(); return true; });
     relayout(o, size); size(); paint();
   });
 
@@ -2847,12 +3025,15 @@
   each('.pinned[data-quiz]', function(p){
     var pins = Array.prototype.slice.call(p.querySelectorAll('.pin'));
     function paint(){ p.classList.toggle('revealed', pins.every(function(x){ return x.classList.contains('open'); })); }
-    pins.forEach(function(pin){ pin.addEventListener('click', function(e){ e.stopPropagation(); pin.classList.toggle('open'); paint(); }); });
+    pins.forEach(function(pin){ pin.addEventListener('click', function(e){ e.stopPropagation(); pin.classList.toggle('open'); paint(); });
+      keyable(pin, press(pin)); });
     p.reveal = function(){ var all = pins.every(function(x){ return x.classList.contains('open'); });
       pins.forEach(function(x){ x.classList.toggle('open', !all); }); paint(); };
     staged(p, function(){ var nx = pins.filter(function(x){ return !x.classList.contains('open'); })[0];
       if (!nx) return false; nx.classList.add('open'); paint(); return true; },
-      function(whole){ pins.forEach(function(x){ x.classList.toggle('open', !!whole); }); paint(); });
+      function(whole){ pins.forEach(function(x){ x.classList.toggle('open', !!whole); }); paint(); },
+      function(){ var on = pins.filter(function(x){ return x.classList.contains('open'); });
+        if (!on.length) return false; on[on.length - 1].classList.remove('open'); paint(); return true; });
   });
 })();
 </script>
@@ -2867,6 +3048,14 @@
     if (text != null) e.textContent = text; return e; }
   function list(v){ return (v || '').split('|').map(function(x){ return x.trim(); }).filter(Boolean); }
   function slideOf(node){ return node.closest('.slide'); }
+  function keyable(node, act){                        // Tab to it, Enter or Space to press it
+    node.tabIndex = 0;
+    if (!node.getAttribute('role')) node.setAttribute('role', 'button');
+    node.addEventListener('keydown', function(e){
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault(); e.stopPropagation(); act(e);
+    });
+  }
   function current(sel){
     var s = document.querySelector('.slide.on');
     if (!s) return null;
@@ -3006,11 +3195,17 @@
     bins.forEach(function(name, b){
       var z = el('div', 'bin'); z.appendChild(el('div', 'bn', name)); z.binIndex = b;
       z.addEventListener('click', function(){ if (selected) { place(selected, z); select(null); } });
+      keyable(z, function(){ if (selected) { place(selected, z); select(null); } });
       binWrap.appendChild(z); zones.push(z);
     });
     var cards = order.map(function(i){
       var c = el('div', 'card', items[i].label); c.item = items[i]; tray.appendChild(c); return c; });
     tray.addEventListener('click', function(e){ if (selected && e.target === tray) { place(selected, tray); select(null); } });
+    keyable(tray, function(){ if (selected) { place(selected, tray); select(null); } });
+    function tap(c){                                  // a card already chosen goes where the next tap lands
+      if (selected && selected !== c) { place(selected, c.parentNode); select(null); }
+      else select(selected === c ? null : c);
+    }
     function select(c){ cards.forEach(function(x){ x.classList.toggle('sel', x === c); }); selected = c; }
     function place(c, where){ where.appendChild(c); srt.classList.remove('checked'); tally.textContent = ''; }
     cards.forEach(function(c){
@@ -3031,12 +3226,7 @@
         if (!dragging) return;
         dragging = false; c.classList.remove('drag'); c.style.transform = '';
         zones.forEach(function(z){ z.classList.remove('over'); });
-        if (!moved) {
-          // a card already chosen goes where the next tap lands, even onto a card
-          if (selected && selected !== c) { place(selected, c.parentNode); select(null); }
-          else select(selected === c ? null : c);
-          return;
-        }
+        if (!moved) { tap(c); return; }
         var target = null;
         zones.concat([tray]).forEach(function(z){ var r = z.getBoundingClientRect();
           if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) target = z; });
@@ -3044,6 +3234,7 @@
         select(null);
       });
       c.addEventListener('click', function(e){ e.stopPropagation(); });
+      keyable(c, function(){ tap(c); });
     });
     var ctl = el('div', 'sctl'), check = el('button', '', 'Check (C)'), again = el('button', '', 'Start over');
     check.type = again.type = 'button';
@@ -3067,9 +3258,10 @@
   });
 
   // ---------- key words: each one marked once per slide, where it first appears. This
-  // runs after every game is built, so a key word in a game's options is marked like
-  // the same word anywhere else. Numbers and labels that change as the game is played
-  // are left plain.
+  // runs after every game is built, so it can tell what the games made. The things
+  // students choose between (options, cards, tiles, steps) are never marked: a word is
+  // marked only once per slide, so a mark on one option would single it out before
+  // anyone guessed. Numbers and labels that change as the game is played stay plain too.
   var words = list(document.body.getAttribute('data-vocab'));
   if (words.length) {
     var alts = words.sort(function(a, b){ return b.length - a.length; }).map(function(w){
@@ -3078,7 +3270,8 @@
     var skip = 'script,style,svg,textarea,button,input,mark,.es,.cred,.eyebrow,.vfacade,.zoom,' +
                '.vc.word,[data-no-kw],.ixctl,.eflag,.eanslab,.eresult,.wival,.wiv,.wistat,.wiends,' +
                '.ltick,.etick,.zhint,.tfo,.tfprint,.oL,.opos,.omark,.msn,.mtag,.hc,.L,' +
-               '.why,.ixwhy,.trap,.mfix,.owhy,.lock,.scoreboard,.footer';
+               '.why,.ixwhy,.trap,.mfix,.owhy,.lock,.scoreboard,.footer,' +
+               '.opts,.tfopts,.sort .card,.ocard,.lcard,.mcard,.ms,.odd';
     Array.prototype.forEach.call(document.querySelectorAll('.slide'), function(slide){
       var seen = {}, walker = document.createTreeWalker(slide, NodeFilter.SHOW_TEXT, null), nodes = [], n;
       while ((n = walker.nextNode())) {
@@ -3106,8 +3299,22 @@
 
   // V reveals an answer that was guessed; C checks an arrangement students built.
   // Every game on the deck answers to one of the two, whichever kind it is.
-  var REVEALS = '.game, .hinge, .estimate, .wodb, .mistake, .tf, .whatif, .pinned[data-quiz]';
+  var REVEALS = '.game, .hinge, .estimate, .wodb, .mistake, .tf, .whatif, .pinned[data-quiz], ' +
+    '.dv-guess, .dv-bars, .dv-icons, .dv-gauge, .dv-percent';
   var CHECKS = '.sort, .order, .line, .match';
+  // the footer names only the keys this deck answers to
+  var hintEl = document.querySelector('.footer .hint');
+  if (hintEl) {
+    var parts = ['← → slides'];
+    if (document.querySelector('.slide[data-timer]')) parts.push('S timer');
+    parts.push('A read aloud');
+    if (document.querySelector(REVEALS)) parts.push('V reveal');
+    if (document.querySelector(CHECKS)) parts.push('C check');
+    parts.push('G jump');
+    if (Array.prototype.some.call(document.querySelectorAll('.slide img'), function(i){ return !i.closest('.vfacade'); }))
+      parts.push('click a photo to enlarge');
+    hintEl.textContent = parts.join(' · ');
+  }
   document.addEventListener('keydown', function(e){
     var t = e.target.tagName;
     if (t === 'INPUT' || t === 'TEXTAREA' || e.metaKey || e.ctrlKey || e.altKey) return;

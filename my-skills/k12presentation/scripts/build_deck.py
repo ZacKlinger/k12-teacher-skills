@@ -9,7 +9,8 @@ Usage:
 holds the deck to the packet: every question on a slide, in the packet's words. It takes
 packet.json or the packet .docx itself (read through read_packet.py), so a deck built in a
 later conversation is held to the page as printed. Without a packet, pass
---vocab "reservoir,pump,gallon" and --languages es.
+--vocab "reservoir,pump,gallon", and --languages es,vi only when the class has home languages
+(with none, the deck carries no language lines and the checker asks for none).
 
 --teams turns on team play, and only when the teacher asks for teams: "--teams 3" for Team 1-3,
 or names, "--teams Pumps,Roots,Lights". One scoreboard then sits in the footer of every

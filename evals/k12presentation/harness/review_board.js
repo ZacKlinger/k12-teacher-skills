@@ -3,14 +3,14 @@
 // and a clicker's → reveals an open clue and then closes it.
 //   node review_board.js <review_game_template.html or a filled copy>
 const path = require('path');
-const { launch } = require('./common');
+const { launch, fileUrl } = require('./common');
 (async () => {
   const b = await launch();
   let fail = 0;
   for (const [w, h] of [[800, 600], [1024, 768], [1280, 720], [1366, 657], [1920, 1080]]) {
     const p = await b.newPage({ viewport: { width: w, height: h } });
     const errs = []; p.on('pageerror', e => errs.push(e.message));
-    await p.goto('file://' + path.resolve(process.argv[2])); await p.waitForTimeout(300);
+    await p.goto(fileUrl(process.argv[2])); await p.waitForTimeout(300);
     const r = await p.evaluate(() => {
       const tiles = [...document.querySelectorAll('.tile')], last = tiles[tiles.length - 1].getBoundingClientRect();
       return { scroll: document.documentElement.scrollHeight - innerHeight, bottom: last.bottom, cat: parseFloat(getComputedStyle(document.querySelector('.cat')).fontSize) };

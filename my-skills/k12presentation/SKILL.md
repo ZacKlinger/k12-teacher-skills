@@ -1,6 +1,6 @@
 ---
 name: "k12presentation"
-description: "Builds the interactive HTML slide deck a K-12 teacher projects to run a lesson: real photographs found on Wikimedia without a browser, phased talk timers, predict-then-reveal charts, game rounds, sorts, hinge questions, matching, ordering, number lines, what-if models and other whole-class games a clicker can run, key words marked, and a home-language line on every question when the class has home languages, all in one file that runs from the teacher's computer with no student devices. k12lessonplan calls it when slides are asked for with a lesson; use it directly whenever a teacher wants slides from something they already have, above all a student packet k12lessonplan made (the .docx, or its Google Doc downloaded as Word): \"make slides for this packet\", \"turn this lesson plan into a deck\", \"slides for the viewing guide\", \"add a game slide\", \"a Jeopardy review for unit 1\", \"a matching game for the vocab\", a Google Doc or PDF of a lesson. Do NOT use it to plan a lesson from scratch or to make the printed packet; that is k12lessonplan."
+description: "Builds the interactive HTML slide deck a K-12 teacher projects to run a lesson: real photographs found on Wikimedia without a browser, phased talk timers, predict-then-reveal charts, whole-class games (hinge questions, sorts, matching, ordering, number lines, what-if models and more), key words marked, and a home-language line on every question when the class has home languages, all in one file that runs from the teacher's computer with no student devices. k12lessonplan calls it when slides are asked for with a lesson; use it directly whenever a teacher wants slides from something they already have, above all a student packet k12lessonplan made (the .docx, or its Google Doc downloaded as Word): \"make slides for this packet\", \"turn this lesson plan into a deck\", \"slides for the viewing guide\", \"add a game slide\", \"a Jeopardy review for unit 1\", \"a matching game for the vocab\", a Google Doc or PDF of a lesson. Do NOT use it to plan a lesson from scratch or to make the printed packet; that is k12lessonplan."
 license: MIT
 ---
 
@@ -194,8 +194,8 @@ cover the rest.
 ## Hand it back
 
 Name the file and say to open it in a browser (it is built in and used from Chrome). When the
-deck has games, add one line: a presentation clicker runs it, since → reveals each game's answer
-before it moves on. If the
+deck has games or charts, add one line: a presentation clicker runs it, since → reveals each answer
+before it moves on, and a sort, order it, number line or match is checked with C. If the
 photographs could not be load-tested this session, say so in one line and name the fix: network
 access to `commons.wikimedia.org` and `upload.wikimedia.org` for Claude's sandbox. A copy kept in
 Drive is for keeping: Drive previews an HTML file as its code, so presenting from Drive means
