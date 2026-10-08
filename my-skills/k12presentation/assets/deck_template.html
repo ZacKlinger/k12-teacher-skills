@@ -555,7 +555,7 @@
   .game .opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(11em,1fr));gap:1.1vw}
   .game .opt{background:var(--paper);border-top:3px solid var(--rule);padding:2.2vh 1.1em;
     display:flex;gap:.7em;align-items:baseline;transition:opacity .35s,background .35s,border-color .35s}
-  .game .opt .L{font-family:var(--serif);font-size:clamp(30px,calc(3.6*var(--k)),56px);line-height:1;
+  .game .opt .L{flex:none;font-family:var(--serif);font-size:clamp(30px,calc(3.6*var(--k)),56px);line-height:1;
     color:var(--accent-deep);min-width:1ch}
   .game .opt .t{font-family:var(--serif);font-size:clamp(19px,calc(2.1*var(--k)),32px);line-height:1.22;color:var(--ink)}
   .game.revealed .opt{opacity:.32}
@@ -650,7 +650,7 @@
     padding:2vh 1.1em 1.6vh;cursor:pointer;display:flex;flex-direction:column;gap:.8vh;
     transition:background .35s,border-color .35s}
   .hinge .opt .row{display:flex;gap:.7em;align-items:baseline;padding-right:2.6em}
-  .hinge .opt .L{font-family:var(--serif);font-size:clamp(30px,calc(3.6*var(--k)),56px);line-height:1;
+  .hinge .opt .L{flex:none;font-family:var(--serif);font-size:clamp(30px,calc(3.6*var(--k)),56px);line-height:1;
     color:var(--accent-deep);min-width:1ch}
   .hinge .opt .t{font-family:var(--serif);font-size:clamp(19px,calc(2.1*var(--k)),32px);line-height:1.22;color:var(--ink)}
   .hinge .opt .trap{visibility:hidden;font-size:clamp(15px,calc(1.5*var(--k)),22px);line-height:1.35;color:var(--peach-deep)}
