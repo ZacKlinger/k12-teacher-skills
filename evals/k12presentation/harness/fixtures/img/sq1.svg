@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#B6A2E0"/><stop offset="1" stop-color="#6B54A8"/></linearGradient></defs>
+<rect width="1000" height="1000" fill="url(#g)"/>
+<g stroke="#fff" stroke-opacity=".35"><line x1="250.0" y1="0" x2="250.0" y2="1000"/><line x1="0" y1="250.0" x2="1000" y2="250.0"/><line x1="500.0" y1="0" x2="500.0" y2="1000"/><line x1="0" y1="500.0" x2="1000" y2="500.0"/><line x1="750.0" y1="0" x2="750.0" y2="1000"/><line x1="0" y1="750.0" x2="1000" y2="750.0"/></g>
+<circle cx="300.0" cy="350.0" r="120.0" fill="#fff" fill-opacity=".8"/>
+<text x="300.0" y="350.0" font-family="Georgia" font-size="80.0" text-anchor="middle" dominant-baseline="middle" fill="#6B54A8">1</text>
+<text x="500.0" y="960" font-family="Arial" font-size="50.0" text-anchor="middle" fill="#fff">sq 1000x1000 #1</text>
+</svg>

@@ -40,9 +40,23 @@ direction. For a student who can't yet read the question off the wall, the wall 
 where it first appears, bold with a yellow stroke like the packet's, so recognition carries across
 from screen to paper. Once, because yellow everywhere marks nothing.
 
-**Every guess counts.** A game round or a sort puts every student's thinking in play at once and
-gets students out of their seats to the board; partners agree first, so it is talk, not a quiz.
-Points and teams only when the teacher asks for them.
+**Every guess counts.** A game round, a sort, a hinge question or any format in
+`references/interactives.md` puts every student's thinking in play at once and gets students out
+of their seats to the board; partners agree first, so it is talk, not a quiz. Points and teams only
+when the teacher asks for them, and a hinge question never.
+
+**The prediction comes first.** Every reveal waits for a guess, and a clicker's → reveals a game's or
+a chart's answer before it turns the slide, so the answer can never arrive ahead of the thinking.
+
+**Nothing jumps.** Answers and reasons hold their space before they appear. A student who reads
+slowly keeps their place on the screen when the answer lands.
+
+**Fits the screen it lands on.** Type scales to the screen's shorter side, a slide that still runs
+long shrinks a step at a time, and as a last resort it scrolls; text never runs under the footer.
+A 16:9 projector, a 4:3 projector and a laptop presenting in a browser window all read the same.
+
+**Hands, not only eyes.** Anything that drags can be tapped instead (tap the card, tap where it
+goes), for a touch board and for students whose fine-motor supports make dragging hard.
 
 ## Cost
 

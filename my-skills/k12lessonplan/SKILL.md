@@ -404,9 +404,11 @@ described in Step 3. In the same message:
   question 1."* This is the difference between handing over a lesson and handing over a test.
 - Say what the talk moves need (partner assignments, corner signs, cards) if they need anything,
   and offer to make the printable if so.
-- When there is a deck, pass on anything the presentation skill reported that the teacher should
-  know, in a line each: photographs it couldn't load-test (and the setting that fixes it), a video
-  that won't play embedded.
+- When there is a deck, say to open it in a browser, and when it has games or charts, add the
+  presentation skill's one line on the clicker (→ reveals each answer; an arranged game is checked
+  with C). Pass on anything else it reported that the teacher should know, in a line each:
+  photographs it couldn't load-test (and the setting that fixes it), a video that won't play
+  embedded.
 - **Ask for reaction in the I like / I wish / What if form**: "tell me an *I like*, an *I wish*,
   and a *what if*." It reads as an invitation rather than a request for approval, and "I wish" gets
   an honest complaint out of a busy person faster than "any changes?" does. Run it on your own

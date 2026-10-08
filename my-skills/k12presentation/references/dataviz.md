@@ -1,11 +1,13 @@
 # Data visualization — the center of the deck
 
 Read this with `deck.md` whenever a lesson touches a number, which is nearly always. Six chart
-types, all click-driven, all configured with `data-` attributes — no chart is ever hand-drawn.
+types of the kit's own, and two more from `references/interactives.md`, all click-driven, all
+configured with `data-` attributes — no chart is ever hand-drawn.
 
-**The kit is already in `assets/deck_template.html`.** There is nothing to paste: copy the template
-and write chart markup into a slide. (`assets/dataviz_kit.html` remains the source of truth for the
-kit and holds a demo of each type; the template carries a working copy.)
+**The kit is already in `assets/deck_template.html`.** There is nothing to paste and nothing to
+copy: write the chart's markup into a slide (each chart's attributes are under "Choosing the chart"
+below) and `build_deck.py` wraps the slides in the template. `assets/dataviz_kit.html` remains the
+source of truth for the kit and holds a working demo of each type.
 
 Every chart needs **both** classes — `class="dv dv-bars"`. `dv` carries the colour variables and
 the base type; `dv-bars` picks the type. With only the type class the chart builds and renders
@@ -13,7 +15,8 @@ the base type; `dv-bars` picks the type. With only the type class the chart buil
 catches this, but it is worth knowing why.
 
 **Every deck carries at least one interactive chart, and two to four when the lesson has numbers
-in it.** This is enforced, not encouraged: a deck with none has pushed the whole lesson back into
+in it.** A what-if model and an estimate (`references/interactives.md`) count: both carry a real
+number through the same predict-then-reveal moment. This is enforced, not encouraged: a deck with none has pushed the whole lesson back into
 prose, which is the one channel these students cannot use. Static `.bars` from the deck's component
 catalog do not count — they are for a comparison you don't need to reveal, and they skip the
 predict-then-reveal moment that makes a number stick.
@@ -36,7 +39,8 @@ always the same:
 1. **Ask before you show.** "How much water do you think a field lettuce needs compared to ours?"
 2. **Take a public guess.** The guess chart holds a draggable line; the dot plot takes their real
    numbers; the bars let you ask "what does the next one look like?" before the click.
-3. **Reveal.** One click. The gap between the guess and the truth is the moment the lesson lives in.
+3. **Reveal.** One click, or → on a clicker, or `V` (bars come one per press, so the room can guess
+   before each). The gap between the guess and the truth is the moment the lesson lives in.
 4. **Read it together, out loud, with a stem.** Reading a chart is a skill these students are
    still building. Give them the sentence: *"The ______ bar is ______ times bigger than ______,
    which means ______."*
@@ -53,6 +57,26 @@ always the same:
 | Two to four quantities compared | Bars revealed one at a time | `dv-bars` |
 | One value against the range it should be in | Gauge with a target band | `dv-gauge` |
 | Percent increase or decrease | Percent strip — the chunk drawn on the base | `dv-percent` |
+| A cause and its effect the class can push on | What-if model: sliders, a formula, a target band | `whatif` (interactives.md) |
+| One quantity the class estimates as a range | Too low, just right, too high, then the real number | `estimate` (interactives.md) |
+
+Each chart is one element with both classes and its `data-` attributes; every one also takes
+`data-caption` (the finding, shown once revealed) and `data-hint`:
+
+- `dv-icons`: `data-fill` (how many dots fill), `data-total` (default 100), `data-cols` (default 20).
+- `dv-guess`: `data-actual`, `data-max`, `data-unit`, `data-ask` (the question above the plot).
+- `dv-dots`: `data-bins="0-4|5-9|10-14"`, `data-ask`.
+- `dv-bars`: `data-rows="Label|value|colour|note; Label|value"` (colour and note optional),
+  `data-unit`, `data-prefix` (`$`), `data-ratio` (a line shown after the last bar).
+- `dv-gauge`: `data-value`, `data-min`, `data-max`, `data-lo` and `data-hi` (the target band),
+  `data-band-label`, `data-unit`.
+- `dv-percent`: `data-base`, `data-pct`, `data-dir="up"` or `"down"`, `data-unit`,
+  `data-before-label`, `data-after-label`.
+
+```html
+<div class="dv dv-guess" data-ask="How many litres does a field lettuce drink?" data-actual="40"
+     data-max="60" data-unit=" L" data-caption="Forty litres in a field; ours drank two."></div>
+```
 
 Two rules of thumb. **The percent strip is the fix for the most common percent error** — a student
 who has seen 20% drawn *on* the $65 bar stops answering "$13" to "what's the new price." And
@@ -91,7 +115,7 @@ entirely through its `data-` attributes, so building one means deciding what thi
 actually is and writing that in: the real values, the real labels, the real units, the caption that
 states this lesson's finding.
 
-Pick by the shape of the data, never by wanting variety. If none of the ten fits what the lesson is
+Pick by the shape of the data, never by wanting variety. If none of the eight fits what the lesson is
 showing, don't force one — use a plain figure, a table, or an SVG diagram from the deck's component
 catalog. A chart that doesn't fit its data teaches a student to distrust charts.
 
@@ -113,6 +137,14 @@ kit builds them in — use them rather than working around them:
   the next one. The order you write them in is the order the story is told.
 - **Restraint everywhere else.** Hairline rules, no chart junk, one accent per chart, generous
   white space around it. The motion is the only thing moving.
+
+## Slow reveal
+
+A published graph read all at once is read by the strongest reader in the room. Read slowly, it is
+read by everyone: draw it as an inline SVG in a `.figure`, give the data, the axis labels and the
+title their own `data-step` numbers in that order, and let each → add one piece while the class says
+what it notices and wonders. The title comes last, so students read the shape before they are told
+what it shows.
 
 ## Making the class the data source
 
