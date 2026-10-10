@@ -1,7 +1,7 @@
 // The edge cases a review found, each pinned so it can't quietly come back.
 //   node edge_cases.js <deck built from fixtures/edge_cases.slides.html> [WxH]
 const path = require('path');
-const { launch } = require('./common');
+const { launch, fileUrl } = require('./common');
 const deck = path.resolve(process.argv[2]);
 const [W, H] = (process.argv[3] || '1366x657').split('x').map(Number);
 let pass = 0, fail = 0;
@@ -11,7 +11,7 @@ function ok(cond, msg) { if (cond) { pass++; console.log('  ok   ' + msg); } els
   const b = await launch();
   const p = await b.newPage({ viewport: { width: W, height: H } });
   const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto('file://' + deck); await p.waitForTimeout(500);
+  await p.goto(fileUrl(deck)); await p.waitForTimeout(500);
   const go = async t => { await p.evaluate(t => { const i = [...document.querySelectorAll('.slide')].findIndex(s => s.dataset.title === t); document.querySelectorAll('#jumpList li')[i].click(); }, t); await p.waitForTimeout(350); };
   const title = async () => p.evaluate(() => document.querySelector('.slide.on').dataset.title);
   const on = sel => p.locator('.slide.on ' + sel).first();
@@ -138,6 +138,32 @@ function ok(cond, msg) { if (cond) { pass++; console.log('  ok   ' + msg); } els
   const z = await p.evaluate(() => { const s = document.querySelector('.slide.on'), f = s.querySelector('.zframe').getBoundingClientRect(); return { h: f.height, top: f.top, tall: s.classList.contains('tall'), foot: document.querySelector('.footer').getBoundingClientRect().top, bottom: f.bottom }; });
   ok(z.h < big && !z.tall && z.top > 0 && z.bottom < z.foot, `the zoom frame shrinks with the window (${Math.round(big)}px to ${Math.round(z.h)}px) and the slide still fits`);
   await p.setViewportSize({ width: W, height: H });
+
+  console.log('charts by clicker');
+  await go('Guess chart');
+  const barH = () => p.evaluate(() => document.querySelector('.slide.on .dv-guess .actual').getBoundingClientRect().height);
+  ok(await barH() === 0, 'a guess chart arrives with its bar hidden');
+  await p.keyboard.press('ArrowRight'); await p.waitForTimeout(1100);
+  ok(await title() === 'Guess chart' && await barH() > 0, '→ shows the real number before moving on');
+  await p.keyboard.press('ArrowRight'); await p.waitForTimeout(200);
+  ok(await title() === 'Bars chart', 'a second → moves on');
+  const rowsOn = () => p.evaluate(() => document.querySelectorAll('.slide.on .dv-bars .row.on').length);
+  const seen = [];
+  for (let k = 0; k < 3; k++) { await p.keyboard.press('ArrowRight'); await p.waitForTimeout(150); seen.push(await rowsOn()); }
+  ok(seen.join(',') === '1,2,3' && await title() === 'Bars chart', '→ brings in one bar per press: ' + seen.join(','));
+  await p.keyboard.press('ArrowRight'); await p.waitForTimeout(200);
+  ok(await title() === 'Key word options', 'after the last bar, → moves on');
+
+  console.log('key words never single out an option');
+  const kw = await p.evaluate(() => [...document.querySelectorAll('.slide.on mark.kw')].map(m => m.closest('.opts') ? 'option' : 'other'));
+  ok(!kw.includes('option'), 'no option in a game is marked as a key word: ' + JSON.stringify(kw));
+
+  console.log('a slide that scrolls keeps its clock');
+  await go('Too much'); await p.waitForTimeout(400);
+  const clock = await p.evaluate(() => { const s = document.querySelector('.slide.on'); s.scrollTop = s.scrollHeight;
+    const r = document.querySelector('.slide.on .head-right').getBoundingClientRect(); return { tall: s.classList.contains('tall'), top: r.top, bottom: r.bottom }; });
+  await p.waitForTimeout(100);
+  ok(!clock.tall || (clock.top >= 0 && clock.bottom <= H), 'scrolled to its end, the timer is still on screen' + (clock.tall ? ` (top ${Math.round(clock.top)})` : ' (the slide fits; nothing to scroll)'));
 
   console.log(errs.length ? 'JS errors: ' + errs.join(' | ') : 'no JS errors');
   console.log(`\n${pass} passed, ${fail} failed`);

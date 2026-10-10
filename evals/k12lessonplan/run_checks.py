@@ -8,8 +8,10 @@ The folder holds what one lesson produced: the packet (`* - packet.docx`), the d
 (`* - deck.html`), and, when there is one, the `packet.json` it was rendered from. Without
 it, the deck is checked against the packet .docx itself, as a deck built in a later
 conversation would be. The report is the evidence for the criteria a script can measure
-(O14, O16, O-C1, O-C2, O-C3 in the lesson rubrics; O-D1, O-D4, O-D5, O-D6, P-D3, P-D4 in
-the deck rubric) and is handed to the LLM judge beside the lesson itself.
+(O14, O16, O-C1, O-C2, O-C3 in the lesson rubrics; O-D1, O-D4, O-D5, O-D6, P-D1, P-D3, P-D4 in
+the deck rubric, and part of P-D2, P-D5, P-D6 and P-D7) and is handed to the LLM judge beside
+the lesson itself. When node and Playwright are installed, each deck also gets the layout audit
+from evals/k12presentation/harness, which scores O-D8 outright.
 """
 
 import argparse
@@ -17,6 +19,7 @@ import glob
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -33,6 +36,19 @@ def skill_scripts(name):
         if os.path.isdir(d):
             return d
     sys.exit(f"Can't find the {name} skill's scripts under classroom-plugin/skills/, plugin/skills/ or my-skills/.")
+
+
+def layout_report(deck):
+    """O-D8: the deck at every screen size from 1024x768 up, opened and played."""
+    audit = os.path.join(ROOT, "evals", "k12presentation", "harness", "layout_audit.js")
+    head = f"== Layout (O-D8): {os.path.basename(deck)}"
+    if not shutil.which("node") or not os.path.exists(audit):
+        return head + "\n  skip  node is not installed; run evals/k12presentation/harness/layout_audit.js by hand."
+    r = subprocess.run(["node", audit, deck, "--only", "1024x768,1280x720,1280x800,1366x657,1920x1080"],
+                       capture_output=True, text=True, timeout=1800)
+    if r.returncode == 2:                       # Playwright missing: the harness says how to install it
+        return head + "\n  skip  " + (r.stdout + r.stderr).strip().splitlines()[-1]
+    return f"{head} (exit {r.returncode})\n" + (r.stdout + r.stderr).strip("\n")
 
 
 SCRIPTS = skill_scripts("k12lessonplan")
@@ -91,6 +107,7 @@ def main():
             cmd += ["--packet", printed[0]]
         text, code = run(cmd)
         out.append(f"== Deck: {os.path.basename(deck)} (exit {code})\n" + text)
+        out.append(layout_report(deck))
 
     if not out:
         print(f"Nothing to check in {folder}: no packet.json, packet .docx, or deck .html.")

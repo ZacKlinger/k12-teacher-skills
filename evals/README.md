@@ -15,7 +15,7 @@ Each rubric criterion represents a specific aspect of an LLM-generated classroom
 | k12-lesson-prep/rubrics/ | Rubric for scoring lesson-prep outputs: `internalization.csv` (the prep conversation and the teacher-only prep note) |
 | k12-check-for-understanding/rubrics/ | Rubric for scoring check-for-understanding outputs: `math.csv` (item quality, misconception-based distractors, and the teacher guide) |
 | k12lessonplan/rubrics/ | Rubric for the class-profile lesson planner: `classroom.csv`, layered on `k12-lesson-plan-creation/rubrics/shared.csv` and the subject file (talk moves, language lines, print integrity, key words, the plan in chat, class context) |
-| k12presentation/rubrics/ | Rubric for the projected slide deck: `deck.csv` (the wall matches the page, nothing teacher-only on screen, visible time, predict-then-reveal, built talk, games that fit the moment and take every student's answer, one-computer interactivity, any classroom screen). `k12presentation/harness/` adds deterministic browser checks of the deck; see its README |
+| k12presentation/rubrics/ | Rubric for the projected slide deck: `deck.csv` (the wall matches the page, nothing teacher-only on screen, visible time, predict-then-reveal, built talk, games that fit the moment and take every student's answer, one-computer interactivity, any classroom screen). `k12presentation/harness/` adds deterministic browser checks of the deck; see `k12presentation/README.md` |
 
 ---
 

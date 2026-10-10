@@ -5,7 +5,8 @@
 #   my-skills/tools/build_upstream_branches.sh [source-branch]
 #
 #   contrib/evals-calibration  upstream main + the rubric changes to the official skills' evals
-#   contrib/classroom-skills   that + the opt-in k12-classroom plugin, its rubrics and the sample run
+#   contrib/classroom-skills   that + the opt-in k12-classroom plugin, its rubrics, the deck's browser
+#                              checks (evals/k12presentation/harness) and the sample run
 #
 # Commits are authored by whoever runs it (git config user.name / user.email), which is what the
 # CLA bot matches against. Re-running resets both branches. Then, when ready:
@@ -108,6 +109,10 @@ with open(p, "w") as f:
     json.dump(d, f, indent=2, ensure_ascii=False)
     f.write("\n")
 
+edit("evals/k12presentation/README.md",
+     "(`classroom-plugin/skills/k12presentation`, or\n`my-skills/k12presentation` in a fork that keeps its skills apart)",
+     "(`classroom-plugin/skills/k12presentation`)")
+
 p = "evals/k12lessonplan/sample-run/README.md"
 s = open(p).read()
 s = s[:s.index("## Reproducing it")] + """## Reproducing it
@@ -162,6 +167,11 @@ it, so the official plugin and its lesson planner are unchanged:
 Rubrics: evals/k12lessonplan/rubrics/classroom.csv (11 rows) and
 evals/k12presentation/rubrics/deck.csv (17 rows), layered on shared.csv,
 with four conditions documented in evals/README.md.
+
+Browser checks: evals/k12presentation/harness builds fixture decks and
+drives them in Chromium (layout at six screen sizes, every game format
+by pointer, keyboard and clicker). It needs node and Playwright; run.sh
+runs it all.
 
 Sample run: three lessons (Grade 7 math, Grade 4 science, Grade 3 ELA)
 scored row by row: 138 of 154 before the skill fixes it found, 151 of

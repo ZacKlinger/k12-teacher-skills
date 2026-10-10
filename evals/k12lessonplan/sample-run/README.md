@@ -24,7 +24,11 @@ deck. Every row's verdict and its reason is in [`scores.csv`](scores.csv), writt
 
 Rows whose condition did not hold are skipped, as the rubric README says. The deck was scored
 against `deck.csv` as it stood then; P-D5 to P-D7, O-D8 and M-D2 came after this run and are not
-in these rates. Two rows could not be
+in these rates, and P-D2, P-D4, O-D5 and O-D6 have been widened since, with no change to these
+verdicts (neither deck has a game). The committed decks are builds of the template as it was
+then, and the layout audit fails both on O-D8 as shipped. Rebuilt from `slides.html` with the
+current template, L3 fits every screen from 1024x768 up, and L1 fails O-D8 on one slide: its
+agree-or-disagree talk slide scrolls at 1366x657, carrying more than a laptop screen holds. Two rows could not be
 tested here at all (below), so they are left out of the rates.
 
 | | L1 | L2 | L4 | All |

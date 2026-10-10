@@ -312,8 +312,13 @@ line is the label; the line under it is what to look for.
       <img src="…?width=900" alt="Green water running through a growing channel."></div>
     <div class="vc"><div class="k">Means</div><div class="d">Food a plant needs, mixed into the water.</div></div>
   </div>
+  <p class="cap">Nutrients ride in the water past every root.
+    <span class="cred">Wikimedia Commons · CC BY-SA 4.0</span></p>
 </div>
 ```
+
+The caption and its credit sit under the `.vocab`, inside the body: a photo in a word cell is
+still a photograph, and the checker asks for both.
 
 **A labeled photograph** — naming the parts of a real system. Pin positions are percentages of the
 image box; place them by eye against the actual photo and keep labels off faces and off the

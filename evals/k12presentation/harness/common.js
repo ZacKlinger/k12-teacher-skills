@@ -16,11 +16,14 @@ async function launch() {
   return chromium.launch(exe ? { executablePath: exe } : {});
 }
 
+// a deck's name may hold a # or a ? ("Lesson #4 - deck.html"): build the URL properly
+function fileUrl(deck) { return require('url').pathToFileURL(path.resolve(deck)).href; }
+
 async function open(browser, deck, width, height) {
   const page = await browser.newPage({ viewport: { width, height } });
   page.errors = [];
   page.on('pageerror', e => page.errors.push(e.message));
-  await page.goto('file://' + path.resolve(deck));
+  await page.goto(fileUrl(deck));
   await page.waitForTimeout(400);
   return page;
 }
@@ -31,4 +34,4 @@ async function slide(page, i) {
   await page.waitForTimeout(300);
 }
 
-module.exports = { launch, open, slide };
+module.exports = { launch, open, slide, fileUrl };

@@ -89,8 +89,10 @@ which is why a game slide with a timer counts as one of the lesson's talk moves.
 fingers), a True/False card, a pair walking to the board. Whiteboards work for estimates. The
 plan names what students need on their desks.
 
-**The reveal explains.** Every format carries a reason (`data-why`, or one per tile or claim): one
-sentence a student could repeat to a partner. Marking an answer right is not a reveal.
+**The reveal explains.** Every format carries a reason (`data-why`, or one per tile or claim; a
+what-if's is its `data-caption`): one sentence a student could repeat to a partner, six words or
+more for a game's, four or more for a tile's, five or more for a claim's. Marking an answer right
+is not a reveal.
 
 **Nothing jumps.** Reasons, fixes and answers reserve their space from the start, so the slide is
 still when the answer lands. A student who reads slowly does not lose their place on the screen.
@@ -114,7 +116,9 @@ a zoom-in back, brings back the next label, moves to the next true-or-false clai
 the game from the back of the room, and the answer never arrives before the prediction. Games
 students arrange with their hands (sort, order it, number line, match) are checked with `C` or
 their Check button, never by →: checking a half-built arrangement would only mark it wrong. Coming back to a staged
-format with ← shows it finished; arriving with → starts it from the top. Games with a single
+format with ← shows it finished; arriving with → starts it from the top; and ← on a staged format
+steps it back one stage (the answer hidden again, the claim or the zoom before) before the deck goes
+back a slide, so one press too many is undone with one press. Games with a single
 reveal (game round, hinge question, estimate, which one doesn't belong, find the mistake, what if)
 keep their state between visits, so a revealed answer stays revealed and points are never taken
 back by navigating.
@@ -162,7 +166,7 @@ independent work.
   `-` for the right one. A trap names the thinking, kindly: *"Added the 2 to the 30."*
 - **In class:** everyone holds up a letter at once. The teacher clicks an option card once per hand showing
   it (shift-click takes one away), then `V`. The wrong options show their traps, the right one
-  goes green, and the tally line reads *"7 of 9 chose A · move on"* or *"4 of 9 chose A · reteach
+  goes green, and the tally line reads *"8 of 9 chose A · move on"* or *"4 of 9 chose A · reteach
   what B was thinking"*. `data-move-on` sets the share that counts as "move on" (default 80).
 - **A good one** is answerable in under a minute, has one clearly right answer to someone who has
   it, and has distractors drawn from real errors (the packet's answer key and last year's papers
@@ -237,7 +241,7 @@ this is the clothesline routine, on the wall.
 - `data-items` reads `label=value`, three to eight cards, every value inside `data-min` to
   `data-max`; a value may be a fraction (`three quarters=3/4`). `data-ticks` sets the labelled
   ticks, value first (`value` or `value=label`: `1/4`, `0.5=½`), the reverse of the cards; leave it
-  out for five evenly spaced ones. `data-tolerance` is how close counts as right, in the line's
+  out for round-numbered ticks about a fifth of the range apart. `data-tolerance` is how close counts as right, in the line's
   own units (default 4% of the range).
 - Fewer ticks is harder and better: `0|1` makes students reason about half; `0|0.25|0.5|0.75|1`
   does the reasoning for them.
@@ -259,19 +263,21 @@ wrong, which is how every student gets in), a *too high*, and a *just right*.
       <span class="cred">Wikimedia Commons · CC BY-SA 4.0</span></figcaption>
   </figure>
   <div class="talk-side">
-    <div class="estimate" data-min="0" data-max="500" data-answer="263" data-unit=" seeds"
+    <div class="estimate" data-min="0" data-max="800" data-answer="263" data-unit=" seeds"
          data-why="We counted 263: about 26 rows of 10, and 3 left over."></div>
   </div>
 </div>
 ```
 
-- `data-answer` must be a real, counted or sourced number inside the range; `data-unit` in words
-  students own. `data-labels` renames the three markers; `data-snap` sets the step the markers move
+- `data-answer` must be a real, counted or sourced number inside the range, and off its middle:
+  the markers wait near each end and at the middle of the line, reading "?" until the class
+  sets them, so a range centred on the answer parks *just right* on it (the checker warns).
+  `data-unit` in words students own. `data-labels` renames the three markers; `data-snap` sets the step the markers move
   in (default about a hundredth of the range).
 - Put the photograph of the thing being estimated beside it in the `.talk` layout, as above: an
   estimate of something nobody can see is a guess about a word.
 - **In class:** partners agree, then a pair drags the three markers (or taps the line: the nearest
-  marker jumps there). → reveals: the real number counts up to its place, and a line says whether it
+  marker jumps there); a marker shows its number once it is set. → reveals: the real number counts up to its place, and a line says whether it
   fell inside the range and how far *just right* was.
 
 ### Match
@@ -452,7 +458,8 @@ carry.
 cards inside the range, exactly one wrong step with its fix, four tiles each with a reason, claims
 whose answers are among their labels and which carry their language lines, pairs of two, a
 what-if formula that runs and stays at or above zero, a zoom-in with its `--focus`, a reason on
-everything, a timer on every game, one game per slide. Get it clean. Then the questions only a
+every game that has an answer, a timer on every game but the what-if, zoom-in and label the photo,
+one game per slide, and no more game slides than the period has room for. Get it clean. Then the questions only a
 person can answer:
 
 - *Is every answer in a game the same as the packet's answer key?* The hinge answer, the true-or-false
@@ -462,8 +469,9 @@ person can answer:
   given?* A phrase per card; a claim under sixteen words.
 - *Does every which-one-doesn't-belong tile have an honest reason?*
 - *Does the eyebrow say how students answer?* A letter, a card, a pair at the board.
-- *Click through it once with → alone*, the way a clicker would: every game reveals before the deck
-  moves on, and nothing is revealed before its prediction.
+- *Click through it once with → alone*, the way a clicker would: every game with an answer reveals
+  it before the deck moves on, the arranged games move on unchecked (they are `C`'s), and nothing is
+  revealed before its prediction.
 
 ---
 

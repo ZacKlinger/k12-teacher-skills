@@ -2,7 +2,7 @@
 // the board or a presentation clicker would, and assert what the room would see.
 //   node interactions.js <deck built from fixtures/interactive_formats.slides.html> [WxH]
 const path = require('path');
-const { launch } = require('./common');
+const { launch, fileUrl } = require('./common');
 const deck = path.resolve(process.argv[2]);
 const [W, H] = (process.argv[3] || '1366x657').split('x').map(Number);
 let pass = 0, fail = 0;
@@ -12,7 +12,7 @@ function ok(cond, msg) { if (cond) { pass++; console.log('  ok   ' + msg); } els
   const b = await launch();
   const p = await b.newPage({ viewport: { width: W, height: H } });
   const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto('file://' + deck); await p.waitForTimeout(400);
+  await p.goto(fileUrl(deck)); await p.waitForTimeout(400);
   const go = async title => { await p.evaluate(t => { const i = [...document.querySelectorAll('.slide')].findIndex(s => s.dataset.title === t); document.querySelectorAll('#jumpList li')[i].click(); }, title); await p.waitForTimeout(350); };
   const box = async sel => p.locator('.slide.on ' + sel).first().boundingBox();
   const drag = async (from, to, steps = 12) => { await p.mouse.move(from.x, from.y); await p.mouse.down(); await p.mouse.move(from.x + 8, from.y + 4, { steps: 2 }); await p.mouse.move(to.x, to.y, { steps }); await p.mouse.up(); await p.waitForTimeout(150); };
@@ -73,12 +73,16 @@ function ok(cond, msg) { if (cond) { pass++; console.log('  ok   ' + msg); } els
 
   console.log('estimate');
   await go('Estimate');
+  const unset = await p.locator('.slide.on .eflag span').allTextContents();
+  ok(unset.every(t => t === '?'), 'on arrival no marker shows a number: ' + unset.join(' | '));
   const midFlag = await box('.eflag.mid'), ez = await box('.ezone');
-  await drag(mid(midFlag), { x: ez.x + ez.width * 0.56, y: midFlag.y + midFlag.height / 2 });
+  await drag(mid(midFlag), { x: ez.x + ez.width * 0.35, y: midFlag.y + midFlag.height / 2 });
   const mv = await txt('.eflag.mid span');
   ok(/^2[6-9]\d seeds|^30\d seeds/.test(mv), 'dragging just right moves its value: ' + mv);
   await p.mouse.click(ez.x + ez.width * 0.02, ez.y + ez.height * 0.5);
-  ok(/^1\d seeds|^\d seeds/.test(await txt('.eflag.low span')), 'a tap on the line moves the nearest marker: ' + await txt('.eflag.low span'));
+  ok(/^[1-3]?\d seeds/.test(await txt('.eflag.low span')), 'a tap on the line moves the nearest marker: ' + await txt('.eflag.low span'));
+  await p.mouse.click(ez.x + ez.width * 0.97, ez.y + ez.height * 0.5);
+  ok(/^7[5-9]\d seeds|^800 seeds/.test(await txt('.eflag.high span')), 'too high set by a tap near the top: ' + await txt('.eflag.high span'));
   await p.keyboard.press('ArrowRight'); await p.waitForTimeout(1400);
   ok(await title() === 'Estimate' && (await txt('.eanslab')) === 'Actual: 263 seeds', '→ reveals the real number, counted up: ' + await txt('.eanslab'));
   ok(/Inside our range/.test(await txt('.eresult')), 'verdict: ' + await txt('.eresult'));
@@ -112,8 +116,18 @@ function ok(cond, msg) { if (cond) { pass++; console.log('  ok   ' + msg); } els
   ok(await title() === 'Match', 'after the last claim, → moves on');
   await p.keyboard.press('ArrowLeft'); await p.waitForTimeout(150);
   ok(await claim() === 'A grow light can stand in for the sun.', '← back shows the run finished');
-  const said = await p.evaluate(() => { const out = []; const real = window.speechSynthesis; window.speechSynthesis.speak = u => out.push(u.text); window.speechSynthesis.getVoices = () => []; document.dispatchEvent(new KeyboardEvent('keydown', { key: 'a' })); return out; }).catch(() => []);
+  const heard = await p.evaluate(() => { const out = []; window.speechSynthesis.speak = u => out.push({ t: u.text, l: u.lang }); window.speechSynthesis.getVoices = () => []; document.dispatchEvent(new KeyboardEvent('keydown', { key: 'a' })); return out; }).catch(() => []);
+  const said = heard.map(u => u.t);
   ok(said.includes('A grow light can stand in for the sun.') && !said.includes('Plants need soil to grow.'), 'A reads the claim on screen, not the hidden ones: ' + JSON.stringify(said));
+  ok(heard.some(u => /^es/.test(u.l)), 'before the browser has listed its voices, the Spanish lines are still read, tagged es: ' + JSON.stringify(heard.filter(u => /^es/.test(u.l)).map(u => u.t)));
+  const isOpen = () => p.locator('.slide.on .tf').evaluate(e => e.classList.contains('revealed'));
+  await p.keyboard.press('ArrowLeft'); await p.waitForTimeout(100);
+  const back1 = { t: await title(), c: await claim(), o: await isOpen() };
+  await p.keyboard.press('ArrowLeft'); await p.waitForTimeout(100);
+  const back2 = { t: await title(), c: await claim(), o: await isOpen() };
+  ok(back1.t === 'True or false' && back1.c === 'A grow light can stand in for the sun.' && !back1.o &&
+     back2.t === 'True or false' && back2.c !== back1.c && back2.o,
+     '← steps back a stage at a time: the answer hidden, then the claim before, answered');
 
   console.log('match');
   await go('Match');
@@ -173,6 +187,36 @@ function ok(cond, msg) { if (cond) { pass++; console.log('  ok   ' + msg); } els
   await go('Dark slide');
   const bg = await p.evaluate(() => getComputedStyle(document.querySelector('.slide.on .claim')).backgroundColor);
   ok(bg === 'rgb(59, 53, 46)', 'components on a dark slide use the caviar surface: ' + bg);
+
+  console.log('keyboard alone');
+  const focusOn = async sel => { await p.locator('.slide.on ' + sel).first().focus(); };
+  await go('Hinge question');
+  await p.locator('.slide.on .hinge button', { hasText: 'Clear hands' }).click();
+  await focusOn('.hinge .opt'); await p.keyboard.press('Enter'); await p.keyboard.press('Enter');
+  ok((await txt('.hinge .opt >> nth=0')).includes('×2'), 'Tab to an option and Enter counts a hand');
+  const wasOpen = await p.locator('.slide.on .hinge').evaluate(e => e.classList.contains('revealed'));
+  await p.locator('.slide.on .hinge button', { hasText: /Reveal|Hide/ }).first().focus();
+  await p.keyboard.press(' '); await p.waitForTimeout(1200);
+  const running = await p.evaluate(() => document.getElementById('timerTime').textContent);
+  ok(await p.locator('.slide.on .hinge').evaluate(e => e.classList.contains('revealed')) !== wasOpen && running === '1:00',
+     'Space on a focused button presses it and leaves the timer alone (' + running + ')');
+  await go('Order it');
+  const before = await p.locator('.slide.on .order .ocard .otx').allInnerTexts();
+  await p.locator('.slide.on .order .ocard').nth(0).focus(); await p.keyboard.press('Enter');
+  await p.locator('.slide.on .order .ocard').nth(2).focus(); await p.keyboard.press('Enter'); await p.waitForTimeout(150);
+  const after = await p.locator('.slide.on .order .ocard .otx').allInnerTexts();
+  ok(after[0] === before[2] && after[2] === before[0], 'Enter on one card, Enter on another: they swap');
+  await go('Number line');
+  await p.locator('.slide.on .line button', { hasText: 'Start over' }).click();
+  await p.locator('.slide.on .line .ltray .lcard, .slide.on .line .tray .lcard').first().focus();
+  await p.keyboard.press('ArrowRight'); await p.keyboard.press('ArrowRight'); await p.waitForTimeout(150);
+  ok(await title() === 'Number line' && await p.evaluate(() => !!document.activeElement.closest('.lzone, .zone')),
+     'arrows put a focused card on the line and move it, without turning the slide');
+  await go('Estimate');
+  await focusOn('.eflag.high');
+  await p.keyboard.press('ArrowLeft'); await p.waitForTimeout(100);
+  ok(await title() === 'Estimate' && /seeds/.test(await txt('.eflag.high span')), 'arrows move a focused marker and set it: ' + await txt('.eflag.high span'));
+  await p.keyboard.press('Escape'); await p.evaluate(() => document.activeElement && document.activeElement.blur());
 
   console.log(errs.length ? 'JS errors: ' + errs.join(' | ') : 'no JS errors');
   console.log(`\n${pass} passed, ${fail} failed`);
