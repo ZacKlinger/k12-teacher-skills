@@ -1,0 +1,20 @@
+== Packet text (render report: key words, reading level, language lines)
+  ok    key words used (each highlighted once per section): proportional ×11, ratio ×3, unit rate ×2
+  ok    reads at about grade 1.6 (target 6), 7 words a sentence
+
+== Packet pages: Proportional or not - packet.docx (exit 0)
+  skip  LibreOffice could not convert the packet; look at the pages by hand.
+
+== Deck: Proportional or not - deck.html (exit 1)
+  ok    16 slides for a 50-minute period (expected 11-16).
+  ok    Slide minutes add up to 50 of 50.
+  ok    Every packet question is on a slide in the packet's words.
+  ok    3 talk slide(s) with phased timers.
+  ok    3 key word(s), each on a slide and marked.
+  ok    28 language support line(s).
+  ok    14 'es' support line(s).
+  ok    14 'vi' support line(s).
+  warn  Only one interactive chart. Two to four is the usual range for a lesson with numbers in it.
+  ERROR 0 photographs; a 50-minute period needs 5-8. A student who reads slowly, or has never seen the thing, cannot picture it from the word.
+
+1 error(s), 1 warning(s) — fix the errors, then re-run.

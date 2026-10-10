@@ -14,6 +14,8 @@ Each rubric criterion represents a specific aspect of an LLM-generated classroom
 | k12-lesson-differentiation/rubrics/ | Rubrics for scoring differentiation outputs: `differentiation.csv` (tiered differentiation criteria) and `clarifying_question.csv` (scorer for model clarification behavior) |
 | k12-lesson-prep/rubrics/ | Rubric for scoring lesson-prep outputs: `internalization.csv` (the prep conversation and the teacher-only prep note) |
 | k12-check-for-understanding/rubrics/ | Rubric for scoring check-for-understanding outputs: `math.csv` (item quality, misconception-based distractors, and the teacher guide) |
+| k12lessonplan/rubrics/ | Rubric for the class-profile lesson planner: `classroom.csv`, layered on `k12-lesson-plan-creation/rubrics/shared.csv` and the subject file (talk moves, language lines, print integrity, key words, the plan in chat, class context) |
+| k12presentation/rubrics/ | Rubric for the projected slide deck: `deck.csv` (the wall matches the page, nothing teacher-only on screen, visible time, predict-then-reveal, built talk, games that fit the moment and take every student's answer, one-computer interactivity, any classroom screen). `k12presentation/harness/` adds deterministic browser checks of the deck; see `k12presentation/README.md` |
 
 ---
 
@@ -28,11 +30,22 @@ Each rubric is a CSV with the following fields:
 | `Criterion` | Short name for the criterion |
 | `What pass requires` | The specific, scoreable condition that constitutes a pass |
 | `Notes` | Rationale or design notes |
-| `Conditional` | If non-empty, the criterion applies only when this condition is met (e.g., `K-5`, `ELA-Gr8+`) |
+| `Conditional` | If non-empty, the criterion applies only when this condition is met (e.g., `K-5`, `ELA-Gr8+`). A row whose `ID` ends in `-MC` replaces the row it extends when its condition holds (see below) |
 
 For lesson plan generation, apply `shared.csv` first, then layer in the relevant subject-specific file. Subject-specific criteria extend the shared set. For a 7th grade ELA lesson, you'd score against `shared.csv` \+ `ela.csv`.
 
 Conditional criteria (marked in the `Conditional` column) apply only when the specified condition is met. For example, a criterion requiring CGI-style number talk structures applies to K-5 math only; a criterion requiring source range applies to social studies but not ELA. If the condition isn't met, the criterion is skipped (not failed).
+
+**Bend, don't drop.** Some classrooms need a criterion to bend while keeping its bar. A row whose `ID` ends in `-MC` (for example `P-M3-MC`) replaces the row it extends (`P-M3`) when its condition holds, and is skipped otherwise. Conditions in use:
+
+| Condition | Holds when |
+| ----- | ----- |
+| `modified-curriculum` | The teacher says students work from IEP-modified or alternate achievement standards |
+| `observation-template-delivered` | The output includes an observation template (the teacher did not choose a lighter format) |
+| `home-languages` | The teacher or class profile names home languages for the class |
+| `plan-in-chat` | The lesson plan was delivered in the chat response rather than as a document |
+| `class-context-available` | A class profile, class notes, or a previous lesson was available to the model |
+| `game-present` | The deck contains a game: a game round, sort, review board, or any other format in the deck skill's `references/interactives.md` (hinge question, true or false, order it, number line, estimate, match, which one doesn't belong, find the mistake, what if, zoom-in, label the photo) |
 
 Criteria score independently — a failing `R2` tells you something specific about cognitive demand, not just that the output is "bad." Depending on your situation, consider tracking per-criterion pass rates across a prompt suite rather than relying on aggregate scores, since aggregate pass rates can mask meaningful gaps.
 
@@ -56,9 +69,11 @@ You will receive:
 
 Grading rules:
   - Judge criteria in the `M` (Model Scaffolding) bucket against the chat
-    response. Judge all other criteria against the attached documents — the
-    content must actually be present in the documents, not merely claimed in
-    the chat response.
+    response. Judge student-facing criteria against the student materials: the
+    content must be on the page a student will hold. Judge teacher-facing
+    criteria against wherever the teacher received the content, an attached
+    document or the chat response when the teacher asked for it there. Content
+    that is only promised or summarized does not count in either place.
   - Pass means the criterion is clearly and fully met. Fail means it is absent,
     incomplete, or only partially met.
 
@@ -70,6 +85,8 @@ trailing text. Each element: {"id": "...", "pass": true|false,
 You may also want to create individual LLM judges with prompts that provide more detailed instructions for each rubric criterion. 
 
 Over time, an important aspect of using these criteria effectively is calibrating the judging by modifying the `What pass requires`  or tuning the prompt for your LLM judges. We suggest a simple loop of partnering with education practitioners or researchers.
+
+A single judge run can miss findings another run catches, so run each judge at least twice per output and track how often the runs agree, per criterion, before acting on a criterion's pass rate.
 
 ---
 

@@ -1,0 +1,184 @@
+{
+ "audience": "student",
+ "meta": {
+  "title": "Beaks as tools",
+  "course": "Grade 4 Science",
+  "grade": "4",
+  "day": "Animal structures",
+  "period": "45 minutes",
+  "name_line": true,
+  "vocab": [
+   "structure",
+   "function",
+   "evidence"
+  ]
+ },
+ "objective": "I can use evidence from a test to explain how the shape of a beak helps a bird get its food.",
+ "standard": "4-LS1-1: plant and animal structures support survival",
+ "sections": [
+  {
+   "type": "heading",
+   "text": "Do Now",
+   "minutes": 4
+  },
+  {
+   "type": "question",
+   "number": "1",
+   "prompt": "Draw a bird eating its food. Label the beak. Write what the beak is doing.",
+   "space": {
+    "kind": "box",
+    "height_in": 2.4,
+    "label": "Draw it"
+   }
+  },
+  {
+   "type": "heading",
+   "text": "Two birds, two beaks",
+   "minutes": 5
+  },
+  {
+   "type": "note",
+   "label": "Key words",
+   "text": "A **structure** is a part of a living thing, like a beak or a wing. Its **function** is the job that part does."
+  },
+  {
+   "type": "text",
+   "text": "A hummingbird and a finch both eat every day. Their beaks look nothing alike. Why?"
+  },
+  {
+   "type": "heading",
+   "text": "Test the tools",
+   "minutes": 12
+  },
+  {
+   "type": "list",
+   "label": "How to test",
+   "ordered": true,
+   "items": [
+    "Hold one tool in one hand. Keep the other hand behind your back.",
+    "Your partner says go and counts 20 seconds.",
+    "Move as much food as you can to the empty cup.",
+    "Count it. Write the number. Switch jobs."
+   ]
+  },
+  {
+   "type": "question",
+   "number": "2",
+   "prompt": "Predict first: which tool will be best at catching the fish? Circle one. Then test every tool on every food and write how many you moved.",
+   "choices": [
+    "Tweezers",
+    "Clothespin",
+    "Spoon"
+   ],
+   "example": "Tweezers, seeds: 7",
+   "space": {
+    "kind": "none"
+   }
+  },
+  {
+   "type": "fill_table",
+   "headers": [
+    "Tool",
+    "Seeds (on a plate)",
+    "Worms (in a tall cup)",
+    "Fish (floating in water)"
+   ],
+   "rows": [
+    [
+     "Tweezers",
+     "",
+     "",
+     ""
+    ],
+    [
+     "Clothespin",
+     "",
+     "",
+     ""
+    ],
+    [
+     "Spoon",
+     "",
+     "",
+     ""
+    ]
+   ],
+   "row_height_in": 0.5
+  },
+  {
+   "type": "heading",
+   "text": "Make sense of it",
+   "minutes": 8
+  },
+  {
+   "type": "question",
+   "number": "3",
+   "prompt": "Talk with your partner. Which tool was best for each food? What about its shape made it best? Write what you decided.",
+   "stems": [
+    "The ______ was best for ______ because its shape ______."
+   ],
+   "space": {
+    "kind": "lines",
+    "count": 3
+   }
+  },
+  {
+   "type": "heading",
+   "text": "Name it and draw it again",
+   "minutes": 8
+  },
+  {
+   "type": "text",
+   "text": "A heron stands in shallow water. It eats worms and fish from the mud."
+  },
+  {
+   "type": "question",
+   "number": "4",
+   "prompt": "Draw it again: the heron's beak catching a worm. Show how, not only what. Use arrows to show what the beak does.",
+   "space": {
+    "kind": "box",
+    "height_in": 2.6,
+    "label": "Draw it again"
+   }
+  },
+  {
+   "type": "heading",
+   "text": "Closing",
+   "minutes": 6
+  },
+  {
+   "type": "note",
+   "label": "Key word",
+   "text": "**Evidence** is what you saw or counted in the test."
+  },
+  {
+   "type": "question",
+   "number": "5",
+   "prompt": "Explain how a beak's shape helps a bird get its food. Use a number from your test.",
+   "space": {
+    "kind": "none"
+   }
+  },
+  {
+   "type": "organizer",
+   "kind": "cer",
+   "stems": {
+    "claim": "A beak's shape helps a bird ______.",
+    "evidence": "In our test, the ______ moved ______ ______ in 20 seconds.",
+    "reasoning": "The beak's structure fits its function because ______."
+   }
+  },
+  {
+   "type": "question",
+   "number": "6",
+   "prompt": "Which part was hardest? What made it hard?",
+   "space": {
+    "kind": "lines",
+    "count": 2
+   },
+   "stems": [
+    "The hardest part was ______ because ______."
+   ]
+  }
+ ]
+}

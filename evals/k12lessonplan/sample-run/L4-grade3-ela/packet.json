@@ -1,0 +1,191 @@
+{
+ "audience": "student",
+ "meta": {
+  "title": "What does the fable teach?",
+  "course": "Grade 3 Reading",
+  "grade": "3",
+  "day": "Fables",
+  "period": "50 minutes",
+  "name_line": true,
+  "languages": [
+   "ar"
+  ],
+  "vocab": [
+   "fable",
+   "moral",
+   "key detail"
+  ]
+ },
+ "objective": "I can find the moral of a fable and explain it with key details from the story.",
+ "standard": "RL.3.2 — find a fable's moral and show it with key details",
+ "sections": [
+  {
+   "type": "heading",
+   "text": "Do Now",
+   "minutes": 5,
+   "ar": "لنبدأ"
+  },
+  {
+   "type": "question",
+   "number": "1",
+   "prompt": "Think of a story that taught you a lesson. What was the story? What was the lesson?",
+   "ar": "فكّر في قصة علّمتك درسًا. ما القصة؟ ما الدرس؟",
+   "stems": [
+    "The story was ______.",
+    "It taught me ______."
+   ],
+   "space": {
+    "kind": "lines",
+    "count": 3
+   }
+  },
+  {
+   "type": "heading",
+   "text": "Read",
+   "minutes": 15,
+   "ar": "نقرأ"
+  },
+  {
+   "type": "note",
+   "label": "Key words",
+   "text": "A **fable** is a short story that teaches a lesson. The animals or things in it act like people. A **key detail** is a part of the story that helps you find the lesson.",
+   "ar": "الحكاية قصة قصيرة تعلّمنا درسًا. التفصيل المهم يساعدك على إيجاد الدرس."
+  },
+  {
+   "type": "text",
+   "text": "Listen first. Then read it again with your finger under the words.",
+   "ar": "استمع أولًا. ثم اقرأ مرة ثانية وإصبعك تحت الكلمات."
+  },
+  {
+   "type": "labeled",
+   "label": "The Wind and the Sun",
+   "text": "retold from Aesop"
+  },
+  {
+   "type": "labeled",
+   "label": "1",
+   "text": "The Wind and the Sun had an argument. \"I am stronger than you,\" said the Wind. \"Let's find out,\" said the Sun."
+  },
+  {
+   "type": "labeled",
+   "label": "2",
+   "text": "Far below, a man was walking down a road in a long, warm coat. \"Whoever can get that coat off him is the stronger one,\" said the Sun. \"You go first.\""
+  },
+  {
+   "type": "labeled",
+   "label": "3",
+   "text": "The Wind blew a cold blast. The man pulled his coat closer. The Wind blew harder and harder. Leaves flew off the trees. The man held his coat shut with both hands and bent his head down. At last the Wind gave up."
+  },
+  {
+   "type": "labeled",
+   "label": "4",
+   "text": "Then it was the Sun's turn. The Sun did not push or roar. It came out from behind a cloud and shone, warm and bright. The man stopped. He opened his coat. The Sun kept shining, gently. Soon the man was so warm that he took off his coat and sat down to rest under a tree."
+  },
+  {
+   "type": "question",
+   "number": "2",
+   "prompt": "Reread paragraphs 3 and 4. Fill in the chart. Write what each one did, and what the man did.",
+   "ar": "اقرأ الفقرتين 3 و4 مرة أخرى. املأ الجدول.",
+   "space": {
+    "kind": "none"
+   }
+  },
+  {
+   "type": "organizer",
+   "kind": "tchart",
+   "label": "Paragraph 3 and paragraph 4",
+   "columns": [
+    "The Wind",
+    "The Sun"
+   ],
+   "rows": 3
+  },
+  {
+   "type": "heading",
+   "text": "Write first, then talk",
+   "minutes": 10,
+   "ar": "اكتب أولًا، ثم تحدّث"
+  },
+  {
+   "type": "note",
+   "label": "Key word",
+   "text": "The **moral** is the lesson a fable teaches. It is a lesson for people, not only for the Wind and the Sun.",
+   "ar": "العبرة هي الدرس الذي تعلّمه الحكاية للناس."
+  },
+  {
+   "type": "question",
+   "number": "3",
+   "prompt": "What is the moral of this fable? Write it as a lesson for people. Then read it to your partner.",
+   "ar": "ما العبرة من هذه الحكاية؟ اكتبها كدرس للناس، ثم اقرأها لزميلك.",
+   "stems": [
+    "The moral is ______."
+   ],
+   "space": {
+    "kind": "lines",
+    "count": 2
+   }
+  },
+  {
+   "type": "heading",
+   "text": "Discuss",
+   "minutes": 10,
+   "ar": "نناقش"
+  },
+  {
+   "type": "text",
+   "text": "Sam says the moral is: \"The Sun is stronger than the Wind.\""
+  },
+  {
+   "type": "question",
+   "number": "4",
+   "prompt": "Do you agree with Sam? Use a key detail to explain. Write first, then talk.",
+   "ar": "هل توافق سام؟ اشرح بتفصيل مهم. اكتب أولًا، ثم تحدّث.",
+   "stems": [
+    "I agree / disagree with Sam because ______.",
+    "In paragraph ___, ______."
+   ],
+   "space": {
+    "kind": "lines",
+    "count": 4
+   }
+  },
+  {
+   "type": "heading",
+   "text": "Closing",
+   "minutes": 8,
+   "ar": "الختام"
+  },
+  {
+   "type": "labeled",
+   "label": "The Crow and the Water Jug",
+   "text": "A thirsty crow found a jug with a little water at the bottom. Her beak could not reach it. She dropped in one pebble. Then another, and another. Little by little, the water rose, until at last she could drink."
+  },
+  {
+   "type": "question",
+   "number": "5",
+   "prompt": "What is the moral of this fable? Use one key detail to explain how the story shows it.",
+   "ar": "ما العبرة من هذه الحكاية؟ اشرح بتفصيل مهم واحد.",
+   "stems": [
+    "The moral is ______.",
+    "The story shows it when ______."
+   ],
+   "space": {
+    "kind": "lines",
+    "count": 4
+   }
+  },
+  {
+   "type": "question",
+   "number": "6",
+   "prompt": "Which part was hardest? What made it hard?",
+   "ar": "أي جزء كان الأصعب؟ لماذا؟",
+   "space": {
+    "kind": "lines",
+    "count": 2
+   },
+   "stems": [
+    "The hardest part was ______ because ______."
+   ]
+  }
+ ]
+}

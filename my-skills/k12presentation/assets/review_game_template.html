@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Review Game</title>
+<!--
+  Review game — a Jeopardy-style board for the projector.
+
+  Generalized from the Readiness Jeopardy board built for Science 1.6. Everything a
+  lesson changes lives in the GAME object in the script at the bottom: the title, the
+  categories, and each clue's question, its home-language lines, and the reveal. The
+  board, the scoring, and the keyboard controls are already wired; do not rebuild them.
+
+  The reveal is a short explanation, not just an answer: one or two sentences a student
+  could repeat to a partner. Every clue carries a line in each of the room's languages
+  (GAME.languages), under the question, abbreviated the same way the packet is.
+-->
+<style>
+  :root{
+    --bg:#F5F7FA; --surface:#FFFFFF; --ink:#1B1F24; --muted:#5B6472; --rule:#DDE1E7;
+    --accent:#6B54A8; --peach:#B75B48;
+    --board:#2E2A26; --tile:#3B352E; --tile-line:#4E463C; --tile-hover:#473F35;
+    --value:#EFCF8A; --done-tile:#332F2A; --es:#C9CDD3;
+    --serif:"Fraunces","Iowan Old Style","Palatino Linotype",Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1C1A18; --surface:#26221F; --ink:#F3F1EE; --muted:#B7B0A6; --rule:#3A342E;
+      --accent:#C6B3EE; --peach:#F4A99A;
+      --board:#141210; --tile:#242019; --tile-line:#3A342A; --tile-hover:#332D24;
+      --value:#F0D48F; --done-tile:#1c1916;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1C1A18; --surface:#26221F; --ink:#F3F1EE; --muted:#B7B0A6; --rule:#3A342E;
+    --accent:#C6B3EE; --peach:#F4A99A;
+    --board:#141210; --tile:#242019; --tile-line:#3A342A; --tile-hover:#332D24;
+    --value:#F0D48F; --done-tile:#1c1916;
+  }
+  /* The board is a projector page: it fills one screen and never scrolls. The old
+     board sized every tile by width (aspect-ratio 4/3), so a two-category board was
+     three tiles of 417px each and ran a thousand pixels past a laptop screen. Now the
+     page is one screen-high column, the board takes the height that is left and shares
+     it between its rows, and type is sized in --u: the smaller of the width and the
+     height of a 16:9 frame, as in the slide deck. */
+  :root{--u:min(1vw, 1.7778vh)}
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);margin:0}
+  .wrap{max-width:1500px;height:100vh;margin:0 auto;padding:2.2vh 2.4vw 1.8vh;display:flex;flex-direction:column}
+  .top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:1.6vh;flex:0 0 auto}
+  .eyebrow{font-size:clamp(11px,calc(1.05*var(--u)),15px);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  h1{font-family:var(--serif);font-weight:700;font-size:clamp(22px,calc(3*var(--u)),42px);margin:.15em 0 0;text-wrap:balance}
+  .sub{color:var(--muted);font-size:clamp(13px,calc(1.3*var(--u)),18px);margin-top:.3em;max-width:64ch}
+  .reset{font:inherit;font-size:13px;background:none;border:1px solid var(--rule);color:var(--muted);
+    padding:.55em 1em;cursor:pointer;border-radius:3px}
+  .reset:hover{color:var(--peach);border-color:var(--peach)}
+
+  .scores{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1.8vh;flex:0 0 auto}
+  .team{background:var(--surface);border:1px solid var(--rule);padding:10px 14px;display:flex;
+    align-items:center;gap:10px;border-radius:4px;min-width:160px}
+  .team input.name{font:inherit;font-weight:600;border:0;background:none;color:var(--ink);width:6.5em;padding:0;font-size:14px}
+  .team input.name:focus{outline:none;border-bottom:1px solid var(--accent)}
+  .team .score{font-family:var(--serif);font-weight:700;font-size:clamp(20px,calc(2.2*var(--u)),32px);min-width:2.2ch;text-align:center;
+    font-variant-numeric:tabular-nums}
+  .team button{font:inherit;font-size:15px;line-height:1;width:1.8em;height:1.8em;border-radius:50%;
+    border:1px solid var(--rule);background:var(--surface);color:var(--muted);cursor:pointer}
+  .team button:hover{color:var(--accent);border-color:var(--accent)}
+  .team .rm{margin-left:2px;font-size:12px;color:var(--rule);border:0;background:none;cursor:pointer;width:auto}
+  .team .rm:hover{color:var(--peach)}
+  .addteam{font:inherit;font-size:13px;background:none;border:1px dashed var(--rule);color:var(--muted);
+    padding:0 14px;cursor:pointer;border-radius:4px;min-height:44px}
+  .addteam:hover{color:var(--accent);border-color:var(--accent)}
+
+  .board{background:var(--board);padding:clamp(6px,1.1vh,14px);border-radius:6px;display:grid;
+    grid-template-columns:repeat(var(--cols,6),1fr);grid-template-rows:auto repeat(var(--rows,3),minmax(0,1fr));
+    gap:clamp(4px,.9vh,10px);flex:1 1 auto;min-height:0}
+  .cat{font-family:var(--serif);font-weight:600;color:#fff;font-size:clamp(13px,calc(1.7*var(--u)),26px);
+    line-height:1.2;text-align:center;padding:.5em .3em;display:flex;
+    align-items:center;justify-content:center}
+  .tile{background:var(--tile);border:1px solid var(--tile-line);color:var(--value);
+    font-family:var(--serif);font-weight:700;font-size:clamp(20px,calc(3.6*var(--u)),56px);
+    padding:0;min-height:0;cursor:pointer;border-radius:3px;
+    display:flex;align-items:center;justify-content:center;transition:background .15s}
+  .tile:hover{background:var(--tile-hover)}
+  .tile.done{background:var(--done-tile);color:var(--tile-line);cursor:default;pointer-events:none}
+  .tile:focus-visible{outline:2px solid var(--value);outline-offset:2px}
+  @media (max-width:720px){
+    .board{gap:4px;padding:8px}
+    .cat{font-size:11px;padding:4px 2px}
+    .tile{font-size:16px}
+  }
+  /* the teacher's note is for the laptop, not the wall: on a short screen the board gets its room */
+  @media (max-height:700px){ footer.note{display:none} }
+
+  .curtain{position:fixed;inset:0;background:var(--board);display:none;flex-direction:column;
+    align-items:center;justify-content:safe center;padding:6vh 6vw;z-index:50;text-align:center;overflow-y:auto}
+  .curtain.show{display:flex}
+  .curtain .meta{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--value);
+    font-weight:600;margin-bottom:2.4vh}
+  .curtain .clue{font-family:var(--serif);font-weight:600;color:#fff;font-size:clamp(22px,calc(3.8*var(--u)),56px);
+    line-height:1.3;max-width:48ch;text-wrap:balance}
+  .curtain .es{color:var(--es);font-size:clamp(16px,calc(2.1*var(--u)),30px);line-height:1.4;max-width:52ch;margin-top:1.6vh}
+  .curtain .es[dir=rtl]{direction:rtl}
+  .curtain .answer{font-family:var(--serif);font-weight:500;color:var(--value);
+    font-size:clamp(18px,calc(2.5*var(--u)),34px);line-height:1.45;max-width:52ch;margin-top:3.4vh;
+    padding-top:3.2vh;border-top:1px solid var(--tile-line);opacity:0;transition:opacity .3s}
+  .curtain .answer.on{opacity:1}
+  .curtain .row{display:flex;gap:12px;margin-top:5vh;flex-wrap:wrap;justify-content:center}
+  .curtain button{font:inherit;font-size:14px;letter-spacing:.03em;background:none;
+    border:1px solid var(--tile-line);color:#fff;padding:.7em 1.3em;cursor:pointer;border-radius:4px}
+  .curtain button:hover{border-color:var(--value);color:var(--value)}
+  .curtain button.primary{background:var(--value);color:#3A2A0E;border-color:var(--value);font-weight:600}
+  .curtain .hint{position:absolute;bottom:3.5vh;left:0;right:0;color:var(--tile-line);font-size:12px;
+    letter-spacing:.08em;text-transform:uppercase}
+  footer.note{margin-top:1.4vh;color:var(--muted);font-size:12.5px;line-height:1.5;max-width:80ch;flex:0 0 auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <div class="eyebrow" id="eyebrow"></div>
+      <h1 id="title"></h1>
+      <p class="sub" id="sub"></p>
+    </div>
+    <button class="reset" id="resetBtn">Reset board</button>
+  </div>
+  <div class="scores" id="scores"></div>
+  <div class="board" id="board"></div>
+  <footer class="note">Click a value to open the question full-screen. Read it out loud, give partners
+  think time, take a guess, then reveal (space, or → on a clicker). The reveal is a short explanation,
+  not just an answer. Award the points to a team; a used tile dims so you can see what's left.</footer>
+</div>
+
+<div class="curtain" id="curtain" role="dialog" aria-modal="true">
+  <div class="meta" id="curMeta"></div>
+  <div class="clue" id="curClue"></div>
+  <div id="curLines"></div>
+  <div class="answer" id="curAnswer"></div>
+  <div class="row" id="curRow"></div>
+  <div class="hint">space or → reveals · → again or esc closes</div>
+</div>
+
+<script>
+/* ============================ fill this in ============================ */
+var GAME = {
+  eyebrow: "Science 1.6 · Vote and get ready",          // lesson code · lesson title
+  title: "Readiness Jeopardy",
+  sub: "Every question is a fair guess. You don't need to know the answer already.",
+  languages: ["es"],                                    // same as the packet's meta.languages
+  values: [100, 200, 300],                              // one row per value
+  categories: [                                         // 2 to 6; each has one clue per value
+    { name: "Reservoir", clues: [
+      { q: "Would you hold water for days in a cardboard box, a plastic tank, or a paper bag?",
+        es: "¿Qué usarías para guardar agua: caja, tanque de plástico o bolsa?",
+        a: "A plastic tank. Cardboard and paper fall apart once they get wet." },
+      { q: "Should a reservoir have a lid, or stay open to the air?",
+        es: "¿El tanque debe tener tapa?",
+        a: "A lid. Sunlight on open water grows algae, and an open tank collects dirt." },
+      { q: "True or false: the reservoir has to be the same size as the whole frame.",
+        es: "¿Verdadero o falso: el tanque tiene que ser del tamaño del marco?",
+        a: "False. It only has to hold enough water to last a few days." }
+    ]},
+    { name: "Pump", clues: [
+      { q: "A pump runs all day. What does it need a steady supply of?",
+        es: "¿Qué necesita la bomba todo el día?",
+        a: "Electricity. If the power cuts out, the water stops and the roots dry out." },
+      { q: "Strong enough to reach the top, or the cheapest one available?",
+        es: "¿Una bomba fuerte o la más barata?",
+        a: "Strong enough to reach the top. A weak pump never gets water to the highest plants." },
+      { q: "The pump sits underwater the whole time. Design flaw, or on purpose?",
+        es: "La bomba está bajo el agua. ¿Error o a propósito?",
+        a: "On purpose. A submersible pump is built for it, and the water keeps the motor cool." }
+    ]}
+  ]
+};
+/* ====================================================================== */
+
+(function(){
+  var RTL = {ar:1, fa:1, ur:1, he:1, ps:1, prs:1};
+  var $ = function(id){ return document.getElementById(id); };
+  var boardEl = $('board'), scoresEl = $('scores'), curtain = $('curtain');
+  var teams = [ {name:'Team 1', score:0}, {name:'Team 2', score:0} ];
+  var done = {}, active = null;
+
+  document.title = GAME.title;
+  $('eyebrow').textContent = GAME.eyebrow || '';
+  $('title').textContent = GAME.title;
+  $('sub').textContent = GAME.sub || '';
+  boardEl.style.setProperty('--cols', GAME.categories.length);
+  boardEl.style.setProperty('--rows', GAME.values.length);
+
+  function paintScores(){
+    scoresEl.innerHTML = '';
+    teams.forEach(function(t, i){
+      var row = document.createElement('div'); row.className = 'team';
+      var input = document.createElement('input'); input.className = 'name'; input.value = t.name;
+      input.setAttribute('aria-label', 'Team name');
+      input.addEventListener('input', function(){ t.name = input.value; });
+      var step = GAME.values[0];
+      var minus = document.createElement('button'); minus.textContent = '−';
+      minus.setAttribute('aria-label', 'Subtract ' + step);
+      minus.addEventListener('click', function(){ t.score -= step; paintScores(); });
+      var score = document.createElement('div'); score.className = 'score'; score.textContent = t.score;
+      var plus = document.createElement('button'); plus.textContent = '+';
+      plus.setAttribute('aria-label', 'Add ' + step);
+      plus.addEventListener('click', function(){ t.score += step; paintScores(); });
+      var rm = document.createElement('button'); rm.className = 'rm'; rm.textContent = '✕';
+      rm.title = 'Remove team';
+      rm.addEventListener('click', function(){ teams.splice(i, 1); paintScores(); });
+      [input, minus, score, plus, rm].forEach(function(el){ row.appendChild(el); });
+      scoresEl.appendChild(row);
+    });
+    var add = document.createElement('button'); add.className = 'addteam'; add.textContent = '+ Add team';
+    add.addEventListener('click', function(){ teams.push({name:'Team ' + (teams.length + 1), score:0}); paintScores(); });
+    scoresEl.appendChild(add);
+  }
+
+  function paintBoard(){
+    boardEl.innerHTML = '';
+    GAME.categories.forEach(function(c){
+      var h = document.createElement('div'); h.className = 'cat'; h.textContent = c.name;
+      boardEl.appendChild(h);
+    });
+    GAME.values.forEach(function(v, vi){
+      GAME.categories.forEach(function(c, ci){
+        var key = ci + '-' + vi;
+        var b = document.createElement('button'); b.className = 'tile';
+        if (done[key] || !c.clues[vi]){ b.classList.add('done'); b.disabled = true; }
+        else { b.textContent = '$' + v; }
+        b.addEventListener('click', function(){ open(ci, vi); });
+        boardEl.appendChild(b);
+      });
+    });
+  }
+
+  function open(ci, vi){
+    active = [ci, vi];
+    var c = GAME.categories[ci], clue = c.clues[vi];
+    $('curMeta').textContent = c.name + ' · $' + GAME.values[vi];
+    $('curClue').textContent = clue.q;
+    var lines = $('curLines'); lines.innerHTML = '';
+    (GAME.languages || ['es']).forEach(function(code){
+      if (!clue[code]) return;
+      var p = document.createElement('p'); p.className = 'es'; p.lang = code;
+      if (RTL[code]) p.dir = 'rtl';
+      p.textContent = clue[code]; lines.appendChild(p);
+    });
+    $('curAnswer').textContent = clue.a;
+    $('curAnswer').classList.remove('on');
+    buildRow(false);
+    curtain.classList.add('show');
+  }
+
+  function reveal(){ $('curAnswer').classList.add('on'); buildRow(true); }
+
+  function buildRow(revealed){
+    var row = $('curRow'); row.innerHTML = '';
+    function btn(label, fn, primary){
+      var b = document.createElement('button'); b.textContent = label;
+      if (primary) b.className = 'primary';
+      b.addEventListener('click', fn); row.appendChild(b);
+    }
+    if (!revealed){
+      btn('Reveal explanation', reveal, true);
+      btn('Close, no points', close);
+    } else {
+      teams.forEach(function(t){
+        btn('Award ' + t.name, function(){ t.score += GAME.values[active[1]]; paintScores(); close(); });
+      });
+      btn('Close', close);
+    }
+  }
+
+  function close(){
+    if (active) done[active[0] + '-' + active[1]] = true;
+    active = null;
+    curtain.classList.remove('show');
+    paintBoard();
+  }
+
+  // A presentation clicker sends only → and ←: → reveals the open clue, then closes it
+  // with no points (award points with the mouse). Space reveals, Esc closes.
+  document.addEventListener('keydown', function(e){
+    if (!curtain.classList.contains('show')) return;
+    var shown = $('curAnswer').classList.contains('on');
+    if (e.key === 'Escape') close();
+    if (e.key === ' '){ e.preventDefault(); if (!shown) reveal(); }
+    if (e.key === 'ArrowRight' || e.key === 'PageDown'){ e.preventDefault(); if (!shown) reveal(); else close(); }
+  });
+  $('resetBtn').addEventListener('click', function(){
+    done = {}; teams.forEach(function(t){ t.score = 0; }); paintScores(); paintBoard();
+  });
+
+  paintScores();
+  paintBoard();
+})();
+</script>
+</body>
+</html>

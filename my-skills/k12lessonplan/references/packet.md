@@ -1,0 +1,293 @@
+# The student packet
+
+Read before writing `packet.json`. The renderer handles layout; these are the content rules.
+
+## What earns a spot on the page
+
+A packet holds the **essential questions only** — the ones that make a student think about the
+objective. Everything else is busywork, and busywork is expensive here: it eats the minutes a
+struggling reader needs for the questions that matter, and it teaches students that the packet is
+something to survive rather than something to use.
+
+Cut anything that is:
+
+- a definition they can copy without understanding it,
+- the same skill practiced a fifth time when three showed mastery,
+- a "warm-up" that isn't the do-now,
+- a question whose answer is already printed above it,
+- a graphic organizer nobody will look at again.
+
+**Length caps.** About one task per seven minutes of the period: 5 to 8 tasks for an hour, 2-3
+pages; 8 to 12 for a 90-minute block, 3-4 pages; fewer for younger students, who write more slowly
+and need more room. If the content won't fit, the lesson is too big for the period: say so during
+the talk-through rather than shrinking the write space.
+
+Language lines (below) cost about a line each per language, roughly a third of a page on a full
+8-task packet with one language. The caps do not move to make room for them. When a packet is
+running over, the space comes from cutting a task, never from shrinking the write space or
+dropping the lines.
+
+## Room to write
+
+Undersized answer space tells a student their thinking doesn't fit. Size the space to the answer
+you actually want:
+
+| Answer | Space |
+|---|---|
+| A number, a word, a circle | `{"kind": "lines", "count": 1}` |
+| One sentence | `{"kind": "lines", "count": 2}` |
+| Two to three sentences | `{"kind": "lines", "count": 4}` |
+| Math work | `{"kind": "box", "height_in": 1.6, "label": "Show your work"}` |
+| A drawing, a diagram, a model | `{"kind": "box", "height_in": 2.6, "label": "Draw it"}` |
+| Answered in a table or on the board | `{"kind": "none"}` |
+
+Writing lines are set at 30-point pitch — big-handwriting friendly. Don't shrink them.
+
+**Compute, then explain: a box, not lines.** A task that asks for a test, a calculation, or a
+drawing *and* a sentence about it gets the box; its stems print above the box, and the student
+writes the sentence inside it under the work. Ruled lines under a calculation tell a student to
+write words where they need room to work.
+
+**Sentence starters sit on the writing line.** A question's `stems` print on its first lines, with
+gaps on the rule where the words go and a trailing blank left as the rest of the line, so the
+student starts writing where the sentence starts. `count` is the total number of lines, the
+starters' own lines included: one starter and one sentence of answer is `count: 2`.
+
+**Circle one** is `"choices": ["not yet", "almost", "ready to go"]` on the question, not a list
+inside the prompt. The options print on their own line, spaced wide enough to circle.
+
+**Graphic organizers** are an `organizer` block, chosen by the thinking the task asks for
+(`references/design_criteria.md` has the table):
+
+```json
+{"type": "organizer", "kind": "tchart", "label": "Tank vs. garden", "columns": ["Our tank", "The garden"], "rows": 4, "es": "Compara."}
+{"type": "organizer", "kind": "notice_wonder", "label": "Look at the frame", "rows": 3}
+{"type": "organizer", "kind": "flow", "label": "Where the water goes", "steps": ["Tote", "", "", "Channels"]}
+{"type": "organizer", "kind": "cer", "stems": {"claim": "The top gets ______ water."}}
+{"type": "organizer", "kind": "frayer", "word": "impeller"}
+```
+
+**Page budget.** Two pages for a 60-minute lesson, even page counts, every page three-quarters
+full. `scripts/check_packet.py` measures it; the order for fixing it is in
+`references/design_criteria.md`.
+
+## Every packet also carries
+
+- **One reflection prompt**, usually under the closing: "Which part was hardest? What made it
+  hard?" with two lines and its stem on the first, `The hardest part was ______ because ______.`
+  It is the one place a student writes about their own thinking, and the stem is what gets a
+  student who has never been asked that question started.
+- **On a science day:** a "Draw it" box for the first model before the investigation, a second
+  "Draw it again. Show how, not only what." box beside or below it for the revised model, and a
+  closing claim-evidence-reasoning with three stems (claim, evidence from today's investigation,
+  reasoning using the crosscutting concept). See `references/lesson_design.md`, "Science days".
+- **Talk prompts** where a talk move happens during work on the page: the question and the stem
+  the pair uses, with one line to write what they decided. Talk that leaves no trace on paper is
+  easy to skip.
+
+## Hints, examples, stems
+
+Every question that could stall a student carries **one** support, chosen for what's actually hard
+about it:
+
+- `"example"` — a worked first item. Use when the format is the obstacle ("2.67 × 6 = 16.02").
+- `"hint"` — the move, not the answer ("Multiply the acres for one person by 6").
+- `"stems"` — for composed sentences, always, on that task.
+
+A question with all three is over-supported and the page starts to look like a wall. Pick the one
+that unlocks it.
+
+## Language lines
+
+When `meta.languages` lists the class's home languages, every question a student answers and every
+direction they have to follow carries **one short line in each**, in a field named by the
+language's code (`"es"`, `"vi"`, `"zh"` …), rendered directly under the English. With no
+`meta.languages`, there are no lines. The example below is Spanish; every language works the same
+way.
+
+It is support, not translation. The line carries **the task and nothing else**: what to do, what
+is being asked, the numbers involved. The framing, the context sentence, the worked example, the
+scaffold: all of that stays in English, where the student is already getting it from the slide, the
+photograph, and you.
+
+```json
+{
+  "type": "question",
+  "number": "3",
+  "prompt": "Your diet has to feed **6 people for one year**. How many acres does that take?",
+  "es": "Tu dieta alimenta a 6 personas por un año. ¿Cuántos acres necesitas?",
+  "hint": "Multiply the acres for one person by 6.",
+  "space": { "kind": "box", "height_in": 1.6, "label": "Show your work" }
+}
+```
+
+**What takes a line:** `question` (the prompt), `text`, `labeled`, `note`, `list` / `steps` (one
+line summarizing the direction, never one per item), `heading`, `wordbank`.
+
+**What deliberately does not:** `hint`, `example`, `stems`, `parts`, and table headers. Those are
+the exclusions that keep this abbreviated, and they are load-bearing: translating the hints and
+the stems doubles the page, and a page that has doubled is a page a struggling reader stops reading.
+A student who needs the line needs it to know *what is being asked*; the support around the
+question is already the shortest thing on the page.
+
+**Length.** Shorter than the English, or the framing got translated too. This is also why the
+exclusions matter to the page and not only to the reader: one line per task is a third of a page,
+and translating the hints and stems as well would be a page and a half. The renderer reports any
+line that ran more than about 20% over (most languages run a little longer than English, so only
+a real overshoot is worth reporting), and when it does, cut back to the task. Languages written
+without spaces between words (Chinese, Japanese, Thai) are left to your judgment.
+
+**Register.** Plain everyday language, the familiar imperative where the language has one
+(Spanish *escribe*, *mira*, *explica*, not academic register or *usted*). Keep the technical term in
+English with the translation beside it when the cognate isn't obvious (*yield (rendimiento)*),
+because the term on the board, in the word bank, and on the slide is the English one and a student
+has to be able to match them. Right-to-left languages (`ar`, `fa`, `ur`, `he`) print right-aligned
+on their own.
+
+The renderer prints a note on any student packet question missing a line in a listed language.
+Read those notes; they are the only thing that checks this.
+
+Each line is marked in the Word file with its language, so read-aloud on a student's device
+speaks it in the right voice rather than an English one, and the presentation skill, reading the
+packet back in a later conversation, knows which line belongs to which language.
+
+## Page breaks
+
+**A prompt is never apart from its answer space.** The renderer prints each task as one piece:
+the heading and lead-ins above it (a direction, a note, a word bank, the table it reads from), the
+question, its language line, hint and starters, and everything it is answered in after it (lines,
+a starter block, a box, a `fill_table`, an organizer). Google Docs never splits that piece unless
+it is taller than a page, and `check_packet.py` tags every task and errors on any that breaks
+across a page here or would be too tall to stay whole in Docs. A task that tall becomes two tasks;
+it is never left to break. So put the answer blocks straight after their question, in order, and
+the table a question reads from straight above it.
+
+What the renderer can't decide for you is where a *section* should start fresh. Insert
+`{"type": "page_break"}` when a new phase begins and the previous one ended near the bottom, or
+when students will be working on one page while looking at a slide about another. Keep a table and
+the question that feeds it on the same page — put the break before the pair, never between them.
+
+A tall group — a question with an example, a hint, and a 2-inch work box — moves to the next page
+whole rather than splitting, which can leave the bottom of a page open. That trade is correct, but
+you can usually fill it: put the phase's short directions, its word bank, or a reference table
+*after* the break instead of before it, so the short blocks land in the gap.
+
+Render the packet before delivering and run `check_packet.py`: it proves every task printed whole
+and the packet fits its pages. Then look at the page image once for what it can't judge.
+
+## Tiering on one page
+
+Everyone gets the same packet. Push and support inside the task:
+
+- `"parts"` splits a question into (a) everyone and (b) go further. Word part (b) as a real
+  extension ("Now find how many fields the whole class would need"), never as "challenge for fast
+  finishers."
+- A `wordbank` block sits directly above the question that needs it.
+- A `note` block carries a reminder in the student's language ("Acres are a way to measure land.
+  One acre is about one football field minus the end zones.").
+- `"core": false` on a question marks it as one the reduced packet leaves out (below).
+
+## Key words
+
+`meta.vocab` lists the lesson's key words, the ones on the deck's word slides, usually three to
+six. Each one prints bold on a yellow highlight **the first time it appears in each section** of
+the student packet, and plain after that, so a student meets it marked at the start of every
+section and the student scanning for it finds it. Once per section, not every time: a page where
+every third word is yellow marks nothing, and highlights on neighbouring lines run into each other
+until a word can't be read. It matches ordinary endings, so `pump` marks *pumps* and *pumped*.
+Word banks list the words in plain bold (the bank is already the list), and language lines are
+left plain. The renderer lists how often each word is used and names any key word the page never
+uses.
+
+The highlight is the one fill on the page, and it is on a word, not on structure: on the grey
+copier it comes out as a pale band behind bold type, which still reads. If copies come out muddy,
+`meta.vocab_style: "bold"` marks the words bold and underlined instead.
+
+## Reading level
+
+The renderer reads the student's English back to you on every render: a grade estimate against
+`meta.reading_level` (from the profile; else the grade in `meta.grade`), every sentence over 20
+words, and the long words that aren't key words. Key words count as easy, because they are being taught. Act on the
+sentences and the words, not the number: split the long sentence, swap *approximately* for
+*about*, and if a long word is really being taught, it belongs in `meta.vocab`.
+
+## The reduced packet
+
+When the teacher asks for it ("the reduced version", "the modified packet", "a version for the
+students on modified assignments"), render the same `packet.json` again with `--reduced`:
+
+```bash
+python3 scripts/render_packet.py packet.json "$OUTPUT_DIR/<name> - packet (reduced).docx" --reduced
+```
+
+It leaves out every question marked `"core": false` with its lead-ins and answer space, keeps
+only part (a) of every question, prints large, and gathers every word bank into **one, on the
+front page** under the "I can": the key words first, then whatever else the full packet banked,
+with its language line. None anywhere else; a bank beside every question is a bank a student stops
+reading. A multi-day packet gets one at the top of each day, since each day is its own handout.
+Question numbers stay the same as the full packet's, so both
+match the slides and the class can work from either. Nothing on the page says "reduced". Mark
+`core` when you write the packet, so this is one command later; check it with
+`check_packet.py ... --max-pages 4`, since large print may need the extra sheet.
+
+## `packet.json` schema
+
+```
+{
+  "audience": "student" | "teacher",
+  "meta":   {"code"?, "title", "course", "grade", "day", "period", "name_line": true,
+             "languages": [], "large_print": false,
+             "vocab": ["reservoir", "pump"], "vocab_style": "highlight", "reading_level"?},
+  "objective": "I can …",
+  "standard":  "CODE — ten-word gist",
+  "agenda":  [["Do Now", 5], ["Model", 12], …],      // prints on the lesson plan only
+  "sections": [ blocks ]
+}
+```
+
+Blocks:
+
+| Block | Fields | Use for |
+|---|---|---|
+| `heading` | `text`, `minutes?` | A phase title on the student page |
+| `phase` | `name`, `minutes` | Same thing on the lesson plan |
+| `question` | `number`, `prompt`, `es?`, `hint?`, `example?`, `stems[]?`, `parts[]?`, `choices[]?`, `space`, `minutes?`, `core?` | Any task a student does |
+| `text` | `text` | A sentence of directions or context |
+| `labeled` | `label`, `text` | A short lead-in plus its line |
+| `list` / `steps` | `label?`, `items[]`, `ordered?` | Directions, procedures, materials |
+| `table` | `headers[]?`, `rows[][]` | Reference data students read |
+| `fill_table` | `headers[]`, `rows[][]?`, `blank_rows?`, `row_height_in?` | An organizer students write into |
+| `note` | `label?`, `text` | A boxed reminder, a watch-for, a teacher note |
+| `wordbank` | `label?`, `items[]` | Vocabulary or numbers a task needs |
+| `organizer` | `kind` (`tchart`, `notice_wonder`, `flow`, `cer`, `frayer`), `label?`, `es?`, and per kind `columns[]`/`rows`, `steps[]`, `stems{}`, `word`, `height_in?` | A graphic organizer matched to the thinking |
+| `stem` | `text` | A standalone sentence frame |
+| `space` | `kind`, `count`/`height_in`/`label` | Write space not attached to a question |
+| `page_break` | — | Force a new page |
+| `day` | `code`, `day`, `period`, `title`, `es?`, `objective?`, `standard?`, `vocab[]?` | Opens one day of a multi-day packet (`references/formats.md`); every day after the first starts a new page with its own name line |
+
+`heading`, `text`, `labeled`, `note`, `list` / `steps` and `wordbank` each take one optional line
+per listed language as well (`"es"`, `"vi"` …), rendered under the block. See "Language lines"
+above.
+
+**`meta` fields worth knowing.** `code` is the lesson code, when the teacher numbers lessons
+("Science 1.7"); it leads the header and the footer, so `course` can usually be left out and `day`
+can carry the unit name ("Hydroponics"). `grade` is the class's grade ("7", "K"); it sets the
+reading-level target when the profile gives no `reading_level`. `languages` lists the home
+languages in print order, and is left out (or empty) when the class has none; each block then takes
+one line per code, `"es"` and `"zh"` side by side, and the renderer reports any question missing
+any of them. Right-to-left languages (`ar`, `fa`, `ur`, `he`) print right-aligned on their own.
+`large_print: true` sets the whole packet about a quarter larger, for the students
+whose plans call for it; it adds pages, so cut a question before it adds more than one.
+
+`**bold**` works inside any text field. Nothing else marks up — no markdown headings, no pipes,
+no emoji.
+
+## There is no lesson-plan document
+
+The renderer builds one file: the student packet. The lesson plan is written into the chat (see
+SKILL.md Step 3), and the answer key goes there with it — not on a page that has to be printed,
+hidden from students, and found again tomorrow.
+
+`"audience": "teacher"` exists in the renderer for something printed for the teacher (a station
+card, an observation grid, a set of corner signs), and for the plan itself when the teacher asks
+for it as a document instead of in chat.

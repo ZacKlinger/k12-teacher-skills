@@ -1,0 +1,96 @@
+# What a good page is made of
+
+These are the output criteria for every packet. They were worked out in the hardest case, a room
+of students reading well below grade level, several with attention, processing, or fine-motor
+supports, some reading English as a new language, and a copier that prints in grey, and they hold
+in every room: what a struggling reader needs costs a strong reader nothing. Each criterion says
+what it protects. `check_packet.py` and the render report measure what can be measured; the rest is
+judgment, and this is what the judgment is for.
+
+## The worksheet
+
+**Printed from Word or Google Docs.** Many teachers print from the Google Doc that "Add to Drive"
+makes, so the page has to survive that conversion as well as Word. Docs ignores Word's keep-together settings and splits tables anywhere; the one
+thing it never splits is a single table row. So the renderer carries every task, with its heading,
+its lines, and the table or organizer that answers it, in one borderless row, and Docs moves it
+whole or not at all. Docs also sets text about a twentieth taller than Word; `check_packet.py`
+estimates the Docs fill of every page and budgets against that, and checks a PDF exported from the
+Google Doc directly when there is one.
+
+**One sheet, both sides.** A 60-minute lesson fits on two pages; a 90-minute block aims for two and
+never takes more than four. Every page is at least three-quarters full, and the page count is even,
+so nothing prints with a blank back. `check_packet.py` measures this; run it every time.
+*Protects:* paper, copier time, and a student's sense that the task is finishable.
+
+**How to get there, in order.**
+1. Take off the page anything a student doesn't act on. A section where students listen belongs on
+   the slides; the packet holds the tasks.
+2. Merge tasks that share rows. A vote and a report-out about the same six parts are one table
+   with two columns, filled at two moments.
+3. Merge questions that share a setup. Two questions about the same build are one question with
+   two sentence starters.
+4. Let a short block fill the gap a tall one leaves: a note, a word bank, or a one-line question
+   placed after the table instead of before it.
+5. Only then cut a question.
+
+**No ink on structure.** Hairlines and rules draw the page; nothing is filled grey. A fill costs
+toner on every copy, prints as mud on a tired copier, and lowers the contrast of the text on it.
+The renderer draws this way; don't ask it for shading.
+
+**Readable at a struggling reader's pace.**
+- Verdana 12, left-aligned, never justified. No italics anywhere: italic costs a striving reader
+  speed, and the students reading the language line have the least to spare.
+- The language line is 11 point in a dark grey, directly under its English. It is support, not
+  fine print.
+- One task per numbered item. A prompt says what to do in one sentence; context, if any, is one
+  sentence before it.
+- Capitals only for short labels (section names, "I CAN", "WORD BANK"), never for sentences.
+- Sentences of twenty words or fewer, and everyday words around the key words. The renderer
+  reports the reading level against the class's (the profile's, else the grade), every long sentence, and
+  every long word that isn't a key word; fix the sentence, not the score.
+- **Key words are marked once, where a section first uses them**: bold on a yellow highlight, so
+  the word a student is learning is the one their eye finds. Once per section and never in a word
+  bank: a page full of yellow marks nothing, and highlights on neighbouring lines run together. It
+  is the one fill on the page, on a word rather than on structure, and it survives the grey copier
+  as a pale band behind bold type.
+
+**Writing space sized to the answer.** Writing lines are 30 points apart, wide enough for a student
+whose plan covers fine-motor needs. A sentence starter is printed on the first writing line itself,
+with gaps on the rule where the words go, so the student starts writing where the sentence starts.
+Count lines by the answer: a word or a number, one line; a sentence, two; an explanation, three.
+A box is for drawing or showing work, never for a sentence.
+
+**Graphic organizers match the thinking.** Pick the organizer from what the task asks the mind to
+do, and use the same one for the same kind of thinking all year, so its shape becomes a cue:
+
+| Thinking | Organizer |
+|---|---|
+| Compare two things | `tchart` |
+| Look closely | `notice_wonder` |
+| Order, process, cause and effect | `flow` |
+| Argue from evidence | `cer` |
+| Own a new word | `frayer` |
+| Record class data | `fill_table` |
+| Choose | `choices` on the question (circle one) |
+
+**A prompt and its answer space are one piece, always.** The question, its starters, its lines,
+and the table or organizer it is answered in print together, and so does the table it reads from.
+No page break ever lands between a prompt and the place a student answers it: a student who has
+to turn the page to find where to write has lost the question by the time they get there.
+`check_packet.py` tags every task and errors on any that breaks across a page or is too tall to
+stay whole in Google Docs; a task that tall is split into two tasks.
+
+**Headings are one line.** Section name, its gloss in the room's language, the minutes flush right.
+*Protects:* about a third of a page across a packet.
+
+## Cost
+
+The packet is built from its content alone: the model writes the packet's JSON and
+`render_packet.py` draws it, and the pages are checked as one image (`check_packet.py --sheet`), not
+page by page.
+
+## The slide
+
+The slide's criteria live with the slideshow skill (`k12presentation`, `references/slide_criteria.md`).
+Two of them depend on the packet: the question on a slide is the packet's wording, and the key
+words are marked on the slides the same way they are on the page.
