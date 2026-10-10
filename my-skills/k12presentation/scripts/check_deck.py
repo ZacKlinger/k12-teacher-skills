@@ -357,7 +357,20 @@ def check_language_access(html: str, sl: list, rep: Report, langs=()) -> None:
         else:
             rep.note(f"{n} '{code}' support line(s).")
 
-    es_next = re.compile(r'\s*<(p|div)\b[^>]*\bclass="[^"]*\bes\b', re.I)
+    next_el = re.compile(r'\s*<(p|div)\b([^>]*)>.*?</\1>', re.S | re.I)
+
+    def under(body: str, pos: int, what: str) -> str | None:
+        """What is missing from the run of language lines straight under `pos`: every
+        class language needs its own line, not just one of them."""
+        found = set()
+        while (el := next_el.match(body, pos)) and "es" in (attr(el.group(2), "class") or "").split():
+            found.add((attr(el.group(2), "lang") or "es").split("-")[0])
+            pos = el.end()
+        lacking = [c for c in langs if c.split("-")[0] not in found]
+        if not lacking:
+            return None
+        return what if not found else f"{what} (missing '{', '.join(lacking)}')"
+
     for i, (a, body) in enumerate(sl, 1):
         title = attr(a, "data-title") or f"slide {i}"
         has_es = bool(ES_CLASS.search(body))
@@ -368,15 +381,19 @@ def check_language_access(html: str, sl: list, rep: Report, langs=()) -> None:
         # headline when it asks something or runs a game, every .instruct, every word cell
         missing = []
         m = re.search(r"<(h1|h2)\b[^>]*>(.*?)</\1>", body, re.S | re.I)
-        if m and ("?" in text_of(m.group(2)) or game) and not es_next.match(body, m.end()):
-            missing.append("the headline")
+        if m and ("?" in text_of(m.group(2)) or game):
+            missing.append(under(body, m.end(), "the headline"))
         for im in re.finditer(r'<p\b[^>]*class="[^"]*\binstruct\b[^"]*"[^>]*>.*?</p>', body, re.S | re.I):
-            if not es_next.match(body, im.end()):
-                missing.append(f"the direction \"{text_of(im.group(0))[:40]}\"")
+            missing.append(under(body, im.end(), f"the direction \"{text_of(im.group(0))[:40]}\""))
         for _, t, start in tags(body):
             c = classes(t)
-            if "vc" in c and "word" in c and not ES_CLASS.search(block(body, start)):
-                missing.append("the word cell")
+            if "vc" in c and "word" in c:
+                cell = block(body, start)
+                lacking = [code for code in langs if not has_line(cell, code)]
+                if lacking:
+                    missing.append("the word cell" if len(lacking) == len(langs)
+                                   else f"the word cell (missing '{', '.join(lacking)}')")
+        missing = [x for x in missing if x]
         if missing:
             rep.warn(f"Slide {i} ({title}): no language line under {', '.join(dict.fromkeys(missing))}. "
                      "Each question and direction carries its own, straight under it.")
