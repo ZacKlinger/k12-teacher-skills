@@ -1,0 +1,4 @@
+interface:
+  display_name: "K-12 Lesson Prep"
+  short_description: "Think through a lesson's key task before teaching"
+  default_prompt: "Use $k12-lesson-prep to help me get ready to teach tomorrow's lesson."

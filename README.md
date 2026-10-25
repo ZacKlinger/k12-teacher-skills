@@ -26,7 +26,11 @@ claude plugin marketplace add ./k12-teacher-skills
 claude plugin install k12-education@k12-teacher-skills
 ```
 
+**In ChatGPT:**
+Build the ChatGPT editions with `python3 chatgpt/build.py` and upload the zips it writes under Skills. See [`chatgpt/README.md`](chatgpt/README.md) for setup and for how the two editions differ.
+
 ## Layout
 
 - `plugin/` - Main skill content bundled as a plugin; also includes teacher-focused 3rd party MCP servers that are available for users to enable
+- `chatgpt/` - ChatGPT editions of the same skills, built from `plugin/` with ChatGPT-specific instructions laid over it
 - `evals/` - Contains our evaluation framework and how to adapt them for your use case

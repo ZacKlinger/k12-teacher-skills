@@ -1,0 +1,4 @@
+interface:
+  display_name: "K-12 Lesson Plan Creation"
+  short_description: "Standards-aligned lessons with student pages"
+  default_prompt: "Use $k12-lesson-plan-creation to build a lesson on dividing fractions for my 5th graders."

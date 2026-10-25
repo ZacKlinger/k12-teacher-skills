@@ -1,0 +1,4 @@
+interface:
+  display_name: "K-12 Check for Understanding"
+  short_description: "Quick math checks built from real student errors"
+  default_prompt: "Use $k12-check-for-understanding to make a quick check on equivalent fractions for my 4th graders."
