@@ -1,0 +1,4 @@
+interface:
+  display_name: "K-12 Lesson Differentiation"
+  short_description: "Tier a lesson for below, at, and above grade level"
+  default_prompt: "Use $k12-lesson-differentiation to tier this lesson for students below, at, and above grade level."
